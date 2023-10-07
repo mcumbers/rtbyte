@@ -28,6 +28,6 @@ export class UserEvent extends Listener {
 			.setFooter({ text: `User ID: ${member.user.id}` })
 			.setType(Events.GuildMemberRemove);
 
-		return embed;
+		return [embed];
 	}
 }
