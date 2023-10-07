@@ -34,7 +34,8 @@ export class UserEvent extends Listener {
 				.addBlankField({ name: '', value: '', inline: true })
 				.addFields({ name: 'Left Server', value: `<t:${Math.round(lastLeave.getTime() as number / 1000)}:R>`, inline: true })
 		}
-		// TODO: Track previous usernames on this guild
+
+		embed.addFields({ name: 'Account Created', value: `<t:${Math.round(member.user.createdTimestamp as number / 1000)}:R>`, inline: false });
 
 		return [embed];
 	}
