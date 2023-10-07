@@ -28,12 +28,15 @@ export class UserEvent extends Listener {
 			.setFooter({ text: `User ID: ${member.user.id}` })
 			.setType(Events.GuildMemberAdd);
 
-		const memberData = await this.container.prisma.member.findFirst({ where: { userID: member.id, guildID: member.guild.id } });
+		if (member.flags.has("DidRejoin")) {
+			embed.setTitle('User re-Joined Server');
 
-		if (memberData && memberData.leaveTimes.length) {
-			const lastLeave: Date = memberData.leaveTimes[memberData.leaveTimes.length - 1] ?? new Date();
-			embed.setTitle('User re-Joined Server')
-				.addFields({ name: 'Left Server', value: `<t:${Math.round(lastLeave.getTime() as number / 1000)}:R>`, inline: false })
+			const memberData = await this.container.prisma.member.findFirst({ where: { userID: member.id, guildID: member.guild.id } });
+
+			if (memberData && memberData.leaveTimes.length) {
+				const lastLeave: Date = memberData?.leaveTimes[memberData.leaveTimes.length - 1];
+				embed.addFields({ name: 'Left Server', value: `<t:${Math.round(lastLeave.getTime() as number / 1000)}:R>`, inline: false });
+			}
 		}
 
 		return [embed];
