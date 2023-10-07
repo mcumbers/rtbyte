@@ -1,4 +1,3 @@
-import { initializeMember } from '#utils/functions/initialize';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Events, Listener, type ListenerOptions } from '@sapphire/framework';
 import { isNullish } from '@sapphire/utilities';
@@ -10,11 +9,8 @@ export class UserEvent extends Listener {
 		if (isNullish(member.id)) return;
 		if (member.user.bot) return;
 
-		let memberData = await this.container.prisma.member.findFirst({ where: { userID: member.id, guildID: member.guild.id } });
-		if (!memberData) {
-			await initializeMember(member.user, member.guild);
-			memberData = await this.container.prisma.member.findFirst({ where: { userID: member.id, guildID: member.guild.id } });
-		}
+		const memberData = await this.container.prisma.member.findFirst({ where: { userID: member.id, guildID: member.guild.id } });
+		if (!memberData) return;
 
 		const leaveTimes = memberData?.leaveTimes;
 		leaveTimes?.push(new Date(Date.now()));
