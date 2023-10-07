@@ -1,7 +1,7 @@
 import { GuildLogEmbed } from '#lib/extensions/GuildLogEmbed';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Events, Listener, type ListenerOptions } from '@sapphire/framework';
-import { inlineCodeBlock, isNullish } from '@sapphire/utilities';
+import { isNullish } from '@sapphire/utilities';
 import { BaseGuildTextChannel, GuildMember } from 'discord.js';
 
 @ApplyOptions<ListenerOptions>({ event: Events.GuildMemberRemove })
@@ -20,16 +20,14 @@ export class UserEvent extends Listener {
 
 	private generateGuildLog(member: GuildMember) {
 		const embed = new GuildLogEmbed()
-			.setAuthor({
-				name: member.user.username,
-				url: `https://discord.com/users/${member.user.id}`,
-				iconURL: member.user.displayAvatarURL()
-			})
-			.setDescription(inlineCodeBlock(member.user.id))
-			.addFields({ name: 'Joined', value: `<t:${Math.round(member?.joinedTimestamp as number / 1000)}:R>`, inline: true })
-			.setFooter({ text: 'User left' })
+			.setTitle('User Left Server')
+			.setThumbnail(member.user.displayAvatarURL())
+			.addFields({ name: 'Username', value: member.user.username, inline: true })
+			.addBlankField({ name: '', value: '', inline: true })
+			.addFields({ name: 'Joined Server', value: `<t:${Math.round(member?.joinedTimestamp as number / 1000)}:R>`, inline: true })
+			.setFooter({ text: `User ID: ${member.user.id}` })
 			.setType(Events.GuildMemberRemove);
 
-		return [embed]
+		return embed;
 	}
 }
