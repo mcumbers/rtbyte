@@ -17,7 +17,8 @@ export class UserEvent extends Listener {
 		}
 
 		const joinTimes = memberData?.joinTimes;
-		joinTimes?.push(new Date(Date.now()));
+		joinTimes?.push(member.joinedAt ?? new Date(Date.now()));
+
 		const usernameHistory = memberData?.usernameHistory;
 		if (!usernameHistory?.includes(member.user.username)) usernameHistory?.push(member.user.username);
 		const displayNameHistory = memberData?.displayNameHistory;
