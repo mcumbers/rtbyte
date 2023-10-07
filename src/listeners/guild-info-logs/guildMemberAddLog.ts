@@ -1,7 +1,7 @@
 import { GuildLogEmbed } from '#lib/extensions/GuildLogEmbed';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Events, Listener, type ListenerOptions } from '@sapphire/framework';
-import { inlineCodeBlock, isNullish } from '@sapphire/utilities';
+import { isNullish } from '@sapphire/utilities';
 import { BaseGuildTextChannel, GuildMember } from 'discord.js';
 
 @ApplyOptions<ListenerOptions>({ event: Events.GuildMemberAdd })
@@ -15,22 +15,27 @@ export class UserEvent extends Listener {
 
 		const logChannel = member.guild.channels.resolve(guildSettingsInfoLogs.infoLogChannel) as BaseGuildTextChannel;
 
-		return this.container.client.emit('guildLogCreate', logChannel, (await this.generateGuildLog(member)));
+		return this.container.client.emit('guildLogCreate', logChannel, await this.generateGuildLog(member));
 	}
 
-	private generateGuildLog(member: GuildMember) {
+	private async generateGuildLog(member: GuildMember) {
 		const embed = new GuildLogEmbed()
-			.setAuthor({
-				name: member.user.username,
-				url: `https://discord.com/users/${member.user.id}`,
-				iconURL: member.user.displayAvatarURL()
-			})
-			.setDescription(inlineCodeBlock(member.user.id))
-			.addFields({ name: 'Registered', value: `<t:${Math.round(member?.user.createdTimestamp as number / 1000)}:R>`, inline: true })
-			.setFooter({ text: 'User joined' })
+			.setTitle('User Joined Server')
+			.setThumbnail(member.user.displayAvatarURL())
+			.addFields({ name: 'Username', value: member.user.username, inline: true })
+			.setFooter({ text: `User ID: ${member.user.id}` })
 			.setType(Events.GuildMemberAdd);
-		// TODO Track previous times users have joined/left server
-		// TODO Track previous usernames/nicknames users have had while on this server
-		return [embed]
+
+		const memberData = await this.container.prisma.member.findFirst({ where: { userID: member.id, guildID: member.guild.id } });
+
+		if (memberData && memberData.leaveTimes.length) {
+			const lastLeave: Date = memberData.leaveTimes[memberData.leaveTimes.length - 1] ?? new Date();
+			embed.setTitle('User re-Joined Server')
+				.addBlankField({ name: '', value: '', inline: true })
+				.addFields({ name: 'Left Server', value: `<t:${Math.round(lastLeave.getTime() as number / 1000)}:R>`, inline: true })
+		}
+		// TODO: Track previous usernames on this guild
+
+		return [embed];
 	}
 }
