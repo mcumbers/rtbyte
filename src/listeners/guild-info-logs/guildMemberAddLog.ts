@@ -27,7 +27,8 @@ export class UserEvent extends Listener {
 			.addBlankFields({ name: '', value: '', inline: true })
 			.addFields({ name: 'Account Created', value: `<t:${Math.round(member.user.createdTimestamp as number / 1000)}:R>`, inline: true })
 			.setFooter({ text: `User ID: ${member.user.id}` })
-			.setType(Events.GuildMemberAdd);
+			.setType(Events.GuildMemberAdd)
+			.setTimestamp(member.joinedTimestamp);
 
 		if (member.flags.has("DidRejoin")) {
 			embed.setTitle('User re-Joined Server');
