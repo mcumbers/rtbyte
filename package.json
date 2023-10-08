@@ -37,6 +37,7 @@
 		"@sapphire/time-utilities": "^1.7.10",
 		"@sapphire/utilities": "^3.13.0",
 		"colorette": "^2.0.20",
+		"diff": "^5.1.0",
 		"discord-api-types": "^0.37.54",
 		"discord.js": "^14.13.0",
 		"dotenv": "^16.3.1",
@@ -45,6 +46,7 @@
 	"devDependencies": {
 		"@sapphire/eslint-config": "^5.0.1",
 		"@sapphire/ts-config": "^4.0.1",
+		"@types/diff": "^5.0.5",
 		"@types/node": "^20.5.3",
 		"eslint": "^8.47.0",
 		"prisma": "^5.2.0",

@@ -1,8 +1,10 @@
 import { GuildLogEmbed } from '#lib/extensions/GuildLogEmbed';
+import { ZeroWidthSpace } from "#utils/constants";
 import { getContent } from '#utils/util';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Events, Listener, type ListenerOptions } from '@sapphire/framework';
-import { cutText, inlineCodeBlock, isNullish } from '@sapphire/utilities';
+import { isNullish } from '@sapphire/utilities';
+import * as Diff from 'diff';
 import { BaseGuildTextChannel, Message } from 'discord.js';
 
 @ApplyOptions<ListenerOptions>({ event: Events.MessageUpdate })
@@ -11,6 +13,7 @@ export class UserEvent extends Listener {
 		if (isNullish(message.id)) return;
 		if (isNullish(message.guild)) return;
 		if (message.author.bot) return;
+		if (message.author.system) return;
 
 		const guildSettingsInfoLogs = await this.container.prisma.guildSettingsInfoLogs.findUnique({ where: { id: message.guild?.id } });
 		if (!guildSettingsInfoLogs?.messageUpdateLog || !guildSettingsInfoLogs.infoLogChannel) return;
@@ -22,20 +25,25 @@ export class UserEvent extends Listener {
 
 	private generateGuildLog(oldMessage: Message, message: Message) {
 		const embed = new GuildLogEmbed()
-			.setAuthor({
-				name: message.author.username,
-				url: `https://discord.com/users/${message.author.id}`,
-				iconURL: message.author.displayAvatarURL()
-			})
-			.setDescription(`<#${message.channel.id}> - [${inlineCodeBlock(`go to message`)}](${message.url})`)
-			.setFooter({ text: 'Message edited' })
+			.setTitle('Message Edited')
+			.setDescription(`${message.member!.toString()}: ${message.url}`)
+			.setThumbnail(message.member!.displayAvatarURL())
+			.setFooter({ text: `Message ID: ${message.id}` })
 			.setType(Events.MessageUpdate);
 
 		const oldMessageContent = getContent(oldMessage);
 		const messageContent = getContent(message);
+		const diff = Diff.diffChars(oldMessageContent as string, messageContent as string);
+
+		let workingString = '';
+
+		for (const part of diff) {
+			workingString += `${part.added ? '+' : part.removed ? '-' : '~'} ${part.value}\n`;
+		}
+
 		if (oldMessageContent !== messageContent) {
-			if (oldMessageContent) embed.addFields({ name: 'Before', value: cutText(oldMessageContent, 1024) });
-			if (messageContent) embed.addFields({ name: 'After', value: cutText(messageContent, 1024) });
+			if (oldMessageContent) embed.addFields({ name: 'Changes', value: `\`\`\`diff\n${workingString.replaceAll('```', `\`${ZeroWidthSpace}\`\``)}\`\`\``, inline: false });
+			if (messageContent) embed.addFields({ name: 'New Message', value: messageContent, inline: false });
 		}
 
 		if (!embed.data.fields?.length) return;
