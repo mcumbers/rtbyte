@@ -2,7 +2,7 @@ import { GuildLogEmbed } from '#lib/extensions/GuildLogEmbed';
 import { getContent } from '#utils/util';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Events, Listener, type ListenerOptions } from '@sapphire/framework';
-import { cutText, isNullish } from '@sapphire/utilities';
+import { isNullish } from '@sapphire/utilities';
 import { BaseGuildTextChannel, Message } from 'discord.js';
 
 @ApplyOptions<ListenerOptions>({ event: Events.MessageDelete })
@@ -21,18 +21,15 @@ export class UserEvent extends Listener {
 
 	private generateGuildLog(message: Message) {
 		const embed = new GuildLogEmbed()
-			.setAuthor({
-				name: message.author.username,
-				url: `https://discord.com/users/${message.author.id}`,
-				iconURL: message.author.displayAvatarURL()
-			})
-			.setDescription(`<#${message.channel.id}>`)
-			.setFooter({ text: 'Message deleted' })
-			.setType(Events.MessageDelete);
+			.setTitle('Message Deleted')
+			.setDescription(`${message.member!.toString()}: ${message.channel.url}`)
+			.setThumbnail(message.member!.displayAvatarURL())
+			.setFooter({ text: `Message ID: ${message.id}` })
+			.setType(Events.MessageUpdate);
 
 		const messageContent = getContent(message);
-		if (messageContent) embed.addFields({ name: 'Message', value: cutText(messageContent, 1024) });
-		if (message?.createdTimestamp) embed.addFields({ name: 'Sent', value: `<t:${Math.round(message.createdTimestamp as number / 1000)}:R>`, inline: true });
+		if (messageContent) embed.addFields({ name: 'Message', value: messageContent, inline: false });
+		if (message?.createdTimestamp) embed.addFields({ name: 'Sent', value: `<t:${Math.round(message.createdTimestamp as number / 1000)}:R>`, inline: false });
 
 		return [embed]
 	}
