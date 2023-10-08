@@ -21,6 +21,7 @@ export class UserEvent extends Listener {
 	private async generateGuildLog(member: GuildMember) {
 		const embed = new GuildLogEmbed()
 			.setTitle('User Joined Server')
+			.setDescription(member.toString())
 			.setThumbnail(member.user.displayAvatarURL())
 			.addFields({ name: 'Username', value: member.user.username, inline: true })
 			.addBlankFields({ name: '', value: '', inline: true })
