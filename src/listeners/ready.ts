@@ -1,8 +1,8 @@
-import { CONTROL_GUILD, DEV, INIT_ALL_MEMBERS, INIT_ALL_USERS, TOKENS, VERSION } from '#root/config';
+import { CONTROL_GUILD, DEV, INIT_ALL_MEMBERS, INIT_ALL_USERS } from '#root/config';
 import { initializeGuild, initializeMember, initializeUser } from '#utils/functions/initialize';
 import type { ListenerOptions, PieceContext } from '@sapphire/framework';
 import { Listener, Store } from '@sapphire/framework';
-import { bgRed, blue, gray, green, red, whiteBright, yellow } from 'colorette';
+import { blue, gray, yellow } from 'colorette';
 
 export class UserEvent extends Listener {
 	private readonly style = DEV ? yellow : blue;
@@ -15,47 +15,12 @@ export class UserEvent extends Listener {
 	}
 
 	public async run() {
-		this.printBanner();
 		this.printStoreDebugInformation();
 
 		await this.clientValidation();
 		await this.guildValidation();
 		if (INIT_ALL_USERS) await this.userValidation();
 		if (INIT_ALL_MEMBERS) await this.memberValidation();
-	}
-
-	private printBanner() {
-		const success = green('+');
-		const failure = red('-');
-
-		const line01 = whiteBright(String.raw`       .▄##╗▄▄`);
-		const line02 = whiteBright(String.raw`     .S▓█████▓▓▒▄`);
-		const line03 = whiteBright(String.raw`   w┌╫▓╣██████▓▓▓▒     ▒▓▓▓▓▓▓▄, ▓▓▓▓▓▓▓▓  ▓▓▓▓▓▓▒   ▓▓,   ▓▓ ▒▓▓▓▓▓▓▓▌ ▓▓▓▓▓▓▓▌`);
-		const line04 = whiteBright(String.raw` ▄▄▄▓███${red('▀╫╠╠╠╫')}▓▓▓▓▌    ▓█    ╫██    ██▄    ██   └██  └██▄┌██╙    ╫█▌   .██`);
-		const line05 = whiteBright(String.raw`║█████${red('▀╠╠╠▒▒')}▓▓▓▓▓▓▓    ▓██▓▓▓█▀     ██     ██▓▓███▄    ▀██▀      ╫█▌   .███████═`);
-		const line06 = whiteBright(String.raw`║████${red('▌╠╠╠╠╫')}▓▓▓▓▓▓▓▌    ▓█  ╙██▄     ██     ██    ██     ██       ╫█▌   .██`);
-		const line07 = whiteBright(String.raw` ▀█▓▓▓${red('▒╠╠╢')}▓▓▓▓▓▓▓▓=    ▓█    ▀██    ██     ██▓▓▓██▀     ██       ╫█▌   .██▓▓▓▓▓▓`);
-		const line08 = whiteBright(String.raw`  ╜▓▓▓▓▓▓▓▓▓▓▓▓▓▀`);
-		const line09 = whiteBright(String.raw`    └╜▀▀▓▓▓▓▀▀╙`);
-
-		// Offset Pad
-		const pad = ' '.repeat(7);
-		const longPad = ' '.repeat(26);
-		const connectionPad = ' '.repeat(12);
-
-		console.log(
-			String.raw`
-${line01} ${pad} ${bgRed(` ${VERSION} `)} ${DEV ? ` ${longPad}${bgRed(' </> DEVELOPMENT MODE ')}` : ''}
-${line02}
-${line03}
-${line04}
-${line05}
-${line06}
-${line07}
-${line08}
-${line09} ${pad}[${success}] Gateway ${connectionPad}[${success}] Prisma ${connectionPad}[${TOKENS.SENTRY_TOKEN ? success : failure}] Sentry
-		`.trim()
-		);
 	}
 
 	private printStoreDebugInformation() {
@@ -97,7 +62,7 @@ ${line09} ${pad}[${success}] Gateway ${connectionPad}[${success}] Prisma ${conne
 			return client.destroy();
 		}
 		if (!client.guilds.cache.has(CONTROL_GUILD)) {
-			logger.fatal('RTByte has not been added to the configured control guild - shutting down...');
+			logger.fatal('Bot has not been added to the configured control guild - shutting down...');
 			return client.destroy();
 		}
 

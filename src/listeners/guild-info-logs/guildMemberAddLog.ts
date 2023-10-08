@@ -23,7 +23,7 @@ export class UserEvent extends Listener {
 			.setTitle('User Joined Server')
 			.setThumbnail(member.user.displayAvatarURL())
 			.addFields({ name: 'Username', value: member.user.username, inline: true })
-			.addBlankField({ name: '', value: '', inline: true })
+			.addBlankFields({ name: '', value: '', inline: true })
 			.addFields({ name: 'Account Created', value: `<t:${Math.round(member.user.createdTimestamp as number / 1000)}:R>`, inline: true })
 			.setFooter({ text: `User ID: ${member.user.id}` })
 			.setType(Events.GuildMemberAdd);

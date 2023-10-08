@@ -1,5 +1,5 @@
-import { RTByteCommand } from '#lib/extensions/RTByteCommand';
-import { RTByteEmbed } from '#lib/extensions/RTByteEmbed';
+import { BotCommand } from '#lib/extensions/BotCommand';
+import { BotEmbed } from '#lib/extensions/BotEmbed';
 import { Colors } from "#utils/constants";
 import { ApplyOptions } from '@sapphire/decorators';
 import { type ChatInputCommand, type ContextMenuCommand } from '@sapphire/framework';
@@ -8,39 +8,27 @@ import { ApplicationCommandType, PermissionFlagsBits } from 'discord.js';
 @ApplyOptions<ChatInputCommand.Options>({
 	description: 'Quote a message'
 })
-export class UserCommand extends RTByteCommand {
+export class UserCommand extends BotCommand {
 	public override registerApplicationCommands(registry: ChatInputCommand.Registry) {
-		registry.registerContextMenuCommand((builder) => 
+		registry.registerContextMenuCommand((builder) =>
 			builder
 				.setName('Quote')
 				.setType(ApplicationCommandType.Message)
-				.setDefaultMemberPermissions(PermissionFlagsBits.ReadMessageHistory), {
-					idHints: [
-						// Dev bot command
-						'1123679487456976938'
-					]
-				}
-		);
+				.setDefaultMemberPermissions(PermissionFlagsBits.ReadMessageHistory));
 		registry.registerChatInputCommand((builder) =>
 			builder
 				.setName(this.name)
-				.setDescription('To quote a message, right click it, then click Apps > Quote'), {
-					idHints: [
-						// Dev bot command
-						'1124655414970163270'
-					]
-				}
-		);
+				.setDescription('To quote a message, right click it, then click Apps > Quote'));
 	}
 
 	public async contextMenuRun(interaction: ContextMenuCommand.Interaction) {
 		await interaction.deferReply({ ephemeral: false, fetchReply: true });
 
 		if (interaction.isMessageContextMenuCommand() && interaction.targetMessage) {
-			
+
 			const message = interaction.targetMessage;
-			const embed = new RTByteEmbed()
-				.setAuthor({ 
+			const embed = new BotEmbed()
+				.setAuthor({
 					name: message.author.username,
 					url: `https://discord.com/users/${message.author.id}`,
 					iconURL: message.author.displayAvatarURL()

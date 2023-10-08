@@ -1,3 +1,3 @@
-export * from '#lib/extensions/RTByteCommand';
-export * from '#lib/extensions/RTByteEmbed';
+export * from '#lib/extensions/BotCommand';
+export * from '#lib/extensions/BotEmbed';
 

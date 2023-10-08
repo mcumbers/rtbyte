@@ -1,5 +1,5 @@
-import { RTByteCommand } from '#lib/extensions/RTByteCommand';
-import { RTByteEmbed } from '#lib/extensions/RTByteEmbed';
+import { BotCommand } from '#lib/extensions/BotCommand';
+import { BotEmbed } from '#lib/extensions/BotEmbed';
 import { Colors, Emojis } from '#utils/constants';
 import { ApplyOptions } from '@sapphire/decorators';
 import { type ChatInputCommand } from '@sapphire/framework';
@@ -9,7 +9,7 @@ import { GuildMember, GuildMemberFlags, PermissionFlagsBits, UserFlags, UserFlag
 @ApplyOptions<ChatInputCommand.Options>({
 	description: 'Retrieve information about a user'
 })
-export class UserCommand extends RTByteCommand {
+export class UserCommand extends BotCommand {
 	public override registerApplicationCommands(registry: ChatInputCommand.Registry) {
 		registry.registerChatInputCommand((builder) =>
 			builder
@@ -27,12 +27,7 @@ export class UserCommand extends RTByteCommand {
 					option
 						.setName('ephemeral')
 						.setDescription('Whether or not the message should be shown only to you (default false)')
-				), {
-			idHints: [
-				// Dev bot command
-				'1124750920090124388',
-			],
-		});
+				));
 	}
 
 	public async chatInputRun(interaction: ChatInputCommand.Interaction) {
@@ -48,7 +43,7 @@ export class UserCommand extends RTByteCommand {
 		// const dbUser = await this.container.prisma.user.findUnique({ where: { id: member.user.id }, select: { previousUsernames: true }});
 		// const previousUsernames = dbUser?.previousUsernames.filter(name => name !== member.user.username).map(name => inlineCodeBlock(name)).join(' ');
 
-		const embed = new RTByteEmbed()
+		const embed = new BotEmbed()
 			.setDescription(`${member} ${inlineCodeBlock(`${member?.id}`)}`)
 			.setThumbnail(member?.displayAvatarURL() ?? null)
 			.setColor(member?.roles.highest.color ?? Colors.White)

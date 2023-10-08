@@ -51,13 +51,13 @@ export class UserEvent extends Listener {
 		if (oldMember.avatar !== member.avatar) {
 			showsInAuditLog = false;
 			if (!oldMember.avatar) {
-				embed.addBlankField({ name: 'Server Avatar Added', value: '', inline: false });
+				changes.push({ name: 'Server Avatar Added', value: '', inline: false });
 			}
 			if (!member.avatar) {
-				embed.addBlankField({ name: 'Server Avatar Removed', value: '', inline: false });
+				changes.push({ name: 'Server Avatar Removed', value: '', inline: false });
 			}
 			if (oldMember.avatar && member.avatar) {
-				embed.addBlankField({ name: 'Server Avatar Changed', value: '', inline: false });
+				changes.push({ name: 'Server Avatar Changed', value: '', inline: false });
 			}
 		}
 
@@ -82,15 +82,13 @@ export class UserEvent extends Listener {
 		}
 
 		// Add fields to embed
-		if (changes.length) embed.addFields(changes);
-
-		const embedHasChanges = Boolean(changes.length || (oldMember.avatar !== member.avatar));
+		if (changes.length) embed.addBlankFields(changes);
 
 		// Show if changes were made by a different user or if we can see the executor
 		if (showsInAuditLog && executor && executor.id !== member.id) {
 			embed.addFields({ name: 'Changes Made By', value: executor.toString(), inline: false });
 		}
 
-		return embedHasChanges ? [embed] : null;
+		return [embed];
 	}
 }

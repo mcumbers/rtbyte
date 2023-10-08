@@ -2,7 +2,7 @@ import { CLIENT_OPTIONS } from "#root/config";
 import { PrismaClient } from "@prisma/client";
 import { SapphireClient } from '@sapphire/framework';
 
-export class RTByteClient extends SapphireClient {
+export class BotClient extends SapphireClient {
 	public constructor() {
 		super(CLIENT_OPTIONS);
 	}

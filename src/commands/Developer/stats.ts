@@ -1,4 +1,4 @@
-import { RTByteEmbed } from '#lib/extensions/RTByteEmbed';
+import { BotEmbed } from '#lib/extensions/BotEmbed';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command } from '@sapphire/framework';
 import { memoryUsage } from 'node:process';
@@ -15,9 +15,7 @@ export class UserCommand extends Command {
 				.addBooleanOption((option) =>
 					option
 						.setName('ephemeral')
-						.setDescription('Whether or not the message should be shown only to you (default false)')
-				)
-		);
+						.setDescription('Whether or not the message should be shown only to you (default false)')));
 	}
 
 	public override async chatInputRun(interaction: Command.ChatInputCommandInteraction) {
@@ -53,18 +51,18 @@ export class UserCommand extends Command {
 		const lastRestart: Date = clientData?.restarts[clientData.restarts.length - 1] ?? new Date();
 
 		// Build reply embed
-		const embed = new RTByteEmbed()
+		const embed = new BotEmbed()
 			.setTitle(`${this.container.client.user?.username} Stats`)
 			.setThumbnail(this.container.client.user?.avatarURL() ?? null)
-			.addBlankField({ name: '**Userbase Stats:**', value: '', inline: false })
+			.addBlankFields({ name: '**Userbase Stats:**', value: '', inline: false })
 			.addFields({ name: 'Guilds', value: `${guildCount}`, inline: true })
 			.addFields({ name: 'Members', value: `${memberCount}`, inline: true })
-			.addBlankField()
-			.addBlankField({ name: '**Server Stats:**', value: '', inline: false })
+			.addBlankFields()
+			.addBlankFields({ name: '**Server Stats:**', value: '', inline: false })
 			.addFields({ name: 'Memory Use', value: `${megabytesUsed}MB`, inline: true })
 			.addFields({ name: 'Last Restart', value: `<t:${Math.trunc(lastRestart.getTime() / 1000)}>`, inline: true })
-			.addBlankField()
-			.addBlankField({ name: '**Registered Application Commands:**', value: '', inline: false })
+			.addBlankFields()
+			.addBlankFields({ name: '**Registered Application Commands:**', value: '', inline: false })
 			.addFields({ name: 'Global Commands', value: `${globalAppCommandCount}`, inline: true })
 			.addFields({ name: 'Guild Commands', value: `${guildAppCommandCount}`, inline: true });
 

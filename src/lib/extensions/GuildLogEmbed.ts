@@ -1,10 +1,10 @@
-import { RTByteEmbed } from "#lib/extensions/RTByteEmbed";
+import { BotEmbed } from "#lib/extensions/BotEmbed";
 import { Colors } from "#utils/constants";
 import { Events } from "@sapphire/framework";
 
-export class GuildLogEmbed extends RTByteEmbed {
+export class GuildLogEmbed extends BotEmbed {
 	public setType(type: string) {
-		switch(type) {
+		switch (type) {
 			case Events.AutoModerationRuleCreate:
 			case Events.ChannelCreate:
 			case Events.GuildEmojiCreate:

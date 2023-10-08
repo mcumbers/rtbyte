@@ -1,24 +1,23 @@
 {
-	"name": "rtbyte",
-	"description": "An open-source modular multipurpose Discord bot built on the incredible Sapphire framework for discord.js",
-	"version": "2.1.0",
-	"main": "./dist/RTByte.js",
+	"name": "stickbot",
+	"description": "A personal fork of RTByte--An open source, multipurpose Discord Bot",
+	"version": "0.0.1",
+	"main": "./dist/Stickbot.js",
 	"type": "module",
-	"author": "The RTByte Team <developers@rtbyte.xyz> (https://rtbyte.xyz)",
+	"author": "Michael Cumbers",
 	"contributors": [
-		"Rasmus Gerdin <rasmus@rtbyte.xyz> (https://rasmusgerdin.com)",
-		"Michael Cumbers <michael@rtbyte.xyz> (https://michaelcumbers.ca)"
+		"Michael Cumbers <stickmanmeyhem@stickman.codes> (https://stickman.codes)"
 	],
 	"license": "MIT",
-	"homepage": "https://github.com/RTByte/rtbyte/",
+	"homepage": "https://github.com/mcumbers/stickbot/",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/RTByte/rtbyte.git"
+		"url": "https://github.com/mcumbers/stickbot.git"
 	},
 	"scripts": {
 		"build": "tsc -b src",
 		"dev": "npm run build && npm run start",
-		"start": "node --enable-source-maps dist/RTByte.js",
+		"start": "node --enable-source-maps dist/Stickbot.js",
 		"prisma-build": "npx prisma generate",
 		"prisma-migrate": "npx prisma migrate dev --name init"
 	},

@@ -54,16 +54,12 @@ export class UserEvent extends Listener {
 
 		// Check if Avatar changed
 		if (oldUser.avatar !== user.avatar) {
-			// NOTE: As of 2023-10-07, old avatars are immediately inaccesible once changed.
-			// changes.push({ name: 'Avatar Changed', value: `[Old](${oldUser.displayAvatarURL()}) \`->\` [New](${user.displayAvatarURL()})`, inline: false });
-			embed.addBlankField({ name: 'User Avatar Changed', value: '', inline: false });
+			changes.push({ name: 'User Avatar Changed', value: '', inline: false });
 		}
 
 		// Add fields to embed
-		if (changes.length) embed.addFields(changes);
+		if (changes.length) embed.addBlankFields(changes);
 
-		const embedHasChanges = Boolean(changes.length || (oldUser.avatar !== user.avatar));
-
-		return embedHasChanges ? [embed] : null;
+		return [embed];
 	}
 }

@@ -1,5 +1,5 @@
-import { RTByteCommand } from '#lib/extensions/RTByteCommand';
-import { RTByteEmbed } from '#lib/extensions/RTByteEmbed';
+import { BotCommand } from '#lib/extensions/BotCommand';
+import { BotEmbed } from '#lib/extensions/BotEmbed';
 import { minutes, seconds } from '#utils/common/times';
 import { Emojis } from '#utils/constants';
 import { ApplyOptions } from '@sapphire/decorators';
@@ -11,7 +11,7 @@ import { ChannelType, PermissionFlagsBits } from 'discord.js';
 @ApplyOptions<ChatInputCommand.Options>({
 	description: 'Retrieve information about a channel'
 })
-export class UserCommand extends RTByteCommand {
+export class UserCommand extends BotCommand {
 	public override registerApplicationCommands(registry: ChatInputCommand.Registry) {
 		registry.registerChatInputCommand((builder) =>
 			builder
@@ -29,12 +29,7 @@ export class UserCommand extends RTByteCommand {
 					option
 						.setName('ephemeral')
 						.setDescription('Whether or not the message should be shown only to you (default false)')
-				), {
-			idHints: [
-				// Dev bot command
-				'1127290502476210260',
-			],
-		});
+				));
 	}
 
 	public async chatInputRun(interaction: ChatInputCommand.Interaction) {
@@ -67,10 +62,10 @@ export class UserCommand extends RTByteCommand {
 			if (targetChannel.defaultAutoArchiveDuration) channelInfo.push(`${Emojis.Bullet}Hide after inactivity: ${inlineCodeBlock(`${new DurationFormatter().format(minutes(targetChannel.defaultAutoArchiveDuration ?? 4320))}`)}`);
 		}
 		// Show whether the targetChannel is designated as the Info Log Channel for the Guild
-		if (guildLogSettings?.infoLogChannel === targetChannel.id) channelInfo.push(`${Emojis.Bullet}RTByte log channel`);
+		if (guildLogSettings?.infoLogChannel === targetChannel.id) channelInfo.push(`${Emojis.Bullet}Bot log channel`);
 
 		// Create Response Embed
-		const embed = new RTByteEmbed()
+		const embed = new BotEmbed()
 			.setDescription(`<#${targetChannel.id}> ${inlineCodeBlock(`${targetChannel?.id}`)}`)
 			.setThumbnail(interaction.guild?.iconURL() ?? null);
 

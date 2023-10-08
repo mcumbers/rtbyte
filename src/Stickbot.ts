@@ -1,8 +1,8 @@
-import { RTByteClient } from '#lib/RTByteClient';
+import { BotClient } from '#lib/BotClient';
 import '#lib/setup';
 import { TOKENS } from '#root/config';
 
-const client = new RTByteClient;
+const client = new BotClient;
 
 const main = async () => {
 	try {

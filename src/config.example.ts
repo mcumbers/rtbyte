@@ -52,7 +52,7 @@ export const CLIENT_OPTIONS: ClientOptions = {
 		auth: {
 			id: CLIENT_ID,
 			secret: '',
-			cookie: 'RTBYTE_AUTH',
+			cookie: 'SB_AUTH',
 			redirect: '',
 			scopes: [OAuth2Scopes.Identify, OAuth2Scopes.Guilds, OAuth2Scopes.GuildsMembersRead],
 			transformers: [transformLoginDataGuilds]
@@ -65,12 +65,6 @@ export const CLIENT_OPTIONS: ClientOptions = {
 	}
 };
 
-export const API_KEYS = {
-	GOOGLE_MAPS: '',
-	OPENWEATHER: ''
-}
-
 export const TOKENS = {
 	BOT_TOKEN: '',
-	SENTRY_DNS: '',
 };

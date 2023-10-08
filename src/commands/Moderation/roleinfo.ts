@@ -1,5 +1,5 @@
-import { RTByteCommand } from '#lib/extensions/RTByteCommand';
-import { RTByteEmbed } from '#lib/extensions/RTByteEmbed';
+import { BotCommand } from '#lib/extensions/BotCommand';
+import { BotEmbed } from '#lib/extensions/BotEmbed';
 import { Emojis } from '#utils/constants';
 import { ApplyOptions } from '@sapphire/decorators';
 import { type ChatInputCommand } from '@sapphire/framework';
@@ -9,7 +9,7 @@ import { PermissionFlagsBits } from 'discord.js';
 @ApplyOptions<ChatInputCommand.Options>({
 	description: 'Retrieve information about a role'
 })
-export class UserCommand extends RTByteCommand {
+export class UserCommand extends BotCommand {
 	public override registerApplicationCommands(registry: ChatInputCommand.Registry) {
 		registry.registerChatInputCommand((builder) =>
 			builder
@@ -27,12 +27,7 @@ export class UserCommand extends RTByteCommand {
 					option
 						.setName('ephemeral')
 						.setDescription('Whether or not the message should be shown only to you (default false)')
-				), {
-			idHints: [
-				// Dev bot command
-				'1124670120934002728',
-			],
-		});
+				));
 	}
 
 	public async chatInputRun(interaction: ChatInputCommand.Interaction) {
@@ -55,7 +50,7 @@ export class UserCommand extends RTByteCommand {
 		if (targetRole.tags?.botId) roleInfo.push(`${Emojis.Bullet}Managed by <@${targetRole.tags.botId}>`);
 
 		// Create Response Embed
-		const embed = new RTByteEmbed()
+		const embed = new BotEmbed()
 			.setDescription(`${targetRole?.unicodeEmoji ?? ''}${targetRole} ${inlineCodeBlock(`${targetRole?.id}`)}`)
 			.setThumbnail(targetRole?.iconURL() ?? interaction.guild?.iconURL() ?? null)
 			.setColor(targetRole?.color as number)
