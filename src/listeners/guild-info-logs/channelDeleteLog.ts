@@ -14,7 +14,7 @@ export class UserEvent extends Listener {
 		if (!guildSettingsInfoLogs?.channelDeleteLog || !guildSettingsInfoLogs.infoLogChannel) return;
 
 		const logChannel = channel.guild.channels.resolve(guildSettingsInfoLogs.infoLogChannel) as BaseGuildTextChannel;
-		const executor = await getAuditLogExecutor(AuditLogEvent.ChannelCreate, channel.guild, channel);
+		const executor = await getAuditLogExecutor(AuditLogEvent.ChannelDelete, channel.guild, channel);
 
 		return this.container.client.emit('guildLogCreate', logChannel, this.generateGuildLog(channel, executor));
 	}

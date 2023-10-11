@@ -23,6 +23,7 @@ export async function getAuditLogExecutor(action: AuditLogEvent, guild: Guild, t
 		return executor;
 	}
 
+	// Casting target to any as all possible target types except Invite can be compared like this
 	const handleTarget = target as any;
 	const targetAuditLotEntry = auditLogEntries.entries.find((entry: any) => entry.target?.id && entry.target.id === handleTarget.id);
 	const executor = targetAuditLotEntry?.executor;
