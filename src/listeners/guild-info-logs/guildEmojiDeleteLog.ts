@@ -2,7 +2,7 @@ import { GuildLogEmbed } from '#lib/extensions/GuildLogEmbed';
 import { getAuditLogExecutor } from '#utils/util';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Events, Listener, type ListenerOptions } from '@sapphire/framework';
-import { inlineCodeBlock, isNullish } from '@sapphire/utilities';
+import { isNullish } from '@sapphire/utilities';
 import { AuditLogEvent, BaseGuildTextChannel, GuildEmoji, User } from 'discord.js';
 
 @ApplyOptions<ListenerOptions>({ event: Events.GuildEmojiDelete })
@@ -14,24 +14,20 @@ export class UserEvent extends Listener {
 		if (!guildSettingsInfoLogs?.emojiDeleteLog || !guildSettingsInfoLogs.infoLogChannel) return;
 
 		const logChannel = emoji.guild.channels.resolve(guildSettingsInfoLogs.infoLogChannel) as BaseGuildTextChannel;
-		const executor = await getAuditLogExecutor(AuditLogEvent.EmojiDelete, emoji.guild);
+		const executor = await getAuditLogExecutor(AuditLogEvent.EmojiDelete, emoji.guild, emoji);
 
 		return this.container.client.emit('guildLogCreate', logChannel, this.generateGuildLog(emoji, executor));
 	}
 
 	private generateGuildLog(emoji: GuildEmoji, executor: User | null | undefined) {
 		const embed = new GuildLogEmbed()
-			.setAuthor({
-				name: `:${emoji.name}:`,
-				url: emoji.url,
-				iconURL: emoji.url
-			})
-			.setDescription(inlineCodeBlock(emoji.id))
+			.setTitle('Emoji Deleted')
+			.setDescription(emoji.name)
 			.setThumbnail(emoji.url)
-			.setFooter({ text: `Emoji deleted ${isNullish(executor) ? '' : `by ${executor.username}`}`, iconURL: isNullish(executor) ? undefined : executor?.displayAvatarURL() })
+			.setFooter({ text: `Emoji ID: ${emoji.id}` })
 			.setType(Events.GuildEmojiDelete);
 
-		if (emoji?.createdTimestamp) embed.addFields({ name: 'Created', value: `<t:${Math.round(emoji.createdTimestamp as number / 1000)}:R>`, inline: true });
+		if (!isNullish(executor)) embed.addFields({ name: 'Deleted By', value: executor.toString(), inline: false });
 
 		return [embed]
 	}
