@@ -1,6 +1,6 @@
 import { container } from "@sapphire/framework";
-import { inlineCodeBlock } from "@sapphire/utilities";
-import { PermissionFlagsBits, StageChannel, VoiceChannel, type AuditLogEvent, type Guild, type Message } from "discord.js";
+import { inlineCodeBlock, isNullishOrEmpty } from "@sapphire/utilities";
+import { GuildChannel, Invite, PermissionFlagsBits, type ApplicationCommandPermissions, type AuditLogEvent, type Emoji, type Guild, type GuildScheduledEvent, type Interaction, type Message, type Role, type StageChannel, type StageInstance, type Sticker, type ThreadChannel, type User, type VoiceChannel, type Webhook } from "discord.js";
 
 /**
  * Get the executor user from the last audit log entry of specific type
@@ -8,10 +8,25 @@ import { PermissionFlagsBits, StageChannel, VoiceChannel, type AuditLogEvent, ty
  * @param guild The Guild object to get audit logs for
  * @returns Executor User object from the last audit log entry of specific type.
  */
-export async function getAuditLogExecutor(action: AuditLogEvent, guild: Guild) {
+export async function getAuditLogExecutor(action: AuditLogEvent, guild: Guild, target?: Guild | GuildChannel | User | Role | Invite | Webhook | Emoji | Message | Interaction | StageInstance | Sticker | ThreadChannel | GuildScheduledEvent | ApplicationCommandPermissions) {
+	// TODO: Make target required--once I've fixed all the other logs
+	if (isNullishOrEmpty(target)) return null;
 	if (!guild.members.cache.get(container.client.user!.id)?.permissions.has(PermissionFlagsBits.ViewAuditLog)) return;
 
-	return (await guild.fetchAuditLogs({ type: action })).entries.first()?.executor;
+	const auditLogEntries = await guild.fetchAuditLogs({ type: action });
+
+	// Pesky Invites don't have IDs
+	if (typeof target === typeof Invite) {
+		const handleTarget = target as Invite;
+		const targetAuditLotEntry = auditLogEntries.entries.find((entry: any) => entry.target?.id && entry.target.id === handleTarget.code);
+		const executor = targetAuditLotEntry?.executor;
+		return executor;
+	}
+
+	const handleTarget = target as any;
+	const targetAuditLotEntry = auditLogEntries.entries.find((entry: any) => entry.target?.id && entry.target.id === handleTarget.id);
+	const executor = targetAuditLotEntry?.executor;
+	return executor;
 }
 
 /**
