@@ -12,9 +12,18 @@ export class UserEvent extends Listener {
 		if (isNullish(message.guild)) return;
 
 		const guildSettingsInfoLogs = await this.container.prisma.guildSettingsInfoLogs.findUnique({ where: { id: message.guild?.id } });
-		if (!guildSettingsInfoLogs?.messageDeleteLog || !guildSettingsInfoLogs.infoLogChannel) return;
+		if (!guildSettingsInfoLogs || !guildSettingsInfoLogs.infoLogChannel) return;
 
 		const logChannel = message.guild.channels.resolve(guildSettingsInfoLogs.infoLogChannel) as BaseGuildTextChannel;
+
+		if (message.attachments.size) {
+			for (const attachmentPair of message.attachments) {
+				this.container.client.emit('messageAttachmentDeleteLog', message, attachmentPair[1], true);
+			}
+		}
+
+		// Check if this log is enabled in this server after letting the messageAttachmentDeleteLog events fire
+		if (!guildSettingsInfoLogs.messageDeleteLog) return;
 
 		return this.container.client.emit('guildLogCreate', logChannel, this.generateGuildLog(message));
 	}
@@ -25,12 +34,12 @@ export class UserEvent extends Listener {
 			.setDescription(`${message.member!.toString()}: ${message.channel.url}`)
 			.setThumbnail(message.member!.displayAvatarURL())
 			.setFooter({ text: `Message ID: ${message.id}` })
-			.setType(Events.MessageUpdate);
+			.setType(Events.MessageDelete);
 
 		const messageContent = getContent(message);
 		if (messageContent) embed.addFields({ name: 'Message', value: messageContent, inline: false });
 		if (message?.createdTimestamp) embed.addFields({ name: 'Sent', value: `<t:${Math.round(message.createdTimestamp as number / 1000)}:R>`, inline: false });
 
-		return [embed]
+		return messageContent ? [embed] : null;
 	}
 }
