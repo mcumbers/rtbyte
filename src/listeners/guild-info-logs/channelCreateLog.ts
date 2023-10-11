@@ -1,8 +1,8 @@
 import { GuildLogEmbed } from '#lib/extensions/GuildLogEmbed';
-import { getAuditLogExecutor } from '#utils/util';
+import { getAuditLogExecutor } from '#root/lib/util/util';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Events, Listener, type ListenerOptions } from '@sapphire/framework';
-import { inlineCodeBlock, isNullish } from '@sapphire/utilities';
+import { isNullish } from '@sapphire/utilities';
 import { AuditLogEvent, BaseGuildTextChannel, ChannelType, GuildChannel, User } from 'discord.js';
 
 @ApplyOptions<ListenerOptions>({ event: Events.ChannelCreate })
@@ -14,47 +14,45 @@ export class UserEvent extends Listener {
 		if (!guildSettingsInfoLogs?.channelCreateLog || !guildSettingsInfoLogs.infoLogChannel) return;
 
 		const logChannel = channel.guild.channels.resolve(guildSettingsInfoLogs.infoLogChannel) as BaseGuildTextChannel;
-		const executor = await getAuditLogExecutor(AuditLogEvent.ChannelCreate, channel.guild);
+		const executor = await getAuditLogExecutor(AuditLogEvent.ChannelCreate, channel.guild, channel);
 
 		return this.container.client.emit('guildLogCreate', logChannel, this.generateGuildLog(channel, executor));
 	}
 
 	private generateGuildLog(channel: GuildChannel, executor: User | null | undefined) {
-		const embed = new GuildLogEmbed()
-			.setAuthor({
-				name: `${channel.name}`,
-				url: `https://discord.com/channels/${channel.guildId}/${channel.id}`,
-				iconURL: channel.guild.iconURL() ?? undefined
-			})
-			.setDescription(inlineCodeBlock(channel.id))
-			.setFooter({ text: `Channel created ${isNullish(executor) ? '' : `by ${executor.username}`}`, iconURL: isNullish(executor) ? undefined : executor?.displayAvatarURL() })
-			.setType(Events.ChannelCreate);
-
-		if (channel.parent) embed.addFields({ name: 'Category', value: inlineCodeBlock(channel.parent.name), inline: true });
-
-		let footerChannelType;
+		let channelDescriptor;
 		// eslint-disable-next-line @typescript-eslint/switch-exhaustiveness-check
 		switch (channel.type) {
 			case ChannelType.GuildAnnouncement:
-				footerChannelType = 'Announcement channel';
+				channelDescriptor = 'Announcement Channel';
 				break;
 			case ChannelType.GuildCategory:
-				footerChannelType = 'Category';
+				channelDescriptor = 'Category';
 				break;
 			case ChannelType.GuildForum:
-				footerChannelType = 'Forum channel';
+				channelDescriptor = 'Forum Channel';
 				break;
 			case ChannelType.GuildStageVoice:
-				footerChannelType = 'Stage channel';
+				channelDescriptor = 'Stage Channel';
 				break;
 			case ChannelType.GuildText:
-				footerChannelType = 'Text channel';
+				channelDescriptor = 'Text Channel';
 				break;
 			case ChannelType.GuildVoice:
-				footerChannelType = 'Voice channel';
+				channelDescriptor = 'Voice Channel';
 				break;
 		}
-		embed.setFooter({ text: `${footerChannelType} created ${isNullish(executor) ? '' : `by ${executor.username}`}`, iconURL: isNullish(executor) ? undefined : executor?.displayAvatarURL() });
+
+		const embed = new GuildLogEmbed()
+			.setTitle(`${channelDescriptor} Created`)
+			.setDescription(`${channel.url}`)
+			.setThumbnail(channel.guild.iconURL())
+			.setFooter({ text: `Channel ID: ${channel.id}` })
+			.setType(Events.ChannelCreate);
+
+		if (channel.parent) embed.addFields({ name: 'In Category', value: channel.parent.name, inline: true });
+
+		if (!isNullish(executor)) embed.addFields({ name: 'Created By', value: executor.toString(), inline: true });
 
 		return [embed]
 	}
