@@ -136,19 +136,12 @@ export function getPermissionString(permission: string) {
 
 export function getChannelDescriptor(channelType: ChannelType) {
 	switch (channelType) {
-		case ChannelType.GuildAnnouncement:
-			return 'Announcement Channel';
-		case ChannelType.GuildCategory:
-			return 'Category';
-		case ChannelType.GuildForum:
-			return 'Forum Channel';
-		case ChannelType.GuildStageVoice:
-			return 'Stage Channel';
-		case ChannelType.GuildText:
-			return 'Text Channel';
-		case ChannelType.GuildVoice:
-			return 'Voice Channel';
-		default:
-			return 'Channel';
+		case ChannelType.GuildAnnouncement: return 'Announcement Channel';
+		case ChannelType.GuildCategory: return 'Category';
+		case ChannelType.GuildForum: return 'Forum Channel';
+		case ChannelType.GuildStageVoice: return 'Stage Channel';
+		case ChannelType.GuildText: return 'Text Channel';
+		case ChannelType.GuildVoice: return 'Voice Channel';
+		default: return 'Channel';
 	}
 }
