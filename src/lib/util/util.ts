@@ -16,9 +16,9 @@ export async function getAuditLogExecutor(action: AuditLogEvent, guild: Guild, t
 	const auditLogEntries = await guild.fetchAuditLogs({ type: action });
 
 	// Pesky Invites don't have IDs
-	if (typeof target === typeof Invite) {
+	if (target instanceof Invite) {
 		const handleTarget = target as Invite;
-		const targetAuditLotEntry = auditLogEntries.entries.find((entry: any) => entry.target?.id && entry.target.id === handleTarget.code);
+		const targetAuditLotEntry = auditLogEntries.entries.find((entry: any) => entry.target?.code && entry.target.code === handleTarget.code);
 		const executor = targetAuditLotEntry?.executor;
 		return executor;
 	}
