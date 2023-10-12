@@ -11,7 +11,7 @@ import { ChannelType, GuildChannel, Invite, PermissionFlagsBits, type Applicatio
 export async function getAuditLogExecutor(action: AuditLogEvent, guild: Guild, target?: Guild | GuildChannel | User | Role | Invite | Webhook | Emoji | Message | Interaction | StageInstance | Sticker | ThreadChannel | GuildScheduledEvent | ApplicationCommandPermissions) {
 	// TODO: Make target required--once I've fixed all the other logs
 	if (isNullishOrEmpty(target)) return null;
-	if (!guild.members.cache.get(container.client.user!.id)?.permissions.has(PermissionFlagsBits.ViewAuditLog)) return;
+	if (!guild.members.cache.get(container.client.user!.id)?.permissions.has(PermissionFlagsBits.ViewAuditLog)) return null;
 
 	const auditLogEntries = await guild.fetchAuditLogs({ type: action });
 
@@ -20,14 +20,14 @@ export async function getAuditLogExecutor(action: AuditLogEvent, guild: Guild, t
 		const handleTarget = target as Invite;
 		const targetAuditLotEntry = auditLogEntries.entries.find((entry: any) => entry.target?.code && entry.target.code === handleTarget.code);
 		const executor = targetAuditLotEntry?.executor;
-		return executor;
+		return executor || null;
 	}
 
 	// Casting target to any as all possible target types except Invite can be compared like this
 	const handleTarget = target as any;
 	const targetAuditLotEntry = auditLogEntries.entries.find((entry: any) => entry.target?.id && entry.target.id === handleTarget.id);
 	const executor = targetAuditLotEntry?.executor;
-	return executor;
+	return executor || null;
 }
 
 /**
