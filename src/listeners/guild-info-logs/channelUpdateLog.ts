@@ -1,7 +1,7 @@
 import { GuildLogEmbed } from '#lib/extensions/GuildLogEmbed';
 import { minutes, seconds } from '#utils/common/times';
 import { Emojis } from '#utils/constants';
-import { getAuditLogExecutor, getRegionOverride } from '#utils/util';
+import { getAuditLogExecutor, getChannelDescriptor, getRegionOverride } from '#utils/util';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Events, Listener, type ListenerOptions } from '@sapphire/framework';
 import { DurationFormatter } from '@sapphire/time-utilities';
@@ -19,52 +19,28 @@ export class UserEvent extends Listener {
 		if (!guildSettingsInfoLogs?.channelUpdateLog || !guildSettingsInfoLogs.infoLogChannel) return;
 
 		const logChannel = channel.guild.channels.resolve(guildSettingsInfoLogs.infoLogChannel) as BaseGuildTextChannel;
-		const executor = await getAuditLogExecutor(AuditLogEvent.ChannelUpdate, channel.guild);
+		const executor = await getAuditLogExecutor(AuditLogEvent.ChannelUpdate, channel.guild, channel);
 
 		return this.container.client.emit('guildLogCreate', logChannel, this.generateGuildLog(oldChannel, channel, executor));
 	}
 
 	private generateGuildLog(oldChannel: GuildBasedChannel, channel: GuildBasedChannel, executor: User | null | undefined) {
+		const channelDescriptor = getChannelDescriptor(channel.type);
+
 		const embed = new GuildLogEmbed()
-			.setAuthor({
-				name: `${channel.name}`,
-				url: `https://discord.com/channels/${channel.guildId}/${channel.id}`,
-				iconURL: channel.guild.iconURL() ?? undefined
-			})
-			.setDescription(inlineCodeBlock(channel.id))
-			.setFooter({ text: `Channel updated ${isNullish(executor) ? '' : `by ${executor.username}`}`, iconURL: isNullish(executor) ? undefined : executor?.displayAvatarURL() })
+			.setTitle(`${channelDescriptor} Updated`)
+			.setDescription(channel.url)
+			.setThumbnail(channel.guild.iconURL())
+			.setFooter({ text: `Channel ID: ${channel.id}` })
 			.setType(Events.ChannelUpdate);
 
-		if (channel.parent) embed.addFields({ name: 'Category', value: inlineCodeBlock(channel.parent.name), inline: true });
+		if (channel.parent) embed.addFields({ name: 'In Category', value: channel.parent.name, inline: true });
 
 		const changes = [];
-		let footerChannelType;
 
 		if (oldChannel.name !== channel.name) changes.push(`${Emojis.Bullet}**Name**: ${inlineCodeBlock(`${oldChannel.name}`)} to ${inlineCodeBlock(`${channel.name}`)}`);
 		if (oldChannel.parent !== channel.parent) changes.push(`${Emojis.Bullet}**Category**: ${inlineCodeBlock(`${oldChannel.parent}`)} to ${inlineCodeBlock(`${channel.parent}`)}`);
 		if (oldChannel.type !== channel.type) changes.push(`${Emojis.Bullet}**Announcement channel**: ${channel.type === ChannelType.GuildAnnouncement ? Emojis.ToggleOn : Emojis.ToggleOff}`);
-
-		// eslint-disable-next-line @typescript-eslint/switch-exhaustiveness-check
-		switch (channel.type) {
-			case ChannelType.GuildAnnouncement:
-				footerChannelType = 'Announcement channel';
-				break;
-			case ChannelType.GuildCategory:
-				footerChannelType = 'Category';
-				break;
-			case ChannelType.GuildForum:
-				footerChannelType = 'Forum channel';
-				break;
-			case ChannelType.GuildStageVoice:
-				footerChannelType = 'Stage channel';
-				break;
-			case ChannelType.GuildText:
-				footerChannelType = 'Text channel';
-				break;
-			case ChannelType.GuildVoice:
-				footerChannelType = 'Voice channel';
-				break;
-		}
 
 		if (oldChannel.type === ChannelType.GuildForum && channel.type === ChannelType.GuildForum) {
 			const forumLayout = ['Not set', 'List view', 'Gallery view'];
@@ -111,7 +87,8 @@ export class UserEvent extends Listener {
 		}
 
 		if (changes.length) embed.addFields({ name: 'Changes', value: changes.join('\n') });
-		embed.setFooter({ text: `${footerChannelType} updated ${isNullish(executor) ? '' : `by ${executor.username}`}`, iconURL: isNullish(executor) ? undefined : executor?.displayAvatarURL() });
+
+		if (!isNullish(executor)) embed.addFields({ name: 'Edited By', value: executor.toString(), inline: true });
 
 		if (changes.length) return [embed];
 		return [];

@@ -1,6 +1,6 @@
 import { container } from "@sapphire/framework";
 import { inlineCodeBlock, isNullishOrEmpty } from "@sapphire/utilities";
-import { GuildChannel, Invite, PermissionFlagsBits, type ApplicationCommandPermissions, type AuditLogEvent, type Emoji, type Guild, type GuildScheduledEvent, type Interaction, type Message, type Role, type StageChannel, type StageInstance, type Sticker, type ThreadChannel, type User, type VoiceChannel, type Webhook } from "discord.js";
+import { ChannelType, GuildChannel, Invite, PermissionFlagsBits, type ApplicationCommandPermissions, type AuditLogEvent, type Emoji, type Guild, type GuildScheduledEvent, type Interaction, type Message, type Role, type StageChannel, type StageInstance, type Sticker, type ThreadChannel, type User, type VoiceChannel, type Webhook } from "discord.js";
 
 /**
  * Get the executor user from the last audit log entry of specific type
@@ -131,5 +131,24 @@ export function getPermissionString(permission: string) {
 		case 'ManageEvents': return inlineCodeBlock('Manage events');
 		case 'Administrator': return inlineCodeBlock('Administrator');
 		default: return undefined;
+	}
+}
+
+export function getChannelDescriptor(channelType: ChannelType) {
+	switch (channelType) {
+		case ChannelType.GuildAnnouncement:
+			return 'Announcement Channel';
+		case ChannelType.GuildCategory:
+			return 'Category';
+		case ChannelType.GuildForum:
+			return 'Forum Channel';
+		case ChannelType.GuildStageVoice:
+			return 'Stage Channel';
+		case ChannelType.GuildText:
+			return 'Text Channel';
+		case ChannelType.GuildVoice:
+			return 'Voice Channel';
+		default:
+			return 'Channel';
 	}
 }
