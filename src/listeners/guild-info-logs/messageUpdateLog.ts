@@ -1,11 +1,9 @@
 import { GuildLogEmbed } from '#lib/extensions/GuildLogEmbed';
-import { ZeroWidthSpace } from "#utils/constants";
 import { getContent } from '#utils/util';
 import { UpdateLogStyle } from '@prisma/client';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Events, Listener, type ListenerOptions } from '@sapphire/framework';
 import { isNullish } from '@sapphire/utilities';
-import * as Diff from 'diff';
 import { BaseGuildTextChannel, Message } from 'discord.js';
 
 @ApplyOptions<ListenerOptions>({ event: Events.MessageUpdate })
@@ -46,35 +44,7 @@ export class UserEvent extends Listener {
 		const oldMessageContent = getContent(oldMessage);
 		const messageContent = getContent(message);
 
-		if (oldMessageContent !== messageContent) {
-
-			if (style === UpdateLogStyle.after_only) {
-				embed.addBlankFields({ name: 'New Message', value: messageContent || '', inline: false });
-			}
-
-			if (style === UpdateLogStyle.before_after) {
-				embed.addBlankFields({ name: 'Before', value: oldMessageContent || '', inline: false });
-				embed.addBlankFields({ name: 'After', value: messageContent || '', inline: false });
-			}
-
-			if (style === UpdateLogStyle.before_only) {
-				embed.addBlankFields({ name: 'Old Message', value: oldMessageContent || '', inline: false });
-			}
-
-			if (style === UpdateLogStyle.diff) {
-				const diff = Diff.diffChars(oldMessageContent as string, messageContent as string);
-
-				let workingString = '';
-
-				for (const part of diff) {
-					workingString += `${part.added ? '+' : part.removed ? '-' : '~'} ${part.value}\n`;
-				}
-
-				embed.addBlankFields({ name: 'Changes', value: `\`\`\`diff\n${workingString.replaceAll('```', `\`${ZeroWidthSpace}\`\``)}\`\`\``, inline: false });
-				embed.addBlankFields({ name: 'New Message', value: messageContent || '', inline: false });
-			}
-
-		}
+		if (oldMessageContent !== messageContent) embed.addDiffFields(oldMessageContent as string, messageContent as string, 'Message', style);
 
 		if (!embed.data.fields?.length) return;
 		return [embed]
