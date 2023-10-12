@@ -27,6 +27,8 @@ export class UserEvent extends Listener {
 			.setFooter({ text: `Emoji ID: ${emoji.id}` })
 			.setType(Events.GuildEmojiDelete);
 
+		if (emoji.createdTimestamp) embed.addFields({ name: 'Created', value: `<t:${Math.round(emoji.createdTimestamp as number / 1000)}:R>`, inline: true });
+
 		if (!isNullish(executor)) embed.addFields({ name: 'Deleted By', value: executor.toString(), inline: false });
 
 		return [embed]

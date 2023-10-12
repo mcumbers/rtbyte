@@ -34,6 +34,8 @@ export class UserEvent extends Listener {
 
 		if (invite.channel) embed.addFields({ name: 'Invite Channel', value: invite.channel.url, inline: true });
 
+		// Unfortunately, the Invite object given from this Event doesn't have the createdTimestamp, so we can't show when it was created
+
 		if (!isNullish(executor)) embed.addFields({ name: 'Deleted By', value: executor.toString(), inline: true });
 
 		return [embed]

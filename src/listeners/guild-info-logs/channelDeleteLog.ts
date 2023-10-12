@@ -31,6 +31,8 @@ export class UserEvent extends Listener {
 
 		if (channel.parent) embed.addFields({ name: 'In Category', value: channel.parent.name, inline: true });
 
+		if (channel.createdTimestamp) embed.addFields({ name: 'Created', value: `<t:${Math.round(channel.createdTimestamp as number / 1000)}:R>`, inline: true });
+
 		if (!isNullish(executor)) embed.addFields({ name: 'Deleted By', value: executor.toString(), inline: true });
 
 		return [embed]
