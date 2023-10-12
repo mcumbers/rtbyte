@@ -240,9 +240,10 @@ model GuildSettingsInfoLogs {
     stageInstanceUpdateLog Boolean @default(false) @map("log_stage_instance_update")
 
     // Sticker Changes
-    stickerCreateLog Boolean @default(false) @map("log_sticker_create")
-    stickerDeleteLog Boolean @default(false) @map("log_sticker_delete")
-    stickerUpdateLog Boolean @default(false) @map("log_sticker_update")
+    stickerCreateLog      Boolean        @default(false) @map("log_sticker_create")
+    stickerDeleteLog      Boolean        @default(false) @map("log_sticker_delete")
+    stickerUpdateLog      Boolean        @default(false) @map("log_sticker_update")
+    stickerUpdateLogStyle UpdateLogStyle @default(before_after) @map("log_sticker_update_style")
 
     // Thread Changes
     threadCreateLog Boolean @default(false) @map("log_thread_create")
