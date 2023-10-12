@@ -1,10 +1,9 @@
 import { GuildLogEmbed } from '#lib/extensions/GuildLogEmbed';
-import { Emojis } from '#utils/constants';
-import { getChannelDescriptor } from '#utils/util';
+import { getAuditLogExecutor } from '#utils/util';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Events, Listener, type ListenerOptions } from '@sapphire/framework';
-import { inlineCodeBlock, isNullish } from '@sapphire/utilities';
-import { BaseGuildTextChannel, Guild, Invite, User } from 'discord.js';
+import { isNullish } from '@sapphire/utilities';
+import { AuditLogEvent, BaseGuildTextChannel, Invite, User } from 'discord.js';
 
 @ApplyOptions<ListenerOptions>({ event: Events.InviteDelete })
 export class UserEvent extends Listener {
@@ -15,34 +14,27 @@ export class UserEvent extends Listener {
 		if (!guildSettingsInfoLogs?.inviteDeleteLog || !guildSettingsInfoLogs.infoLogChannel) return;
 
 		const guild = this.container.client.guilds.resolve(invite.guild.id);
-		const fetchedInvite = await guild?.invites.fetch({ code: invite.code });
-		const logChannel = guild?.channels.resolve(guildSettingsInfoLogs.infoLogChannel) as BaseGuildTextChannel;
-		const executor = invite.inviter;
+		if (!guild) return;
 
-		return this.container.client.emit('guildLogCreate', logChannel, this.generateGuildLog(fetchedInvite, guild, executor));
+		const logChannel = guild.channels.resolve(guildSettingsInfoLogs.infoLogChannel) as BaseGuildTextChannel;
+		const executor = await getAuditLogExecutor(AuditLogEvent.InviteDelete, guild, invite);
+
+		return this.container.client.emit('guildLogCreate', logChannel, this.generateGuildLog(invite, executor));
 	}
 
-	private generateGuildLog(invite: Invite | undefined, guild: Guild | null, executor: User | null | undefined) {
+	private generateGuildLog(invite: Invite | undefined, executor: User | null | undefined) {
+		if (!invite) return null;
+
 		const embed = new GuildLogEmbed()
-			.setAuthor({
-				name: `${invite?.code}`,
-				url: `https://discord.gg/${invite?.code}`,
-				iconURL: guild?.iconURL() as string
-			})
-			.setDescription(`[${inlineCodeBlock(`discord.gg/${invite?.code}`)}](https://discord.gg/${invite?.code})`)
-			.setFooter({ text: `Invite deleted ${isNullish(executor) ? '' : `by ${executor.username}`}`, iconURL: isNullish(executor) ? undefined : executor?.displayAvatarURL() })
+			.setTitle('Invite Deleted')
+			.setDescription(invite.url)
+			.setThumbnail(invite.guild?.iconURL() || null)
+			.setFooter({ text: `Invite Code: ${invite.code}` })
 			.setType(Events.InviteDelete);
 
-		if (invite && invite.channel) {
-			const channelDescriptor = getChannelDescriptor(invite?.channel?.type);
-			if (channelDescriptor) embed.addFields({ name: channelDescriptor, value: `<#${invite?.channelId}>`, inline: true });
-		}
-		if (invite?.createdTimestamp) embed.addFields({ name: 'Created', value: `<t:${Math.round(invite.createdTimestamp as number / 1000)}:R>`, inline: true });
-		if (invite?.maxUses) embed.addFields({ name: 'Uses', value: `${inlineCodeBlock(`${invite.uses}/${invite.maxUses}`)}`, inline: true });
+		if (invite.channel) embed.addFields({ name: 'Invite Channel', value: invite.channel.url, inline: true });
 
-		const details = [];
-		if (invite?.temporary) details.push(`${Emojis.Bullet}${inlineCodeBlock(`Grants temporary membership`)}`);
-		if (details.length) embed.addFields({ name: 'Details', value: details.join('\n') });
+		if (!isNullish(executor)) embed.addFields({ name: 'Deleted By', value: executor.toString(), inline: true });
 
 		return [embed]
 	}

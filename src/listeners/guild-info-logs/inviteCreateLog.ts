@@ -1,10 +1,8 @@
 import { GuildLogEmbed } from '#lib/extensions/GuildLogEmbed';
-import { Emojis } from '#utils/constants';
-import { getChannelDescriptor } from '#utils/util';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Events, Listener, type ListenerOptions } from '@sapphire/framework';
-import { inlineCodeBlock, isNullish } from '@sapphire/utilities';
-import { BaseGuildTextChannel, Guild, Invite, User } from 'discord.js';
+import { isNullish } from '@sapphire/utilities';
+import { BaseGuildTextChannel, Invite, User } from 'discord.js';
 
 @ApplyOptions<ListenerOptions>({ event: Events.InviteCreate })
 export class UserEvent extends Listener {
@@ -19,32 +17,26 @@ export class UserEvent extends Listener {
 		const logChannel = guild?.channels.resolve(guildSettingsInfoLogs.infoLogChannel) as BaseGuildTextChannel;
 		const executor = invite.inviter;
 
-		return this.container.client.emit('guildLogCreate', logChannel, this.generateGuildLog(fetchedInvite, guild, executor));
+		return this.container.client.emit('guildLogCreate', logChannel, this.generateGuildLog(fetchedInvite, executor));
 	}
 
-	private generateGuildLog(invite: Invite | undefined, guild: Guild | null, executor: User | null | undefined) {
+	private generateGuildLog(invite: Invite | undefined, executor: User | null | undefined) {
+		if (!invite) return null;
+
 		const embed = new GuildLogEmbed()
-			.setAuthor({
-				name: `${invite?.code}`,
-				url: `https://discord.gg/${invite?.code}`,
-				iconURL: guild?.iconURL() as string
-			})
-			.setDescription(`[${inlineCodeBlock(`discord.gg/${invite?.code}`)}](https://discord.gg/${invite?.code})`)
-			.setFooter({ text: `Invite created ${isNullish(executor) ? '' : `by ${executor.username}`}`, iconURL: isNullish(executor) ? undefined : executor?.displayAvatarURL() })
+			.setTitle('Invite Created')
+			.setDescription(invite.url)
+			.setThumbnail(invite.guild?.iconURL() || null)
+			.setFooter({ text: `Invite Code: ${invite.code}` })
 			.setType(Events.InviteCreate);
 
-		if (invite && invite.channel) {
-			const channelDescriptor = getChannelDescriptor(invite?.channel?.type);
-			if (channelDescriptor) embed.addFields({ name: channelDescriptor, value: `<#${invite?.channelId}>`, inline: true });
-		}
+		if (invite.channel) embed.addFields({ name: 'Invite Channel', value: invite.channel.url, inline: true });
+		embed.addFields({ name: 'Expires', value: `${invite.expiresTimestamp ? `<t:${Math.round(invite.expiresTimestamp as number / 1000)}:R>` : 'Never'}`, inline: true });
+		if (invite.maxUses) embed.addFields({ name: 'Uses', value: `\`${invite.uses}/${invite.maxUses}\``, inline: true });
+		if (invite.guildScheduledEvent) embed.addFields({ name: 'Event', value: invite.guildScheduledEvent.url, inline: true });
+		if (invite.temporary) embed.addFields({ name: 'Membership Type', value: '`Temporary`', inline: true });
 
-		if (invite?.expiresTimestamp) embed.addFields({ name: 'Expires', value: `<t:${Math.round(invite.expiresTimestamp as number / 1000)}:R>`, inline: true });
-		if (invite?.maxUses) embed.addFields({ name: 'Uses', value: `${inlineCodeBlock(`${invite.uses}/${invite.maxUses}`)}`, inline: true });
-		if (invite?.guildScheduledEvent) embed.addFields({ name: 'Associated event', value: `[${inlineCodeBlock(`${invite.guildScheduledEvent.name}`)}](${invite.guildScheduledEvent.url})`, inline: true });
-
-		const details = [];
-		if (invite?.temporary) details.push(`${Emojis.Bullet}${inlineCodeBlock(`Grants temporary membership`)}`);
-		if (details.length) embed.addFields({ name: 'Details', value: details.join('\n') });
+		if (!isNullish(executor)) embed.addFields({ name: 'Created By', value: executor.toString(), inline: true });
 
 		return [embed]
 	}
