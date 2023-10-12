@@ -3,17 +3,20 @@ import { bold, gray } from 'colorette';
 import { Guild, User } from "discord.js";
 
 export async function initializeGuild(guild: Guild) {
-	const { logger, prisma } = container;
+	const { logger, prisma, client } = container;
 	const clientSettings = await prisma.clientSettings.findFirst();
+
+	// Fetch Owner's User so it's in cache
+	const owner = await client.users.fetch(guild.ownerId);
 
 	if (clientSettings?.guildBlacklist.includes(guild.id)) {
 		await guild.leave();
 		logger.debug(`Guild ${bold(guild.name)} (${gray(guild.id)}) is on the guild blacklist, leaving...`);
 	}
 
-	if (clientSettings?.userBlacklist.includes(guild.ownerId)) {
+	if (clientSettings?.userBlacklist.includes(owner.id)) {
 		await guild.leave();
-		logger.debug(`Guild ${bold(guild.name)} (${gray(guild.id)}) is owned by user (${guild.ownerId}) on global blacklist, leaving...`);
+		logger.debug(`Guild ${bold(guild.name)} (${gray(guild.id)}) is owned by user (${owner.id}) on global blacklist, leaving...`);
 	}
 
 	// Check if entry exists for guild. If not, create it

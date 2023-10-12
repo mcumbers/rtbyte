@@ -7,9 +7,9 @@ import { Guild } from 'discord.js';
 @ApplyOptions<ListenerOptions>({ event: Events.GuildCreate })
 export class UserEvent extends Listener {
 	public async run(guild: Guild) {
-		if (!guild.available) return;
+		this.container.logger.info(`Bot added to guild ${bold(guild.name)} (${gray(guild.id)})`);
 
-		this.container.logger.info(`Bot added to guild ${bold(guild.name)} (${gray(guild.id)})`)
+		if (!guild.available) return;
 
 		await initializeGuild(guild);
 	}

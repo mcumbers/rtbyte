@@ -5,6 +5,7 @@ import { Events } from "@sapphire/framework";
 export class GuildLogEmbed extends BotEmbed {
 	public setType(type: string) {
 		switch (type) {
+			case Events.GuildCreate:
 			case Events.AutoModerationRuleCreate:
 			case Events.ChannelCreate:
 			case Events.GuildEmojiCreate:
@@ -19,6 +20,7 @@ export class GuildLogEmbed extends BotEmbed {
 			case Events.ThreadCreate:
 				this.setColor(Colors.Green);
 				break;
+			case Events.GuildDelete:
 			case Events.AutoModerationRuleDelete:
 			case Events.ChannelDelete:
 			case Events.GuildEmojiDelete:

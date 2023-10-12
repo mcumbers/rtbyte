@@ -8,9 +8,12 @@ generator client {
 }
 
 model ClientSettings {
-    id             String   @id @map("client_id")
-    userBlacklist  String[] @map("user_blacklist")
-    guildBlacklist String[] @map("guild_blacklist")
+    id                         String   @id @map("client_id")
+    userBlacklist              String[] @map("user_blacklist")
+    guildBlacklist             String[] @map("guild_blacklist")
+    controlGuildID             String?  @map("control_guild_id")
+    controlGuildInfoLogPublic  String?  @map("control_guild_info_log_public")
+    controlGuildInfoLogPrivate String?  @map("control_guild_info_log_private")
 
     restarts DateTime[] @map("bot_restarts")
 
