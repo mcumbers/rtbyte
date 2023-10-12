@@ -1,6 +1,6 @@
 import { container } from '@sapphire/framework';
 import { bold, gray } from 'colorette';
-import { Guild, User } from "discord.js";
+import { Guild, GuildMember, User } from "discord.js";
 
 export async function initializeGuild(guild: Guild) {
 	const { logger, prisma, client } = container;
@@ -20,79 +20,86 @@ export async function initializeGuild(guild: Guild) {
 	}
 
 	// Check if entry exists for guild. If not, create it
-	const guildInfo = await prisma.guild.findUnique({ where: { id: guild.id } });
-	const guildSettings = await prisma.guildSettings.findUnique({ where: { id: guild.id } });
-	const guildSettingsChatFilter = await prisma.guildSettingsChatFilter.findUnique({ where: { id: guild.id } });
-	const guildSettingsLogs = await prisma.guildSettingsInfoLogs.findUnique({ where: { id: guild.id } });
-	const guildSettingsModActions = await prisma.guildSettingsModActions.findUnique({ where: { id: guild.id } });
+	let guildInfo = await prisma.guild.findUnique({ where: { id: guild.id } });
+	let guildSettings = await prisma.guildSettings.findUnique({ where: { id: guild.id } });
+	let guildSettingsChatFilter = await prisma.guildSettingsChatFilter.findUnique({ where: { id: guild.id } });
+	let guildSettingsLogs = await prisma.guildSettingsInfoLogs.findUnique({ where: { id: guild.id } });
+	let guildSettingsModActions = await prisma.guildSettingsModActions.findUnique({ where: { id: guild.id } });
 
 	if (!guildInfo || !guildSettings || !guildSettingsChatFilter || !guildSettingsLogs || !guildSettingsModActions) {
 		logger.debug(`Initializing guild ${bold(guild.name)} (${gray(guild.id)})...`)
 
 		if (!guildInfo) {
-			await prisma.guild.create({
+			guildInfo = await prisma.guild.create({
 				data: {
 					id: guild.id
 				}
 			}).catch(e => {
 				logger.error(`Failed to initialize guild info for ${bold(guild.name)} (${gray(guild.id)}), error below.`);
 				logger.error(e);
+				return null;
 			});
 		}
 
 		if (!guildSettings) {
-			await prisma.guildSettings.create({
+			guildSettings = await prisma.guildSettings.create({
 				data: {
 					id: guild.id
 				}
 			}).catch(e => {
 				logger.error(`Failed to initialize guildSettings for ${bold(guild.name)} (${gray(guild.id)}), error below.`);
 				logger.error(e);
+				return null;
 			});
 		}
 
 		if (!guildSettingsChatFilter) {
-			await prisma.guildSettingsChatFilter.create({
+			guildSettingsChatFilter = await prisma.guildSettingsChatFilter.create({
 				data: {
 					id: guild.id
 				}
 			}).catch(e => {
 				logger.error(`Failed to initialize guildSettingsChatFilter for ${bold(guild.name)} (${gray(guild.id)}), error below.`);
 				logger.error(e);
+				return null;
 			});
 		}
 
 		if (!guildSettingsLogs) {
-			await prisma.guildSettingsInfoLogs.create({
+			guildSettingsLogs = await prisma.guildSettingsInfoLogs.create({
 				data: {
 					id: guild.id
 				}
 			}).catch(e => {
 				logger.error(`Failed to initialize guildSettingsLogs for ${bold(guild.name)} (${gray(guild.id)}), error below.`);
 				logger.error(e);
+				return null;
 			});
 		}
 
 		if (!guildSettingsModActions) {
-			await prisma.guildSettingsModActions.create({
+			guildSettingsModActions = await prisma.guildSettingsModActions.create({
 				data: {
 					id: guild.id
 				}
 			}).catch(e => {
 				logger.error(`Failed to initialize guildSettingsModActions for ${bold(guild.name)} (${gray(guild.id)}), error below.`);
 				logger.error(e);
+				return null;
 			});
 		}
 
 	}
 
 	logger.debug(`Verified initialization of guild ${bold(guild.name)} (${gray(guild.id)})`);
+	return { guildInfo, guildSettings, guildSettingsChatFilter, guildSettingsLogs, guildSettingsModActions };
 }
 
 export async function initializeUser(user?: User, userID?: string) {
 	const { logger, prisma } = container;
 	if (!user && !userID) {
-		throw logger.error(`Failed to initialize user info. No user identifier specified.`);
+		logger.error(`Failed to initialize user info. No user identifier specified.`);
+		return null;
 	}
 
 	const clientSettings = await prisma.clientSettings.findFirst();
@@ -114,6 +121,7 @@ export async function initializeUser(user?: User, userID?: string) {
 		}).catch(e => {
 			logger.error(`Failed to initialize user info for ${user ? bold(user.username) : '...'} (${gray(userID!)}), error below.`);
 			logger.error(e);
+			return null;
 		});
 	}
 
@@ -125,29 +133,31 @@ export async function initializeUser(user?: User, userID?: string) {
 		}).catch(e => {
 			logger.error(`Failed to initialize user settings for ${user ? bold(user.username) : '...'} (${gray(userID!)}), error below.`);
 			logger.error(e);
+			return null;
 		});
 	}
 
-	return logger.debug(`Verified initialization of user ${user ? bold(user.username) : '...'} (${gray(userID!)})`);
+	logger.debug(`Verified initialization of user ${user ? bold(user.username) : '...'} (${gray(userID!)})`);
+	return { userInfo, userSettings };
 }
 
-export async function initializeMember(user: User, guild: Guild) {
+export async function initializeMember(user: User, guild: Guild, member?: GuildMember) {
 	const { logger, prisma } = container;
 	await initializeUser(user);
-	const clientSettings = await prisma.clientSettings.findFirst();
+	const clientSettings = await prisma.clientSettings.findFirst({ where: { id: container.client.id as string } });
 
 	logger.debug(`Initializing member ${bold(user.username)} (${gray(user.id)}) in guild ${bold(guild.name)} (${gray(guild.id)})...`);
 
 	if (clientSettings?.userBlacklist.includes(user.id)) logger.debug(`User ${bold(user.username)} (${gray(user.id)}) is on the user blacklist...`);
 
-	const memberInfo = await prisma.member.findFirst({ where: { userID: user.id, guildID: guild.id } });
-
-	const member = await guild.members.fetch(user.id);
+	if (!member) member = await guild.members.fetch(user.id);
+	let memberInfo = await prisma.member.findFirst({ where: { userID: user.id, guildID: guild.id } });
 
 	if (!memberInfo) {
 		const joinTimes: Date[] = [];
+
 		if (member && member.joinedAt) joinTimes.push(member.joinedAt);
-		await prisma.member.create({
+		memberInfo = await prisma.member.create({
 			data: {
 				userID: `${user.id}`,
 				guildID: `${guild.id}`,
@@ -155,9 +165,25 @@ export async function initializeMember(user: User, guild: Guild) {
 			}
 		}).catch(e => {
 			logger.error(`Failed to initialize member info for ${bold(user.username)} (${gray(user.id)}) in guild ${bold(guild.name)} (${gray(guild.id)}), error below.`);
-			return logger.error(e);
+			logger.error(e);
+			return null;
 		});
 	}
 
-	return logger.debug(`Verified initialization of member ${bold(user.username)} (${gray(user.id)}) in guild ${bold(guild.name)} (${gray(guild.id)})`);
+	if (member && member.joinedAt && !memberInfo?.joinTimes.includes(member.joinedAt)) {
+		const dbJoinTimes = memberInfo?.joinTimes || [];
+		dbJoinTimes.push(member.joinedAt);
+
+		memberInfo = await prisma.member.update({
+			where: {
+				id: memberInfo?.id
+			},
+			data: {
+				joinTimes: dbJoinTimes
+			}
+		});
+	}
+
+	logger.debug(`Verified initialization of member ${bold(user.username)} (${gray(user.id)}) in guild ${bold(guild.name)} (${gray(guild.id)})`);
+	return { memberInfo };
 }

@@ -43,8 +43,8 @@ export class UserEvent extends Listener {
 
 		// Update stats if client model exists, create db entry if not
 		if (client.id) {
-			const clientData = await prisma.clientSettings.findFirst();
-			if (!clientData) await prisma.clientSettings.create({ data: { id: client.id } });
+			const clientData = await prisma.clientSettings.findFirst({ where: { id: client.id } });
+			if (!clientData) await prisma.clientSettings.create({ data: { id: client.id, controlGuildID: CONTROL_GUILD } });
 
 			const restarts = clientData?.restarts;
 			restarts?.push(new Date(Date.now()));
@@ -56,15 +56,6 @@ export class UserEvent extends Listener {
 
 	private async guildValidation() {
 		const { client, logger } = this.container;
-
-		if (!CONTROL_GUILD) {
-			logger.fatal('A control guild has not been set - shutting down...');
-			return client.destroy();
-		}
-		if (!client.guilds.cache.has(CONTROL_GUILD)) {
-			logger.fatal('Bot has not been added to the configured control guild - shutting down...');
-			return client.destroy();
-		}
 
 		logger.info('Starting guild validation...');
 
