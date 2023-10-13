@@ -1,12 +1,14 @@
+import { OWNERS } from '#root/config';
 import { container } from '@sapphire/framework';
 import type { LoginData } from '@sapphire/plugin-api';
-import { type RESTAPIPartialCurrentUserGuild } from 'discord.js';
+import { type APIUser, type RESTAPIPartialCurrentUserGuild, type RESTGetAPICurrentUserResult } from 'discord.js';
 
 interface TransformedLoginData extends LoginData {
 	transformedGuilds?: (RESTAPIPartialCurrentUserGuild & { botInGuild: boolean })[] | null;
+	transformedUser?: (RESTGetAPICurrentUserResult & { isBotOwner: boolean })[] | null;
 }
 
-export function transformLoginDataGuilds(loginData: LoginData): TransformedLoginData {
+export function transformLoginData(loginData: LoginData): TransformedLoginData {
 	const { client } = container;
 
 	const transformedGuilds = loginData.guilds?.map((guild) => {
@@ -20,6 +22,12 @@ export function transformLoginDataGuilds(loginData: LoginData): TransformedLogin
 		};
 	});
 
+	const transformedUser = {
+		...loginData.user as APIUser,
+		isBotOwner: loginData?.user?.id ? OWNERS.includes(loginData?.user?.id as string) : false
+	};
+
 	loginData.guilds = transformedGuilds;
+	loginData.user = transformedUser;
 	return { ...loginData };
 }
