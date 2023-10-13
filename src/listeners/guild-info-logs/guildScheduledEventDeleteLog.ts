@@ -2,40 +2,35 @@ import { GuildLogEmbed } from '#lib/extensions/GuildLogEmbed';
 import { getAuditLogExecutor } from '#utils/util';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Events, Listener, type ListenerOptions } from '@sapphire/framework';
-import { inlineCodeBlock, isNullish } from '@sapphire/utilities';
-import { AuditLogEvent, BaseGuildTextChannel, ChannelType, Guild, GuildScheduledEvent, User } from 'discord.js';
+import { isNullish } from '@sapphire/utilities';
+import { AuditLogEvent, BaseGuildTextChannel, Guild, GuildScheduledEvent, User } from 'discord.js';
 
 @ApplyOptions<ListenerOptions>({ event: Events.GuildScheduledEventDelete })
 export class UserEvent extends Listener {
 	public async run(event: GuildScheduledEvent) {
 		if (isNullish(event.id)) return;
 
-		const guildSettingsInfoLogs = await this.container.prisma.guildSettingsInfoLogs.findUnique({ where: { id: event.guild?.id } });
+		const guildSettingsInfoLogs = await this.container.prisma.guildSettingsInfoLogs.findUnique({ where: { id: event.guildId } });
 		if (!guildSettingsInfoLogs?.guildScheduledEventDeleteLog || !guildSettingsInfoLogs.infoLogChannel) return;
 
 		const logChannel = event.guild?.channels.resolve(guildSettingsInfoLogs.infoLogChannel) as BaseGuildTextChannel;
-		const executor = await getAuditLogExecutor(AuditLogEvent.GuildScheduledEventCreate, event.guild as Guild);
+		const executor = await getAuditLogExecutor(AuditLogEvent.GuildScheduledEventDelete, event.guild as Guild, event);
 
 		return this.container.client.emit('guildLogCreate', logChannel, this.generateGuildLog(event, executor));
 	}
 
 	private generateGuildLog(event: GuildScheduledEvent, executor: User | null | undefined) {
 		const embed = new GuildLogEmbed()
-			.setAuthor({
-				name: event.name,
-				url: event.url,
-				iconURL: event.guild?.iconURL() ?? undefined
-			})
-			.setDescription(`${inlineCodeBlock(event.id)}\n**Description**:\n${event.description}`)
-			.setFooter({ text: `Event cancelled ${isNullish(executor) ? '' : `by ${executor.username}`}`, iconURL: isNullish(executor) ? undefined : executor?.displayAvatarURL() })
+			.setTitle('Event Deleted')
+			.setThumbnail(event.guild!.iconURL())
+			.setFooter({ text: `Event ID: ${event.id}` })
 			.setType(Events.GuildScheduledEventDelete);
 
-		if (event.channel) embed.addFields({ name: event.channel.type === ChannelType.GuildVoice ? 'Voice channel' : 'Stage channel', value: `<#${event.channelId}>`, inline: true });
-		if (event.entityMetadata?.location) embed.addFields({ name: 'Location', value: event.entityMetadata.location, inline: true });
-		if (event.scheduledStartTimestamp) embed.addFields({ name: 'Scheduled to start', value: `<t:${Math.round(event.scheduledStartTimestamp as number / 1000)}:R>`, inline: true });
-		if (event.scheduledEndTimestamp) embed.addFields({ name: 'Scheduled to end', value: `<t:${Math.round(event.scheduledEndTimestamp as number / 1000)}:R>`, inline: true });
-		if (event.userCount) embed.addFields({ name: 'Interested users', value: inlineCodeBlock(`${event.userCount}`) });
-		if (event.image) embed.setImage(event.coverImageURL());
+		if (event.name) embed.setDescription(event.name as string);
+		if (event.description && !event.name) embed.addFields({ name: 'Description', value: event.description as string, inline: false });
+
+		if (event.createdTimestamp) embed.addFields({ name: 'Created', value: `<t:${Math.round(event.createdTimestamp as number / 1000)}:R>`, inline: true });
+		if (!isNullish(executor)) embed.addFields({ name: 'Deleted By', value: executor.toString(), inline: false });
 
 		return [embed]
 	}

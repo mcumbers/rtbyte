@@ -7,12 +7,15 @@ import { BaseGuildTextChannel, Invite, User } from 'discord.js';
 @ApplyOptions<ListenerOptions>({ event: Events.InviteCreate })
 export class UserEvent extends Listener {
 	public async run(invite: Invite) {
-		if (isNullish(invite.guild)) return;
+		if (isNullish(invite.guild) && isNullish(invite.guildScheduledEvent)) return;
 
-		const guildSettingsInfoLogs = await this.container.prisma.guildSettingsInfoLogs.findUnique({ where: { id: invite.guild.id } });
+		const guildID = invite.guild ? invite.guild.id : invite.guildScheduledEvent ? invite.guildScheduledEvent.guildId : null;
+		if (!guildID) return;
+
+		const guildSettingsInfoLogs = await this.container.prisma.guildSettingsInfoLogs.findUnique({ where: { id: guildID } });
 		if (!guildSettingsInfoLogs?.inviteCreateLog || !guildSettingsInfoLogs.infoLogChannel) return;
 
-		const guild = this.container.client.guilds.resolve(invite.guild.id);
+		const guild = this.container.client.guilds.resolve(guildID);
 		const fetchedInvite = await guild?.invites.fetch({ code: invite.code });
 		const logChannel = guild?.channels.resolve(guildSettingsInfoLogs.infoLogChannel) as BaseGuildTextChannel;
 		const executor = invite.inviter;
