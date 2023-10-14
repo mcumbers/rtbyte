@@ -7,7 +7,8 @@ import { inlineCodeBlock } from '@sapphire/utilities';
 import { PermissionFlagsBits } from 'discord.js';
 
 @ApplyOptions<ChatInputCommand.Options>({
-	description: 'Retrieve information about a role'
+	description: 'Retrieve information about a role',
+	preconditions: ['OwnerOnly']
 })
 export class UserCommand extends BotCommand {
 	public override registerApplicationCommands(registry: ChatInputCommand.Registry) {

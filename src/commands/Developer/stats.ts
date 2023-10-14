@@ -4,12 +4,13 @@ import { Command } from '@sapphire/framework';
 import { memoryUsage } from 'node:process';
 
 @ApplyOptions<Command.Options>({
-	description: 'See statistics about the Bot.'
+	description: 'See statistics about the Bot.',
+	preconditions: ['OwnerOnly']
 })
 export class UserCommand extends Command {
 	public override registerApplicationCommands(registry: Command.Registry) {
 		registry.registerChatInputCommand((builder) =>
-			builder //
+			builder
 				.setName(this.name)
 				.setDescription(this.description)
 				.addBooleanOption((option) =>
@@ -47,22 +48,17 @@ export class UserCommand extends Command {
 		const { heapTotal } = memoryUsage();
 		const megabytesUsed = (heapTotal / 1000000).toFixed(2);
 
-		const clientData = await this.container.prisma.clientSettings.findFirst();
-		const lastRestart: Date = clientData?.restarts[clientData.restarts.length - 1] ?? new Date();
+		const botGlobalSettings = await this.container.prisma.botGlobalSettings.findFirst({ where: { id: this.container.client.id as string } });
+		const lastRestart: Date = botGlobalSettings?.restarts[botGlobalSettings.restarts.length - 1] ?? new Date();
 
 		// Build reply embed
 		const embed = new BotEmbed()
 			.setTitle(`${this.container.client.user?.username} Stats`)
 			.setThumbnail(this.container.client.user?.avatarURL() ?? null)
-			.addBlankFields({ name: '**Userbase Stats:**', value: '', inline: false })
 			.addFields({ name: 'Guilds', value: `${guildCount}`, inline: true })
 			.addFields({ name: 'Members', value: `${memberCount}`, inline: true })
-			.addBlankFields()
-			.addBlankFields({ name: '**Server Stats:**', value: '', inline: false })
 			.addFields({ name: 'Memory Use', value: `${megabytesUsed}MB`, inline: true })
 			.addFields({ name: 'Last Restart', value: `<t:${Math.trunc(lastRestart.getTime() / 1000)}>`, inline: true })
-			.addBlankFields()
-			.addBlankFields({ name: '**Registered Application Commands:**', value: '', inline: false })
 			.addFields({ name: 'Global Commands', value: `${globalAppCommandCount}`, inline: true })
 			.addFields({ name: 'Guild Commands', value: `${guildAppCommandCount}`, inline: true });
 

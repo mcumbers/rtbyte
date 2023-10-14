@@ -9,7 +9,8 @@ import { inlineCodeBlock } from '@sapphire/utilities';
 import { ChannelType, PermissionFlagsBits } from 'discord.js';
 
 @ApplyOptions<ChatInputCommand.Options>({
-	description: 'Retrieve information about a channel'
+	description: 'Retrieve information about a channel',
+	preconditions: ['OwnerOnly']
 })
 export class UserCommand extends BotCommand {
 	public override registerApplicationCommands(registry: ChatInputCommand.Registry) {

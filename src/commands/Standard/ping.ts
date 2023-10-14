@@ -5,7 +5,8 @@ import { isMessageInstance } from '@sapphire/discord.js-utilities';
 import { type ChatInputCommand } from '@sapphire/framework';
 
 @ApplyOptions<ChatInputCommand.Options>({
-	description: 'Pings bot'
+	description: 'Pings bot',
+	preconditions: ['OwnerOnly']
 })
 export class UserCommand extends BotCommand {
 	public override registerApplicationCommands(registry: ChatInputCommand.Registry) {

@@ -6,7 +6,8 @@ import { inlineCodeBlock } from '@sapphire/utilities';
 import { ChannelType, PermissionFlagsBits } from 'discord.js';
 
 @ApplyOptions<ChatInputCommand.Options>({
-	description: 'Sends a message to the specified channel as the bot'
+	description: 'Sends a message to the specified channel as the bot',
+	preconditions: ['OwnerOnly']
 })
 export class UserCommand extends BotCommand {
 	public override registerApplicationCommands(registry: ChatInputCommand.Registry) {

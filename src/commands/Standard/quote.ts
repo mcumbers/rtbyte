@@ -6,7 +6,8 @@ import { type ChatInputCommand, type ContextMenuCommand } from '@sapphire/framew
 import { ApplicationCommandType, PermissionFlagsBits } from 'discord.js';
 
 @ApplyOptions<ChatInputCommand.Options>({
-	description: 'Quote a message'
+	description: 'Quote a message',
+	preconditions: ['OwnerOnly']
 })
 export class UserCommand extends BotCommand {
 	public override registerApplicationCommands(registry: ChatInputCommand.Registry) {
