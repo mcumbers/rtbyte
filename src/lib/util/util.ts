@@ -1,5 +1,5 @@
 import { container } from "@sapphire/framework";
-import { inlineCodeBlock, isNullishOrEmpty } from "@sapphire/utilities";
+import { isNullishOrEmpty } from "@sapphire/utilities";
 import { ChannelType, GuildChannel, Invite, PermissionFlagsBits, type ApplicationCommandPermissions, type AuditLogEvent, type Emoji, type Guild, type GuildScheduledEvent, type Interaction, type Message, type Role, type StageChannel, type StageInstance, type Sticker, type ThreadChannel, type User, type VoiceChannel, type Webhook } from "discord.js";
 
 /**
@@ -50,33 +50,33 @@ export function getContent(message: Message): string | null {
 export function getRegionOverride(channel: StageChannel | VoiceChannel) {
 	switch (channel.rtcRegion) {
 		case 'brazil':
-			return `🇧🇷 ${inlineCodeBlock(`Brazil`)}`
+			return `🇧🇷 ${`Brazil`}`
 		case 'hongkong':
-			return `🇭🇰 ${inlineCodeBlock(`Hong Kong`)}`
+			return `🇭🇰 ${`Hong Kong`}`
 		case 'india':
-			return `🇮🇳 ${inlineCodeBlock(`India`)}`
+			return `🇮🇳 ${`India`}`
 		case 'japan':
-			return `🇯🇵 ${inlineCodeBlock(`Japan`)}`
+			return `🇯🇵 ${`Japan`}`
 		case 'rotterdam':
-			return `🇳🇱 ${inlineCodeBlock(`Rotterdam`)}`
+			return `🇳🇱 ${`Rotterdam`}`
 		case 'russia':
-			return `🇷🇺 ${inlineCodeBlock(`Russia`)}`
+			return `🇷🇺 ${`Russia`}`
 		case 'singapore':
-			return `🇸🇬 ${inlineCodeBlock(`Singapore`)}`
+			return `🇸🇬 ${`Singapore`}`
 		case 'southafrica':
-			return `🇿🇦 ${inlineCodeBlock(`South Africa`)}`
+			return `🇿🇦 ${`South Africa`}`
 		case 'sydney':
-			return `🇦🇺 ${inlineCodeBlock(`Sydney`)}`
+			return `🇦🇺 ${`Sydney`}`
 		case 'us-cental':
-			return `🇺🇸 ${inlineCodeBlock(`US Central`)}`
+			return `🇺🇸 ${`US Central`}`
 		case 'us-east':
-			return `🇺🇸 ${inlineCodeBlock(`US East`)}`
+			return `🇺🇸 ${`US East`}`
 		case 'us-south':
-			return `🇺🇸 ${inlineCodeBlock(`US South`)}`
+			return `🇺🇸 ${`US South`}`
 		case 'us-west':
-			return `🇺🇸 ${inlineCodeBlock(`US West`)}`
+			return `🇺🇸 ${`US West`}`
 		default:
-			return `🗺️ ${inlineCodeBlock(`Automatic`)}`
+			return `🗺️ ${`Automatic`}`
 	}
 }
 
@@ -86,50 +86,50 @@ export function getRegionOverride(channel: StageChannel | VoiceChannel) {
  */
 export function getPermissionString(permission: string) {
 	switch (permission) {
-		case 'ViewChannel': return inlineCodeBlock('View channels');
-		case 'ManageChannels': return inlineCodeBlock('Manage channels');
-		case 'ManageRoles': return inlineCodeBlock('Manage roles');
-		case 'ManageGuildExpressions': return inlineCodeBlock('Manage expressions');
-		case 'ViewAuditLog': return inlineCodeBlock('View audit log');
-		case 'ViewGuildInsights': return inlineCodeBlock('View server insights');
-		case 'ManageWebhooks': return inlineCodeBlock('Manage webhooks');
-		case 'ManageGuild': return inlineCodeBlock('Manage server');
-		case 'CreateInstantInvite': return inlineCodeBlock('Create invite');
-		case 'ChangeNickname': return inlineCodeBlock('Change nickname');
-		case 'ManageNicknames': return inlineCodeBlock('Manage nicknames');
-		case 'KickMembers': return inlineCodeBlock('Kick members');
-		case 'BanMembers': return inlineCodeBlock('Ban members');
-		case 'ModerateMembers': return inlineCodeBlock('Timeout members');
-		case 'SendMessages': return inlineCodeBlock('Send messages');
-		case 'SendMessagesInThreads': return inlineCodeBlock('Send messages in threads');
-		case 'CreatePublicThreads': return inlineCodeBlock('Create public threads');
-		case 'CreatePrivateThreads': return inlineCodeBlock('Create private threads');
-		case 'EmbedLinks': return inlineCodeBlock('Embed links');
-		case 'AttachFiles': return inlineCodeBlock('Attach files');
-		case 'AddReactions': return inlineCodeBlock('Add reactions');
-		case 'UseExternalEmojis': return inlineCodeBlock('Use external emoji');
-		case 'UseExternalStickers': return inlineCodeBlock('User external stickers');
-		case 'MentionEveryone': return inlineCodeBlock('Mention @everyone, @here, and all roles');
-		case 'ManageMessages': return inlineCodeBlock('Manage messages');
-		case 'ManageThreads': return inlineCodeBlock('Manage threads');
-		case 'ReadMessageHistory': return inlineCodeBlock('Read message history');
-		case 'SendTTSMessages': return inlineCodeBlock('Send text-to-speech messages');
-		case 'UseApplicationCommands': return inlineCodeBlock('Use application commands');
-		case 'SendVoiceMessages': return inlineCodeBlock('Send voice messages');
-		case 'Connect': return inlineCodeBlock('Connect');
-		case 'Speak': return inlineCodeBlock('Speak');
-		case 'Stream': return inlineCodeBlock('Video');
-		case 'UseEmbeddedActivities': return inlineCodeBlock('Use activities');
-		case 'UseSoundboard': return inlineCodeBlock('Use soundboard');
-		case 'UseExternalSounds': return inlineCodeBlock('Use external sounds');
-		case 'UseVAD': return inlineCodeBlock('Use voice activity');
-		case 'PrioritySpeaker': return inlineCodeBlock('Priority speaker');
-		case 'MuteMembers': return inlineCodeBlock('Mute members');
-		case 'DeafenMembers': return inlineCodeBlock('Deafen members');
-		case 'MoveMembers': return inlineCodeBlock('Move members');
-		case 'RequestToSpeak': return inlineCodeBlock('Request to speak');
-		case 'ManageEvents': return inlineCodeBlock('Manage events');
-		case 'Administrator': return inlineCodeBlock('Administrator');
+		case 'ViewChannel': return 'View channels';
+		case 'ManageChannels': return 'Manage channels';
+		case 'ManageRoles': return 'Manage roles';
+		case 'ManageGuildExpressions': return 'Manage expressions';
+		case 'ViewAuditLog': return 'View audit log';
+		case 'ViewGuildInsights': return 'View server insights';
+		case 'ManageWebhooks': return 'Manage webhooks';
+		case 'ManageGuild': return 'Manage server';
+		case 'CreateInstantInvite': return 'Create invite';
+		case 'ChangeNickname': return 'Change nickname';
+		case 'ManageNicknames': return 'Manage nicknames';
+		case 'KickMembers': return 'Kick members';
+		case 'BanMembers': return 'Ban members';
+		case 'ModerateMembers': return 'Timeout members';
+		case 'SendMessages': return 'Send messages';
+		case 'SendMessagesInThreads': return 'Send messages in threads';
+		case 'CreatePublicThreads': return 'Create public threads';
+		case 'CreatePrivateThreads': return 'Create private threads';
+		case 'EmbedLinks': return 'Embed links';
+		case 'AttachFiles': return 'Attach files';
+		case 'AddReactions': return 'Add reactions';
+		case 'UseExternalEmojis': return 'Use external emoji';
+		case 'UseExternalStickers': return 'User external stickers';
+		case 'MentionEveryone': return 'Mention @everyone, @here, and all roles';
+		case 'ManageMessages': return 'Manage messages';
+		case 'ManageThreads': return 'Manage threads';
+		case 'ReadMessageHistory': return 'Read message history';
+		case 'SendTTSMessages': return 'Send text-to-speech messages';
+		case 'UseApplicationCommands': return 'Use application commands';
+		case 'SendVoiceMessages': return 'Send voice messages';
+		case 'Connect': return 'Connect';
+		case 'Speak': return 'Speak';
+		case 'Stream': return 'Video';
+		case 'UseEmbeddedActivities': return 'Use activities';
+		case 'UseSoundboard': return 'Use soundboard';
+		case 'UseExternalSounds': return 'Use external sounds';
+		case 'UseVAD': return 'Use voice activity';
+		case 'PrioritySpeaker': return 'Priority speaker';
+		case 'MuteMembers': return 'Mute members';
+		case 'DeafenMembers': return 'Deafen members';
+		case 'MoveMembers': return 'Move members';
+		case 'RequestToSpeak': return 'Request to speak';
+		case 'ManageEvents': return 'Manage events';
+		case 'Administrator': return 'Administrator';
 		default: return undefined;
 	}
 }
