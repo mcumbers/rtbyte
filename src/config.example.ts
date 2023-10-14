@@ -1,4 +1,4 @@
-import { transformLoginDataGuilds } from '#root/transformers/loginDataGuilds';
+import { transformLoginData } from '#root/transformers/loginData';
 import { LogLevel } from '@sapphire/framework';
 import { GatewayIntentBits, OAuth2Scopes, Partials, type ClientOptions } from 'discord.js';
 
@@ -55,7 +55,7 @@ export const CLIENT_OPTIONS: ClientOptions = {
 			cookie: 'SB_AUTH',
 			redirect: '',
 			scopes: [OAuth2Scopes.Identify, OAuth2Scopes.Guilds, OAuth2Scopes.GuildsMembersRead],
-			transformers: [transformLoginDataGuilds]
+			transformers: [transformLoginData]
 		},
 		prefix: '/',
 		origin: '*',

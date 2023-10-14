@@ -1,5 +1,6 @@
-import { CONTROL_GUILD, DEV, INIT_ALL_MEMBERS, INIT_ALL_USERS } from '#root/config';
+import { CONTROL_GUILD, DEV, INIT_ALL_MEMBERS, INIT_ALL_USERS, OWNERS } from '#root/config';
 import { initializeGuild, initializeMember, initializeUser } from '#utils/functions/initialize';
+import type { BotGlobalSettings } from '@prisma/client';
 import type { ListenerOptions, PieceContext } from '@sapphire/framework';
 import { Listener, Store } from '@sapphire/framework';
 import { blue, gray, yellow } from 'colorette';
@@ -43,12 +44,48 @@ export class UserEvent extends Listener {
 
 		// Update stats if client model exists, create db entry if not
 		if (client.id) {
-			const clientData = await prisma.clientSettings.findFirst({ where: { id: client.id } });
-			if (!clientData) await prisma.clientSettings.create({ data: { id: client.id, controlGuildID: CONTROL_GUILD } });
+			let globalBotSettings = await prisma.botGlobalSettings.findFirst({ where: { id: client.id } });
+			if (!globalBotSettings) {
+				logger.warn('Is this the first run? Creating Global Bot Settings in the Database..');
+				const newSettingsObj: BotGlobalSettings = {
+					id: client.id,
+					userBlacklist: [],
+					guildBlacklist: [],
+					botOwners: [],
+					controlGuildID: '',
+					globalLogChannelPublic: '',
+					globalLogChannelPrivate: '',
+					restarts: []
+				};
+				if (CONTROL_GUILD) newSettingsObj.controlGuildID = CONTROL_GUILD;
+				if (OWNERS) newSettingsObj.botOwners.push(...OWNERS);
+				globalBotSettings = await prisma.botGlobalSettings.create({ data: newSettingsObj });
+			}
 
-			const restarts = clientData?.restarts;
-			restarts?.push(new Date(Date.now()));
-			await prisma.clientSettings.update({ where: { id: client.id }, data: { restarts } })
+			if (!globalBotSettings.id) {
+				logger.error('Failed to create Global Bot Settings in the Database');
+				await client.destroy();
+				process.exit(1);
+			}
+
+			if (!globalBotSettings.controlGuildID) logger.warn('No Control Guild Specified. Some features may be unavailable.');
+			if (!globalBotSettings.botOwners.length) logger.warn('No Bot Owners Specified. Some features may be unavailable.');
+
+			const updateData = {
+				botOwners: globalBotSettings.botOwners,
+				restarts: globalBotSettings.restarts
+			};
+
+			updateData.restarts.push(new Date(Date.now()));
+
+			if (OWNERS) {
+				for (const owner of OWNERS) {
+					if (updateData.botOwners.includes(owner)) continue;
+					updateData.botOwners.push(owner);
+				}
+			}
+
+			await prisma.botGlobalSettings.update({ where: { id: client.id }, data: updateData });
 		}
 
 		logger.info('Client validated!');

@@ -1,15 +1,14 @@
-import { OWNERS } from '#root/config';
 import { container } from '@sapphire/framework';
 import type { LoginData } from '@sapphire/plugin-api';
-import { type APIUser, type RESTAPIPartialCurrentUserGuild, type RESTGetAPICurrentUserResult } from 'discord.js';
-
+import { type APIUser, type ClientUser, type RESTAPIPartialCurrentUserGuild, type RESTGetAPICurrentUserResult } from 'discord.js';
 interface TransformedLoginData extends LoginData {
 	transformedGuilds?: (RESTAPIPartialCurrentUserGuild & { botInGuild: boolean })[] | null;
-	transformedUser?: (RESTGetAPICurrentUserResult & { isBotOwner: boolean })[] | null;
+	transformedUser?: (RESTGetAPICurrentUserResult & { isBotOwner: boolean }) | null;
+	bot?: (ClientUser) | null;
 }
 
-export function transformLoginData(loginData: LoginData): TransformedLoginData {
-	const { client } = container;
+export async function transformLoginData(loginData: LoginData): Promise<TransformedLoginData> {
+	const { client, prisma } = container;
 
 	const transformedGuilds = loginData.guilds?.map((guild) => {
 		const cachedGuild = client.guilds.cache.get(guild.id);
@@ -22,12 +21,14 @@ export function transformLoginData(loginData: LoginData): TransformedLoginData {
 		};
 	});
 
+	const botGlobalSettings = await prisma.botGlobalSettings.findFirst({ where: { id: client.id as string } });
+
 	const transformedUser = {
 		...loginData.user as APIUser,
-		isBotOwner: loginData?.user?.id ? OWNERS.includes(loginData?.user?.id as string) : false
+		isBotOwner: loginData?.user?.id ? botGlobalSettings?.botOwners.includes(loginData.user.id) : false
 	};
 
 	loginData.guilds = transformedGuilds;
 	loginData.user = transformedUser;
-	return { ...loginData };
+	return { ...loginData, bot: client.user as ClientUser };
 }

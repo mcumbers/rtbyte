@@ -7,17 +7,18 @@ generator client {
     provider = "prisma-client-js"
 }
 
-model ClientSettings {
+model BotGlobalSettings {
     id                      String   @id @map("client_id")
     userBlacklist           String[] @map("user_blacklist")
     guildBlacklist          String[] @map("guild_blacklist")
-    controlGuildID          String   @map("control_guild_id")
+    botOwners               String[] @map("bot_owners")
+    controlGuildID          String?  @map("control_guild_id")
     globalLogChannelPublic  String?  @map("global_log_channel_public")
     globalLogChannelPrivate String?  @map("global_log_channel_private")
 
     restarts DateTime[] @map("bot_restarts")
 
-    @@map("clientSettings")
+    @@map("botGlobalSettings")
 }
 
 model User {
@@ -234,9 +235,10 @@ model GuildSettingsInfoLogs {
     messageUpdateLogStyle      UpdateLogStyle @default(before_after) @map("log_message_update_style")
 
     // Role Changes
-    roleCreateLog Boolean @default(false) @map("log_role_create")
-    roleDeleteLog Boolean @default(false) @map("log_role_delete")
-    roleUpdateLog Boolean @default(false) @map("log_role_update")
+    roleCreateLog      Boolean        @default(false) @map("log_role_create")
+    roleDeleteLog      Boolean        @default(false) @map("log_role_delete")
+    roleUpdateLog      Boolean        @default(false) @map("log_role_update")
+    roleUpdateLogStyle UpdateLogStyle @default(before_after) @map("log_role_update_style")
 
     // Stage Instance Changes
     stageInstanceCreateLog      Boolean        @default(false) @map("log_stage_instance_create")
