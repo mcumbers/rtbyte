@@ -29,7 +29,7 @@ export class UserRoute extends Route {
 		// Fetch the GuildMember who sent the request
 		const member = await guild.members.fetch(requestAuth.id);
 		const canManageServer: boolean = guild.ownerId === member.id || member.permissions.has(PermissionsBitField.Flags.ManageGuild) || member.permissions.has(PermissionsBitField.Flags.Administrator);
-		if (!canManageServer) response.error(HttpCodes.Unauthorized);
+		if (!canManageServer) response.error(HttpCodes.Forbidden);
 
 		// Fetch the GuildSettings from the database
 		const { prisma } = this.container;
@@ -56,7 +56,7 @@ export class UserRoute extends Route {
 		// Fetch the GuildMember who sent the request
 		const member = await guild.members.fetch(requestAuth.id);
 		const canManageServer: boolean = guild.ownerId === member.id || member.permissions.has(PermissionsBitField.Flags.Administrator) || member.permissions.has(PermissionsBitField.Flags.ManageGuild);
-		if (!canManageServer) response.error(HttpCodes.Unauthorized);
+		if (!canManageServer) response.error(HttpCodes.Forbidden);
 
 		// Get the settings submitted to us from the client
 		const body = request.body as any;

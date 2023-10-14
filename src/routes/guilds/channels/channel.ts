@@ -27,7 +27,7 @@ export class UserRoute extends Route {
 		// Fetch the GuildMember who sent the request
 		const member = await guild.members.fetch(requestAuth.id);
 		const canManageServer: boolean = guild.ownerId === member.id || member.permissions.has(PermissionsBitField.Flags.ManageGuild) || member.permissions.has(PermissionsBitField.Flags.Administrator);
-		if (!canManageServer) return response.error(HttpCodes.Unauthorized);
+		if (!canManageServer) return response.error(HttpCodes.Forbidden);
 
 		// Grab channel from cache
 		const channel = await guild.channels.fetch(request.params.channel);

@@ -18,7 +18,7 @@ export class RefreshRoute extends Route {
 	}
 
 	public async [methods.POST](request: ApiRequest, response: ApiResponse) {
-		if (!request.auth) return response.error(HttpCodes.Unauthorized);
+		if (!request.auth) return response.error(HttpCodes.Forbidden);
 
 		const requestAuth = request.auth;
 		const serverAuth = this.container.server.auth!;

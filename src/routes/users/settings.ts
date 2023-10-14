@@ -20,7 +20,7 @@ export class UserRoute extends Route {
 	public async [methods.GET](request: ApiRequest, response: ApiResponse) {
 		const requestAuth = request.auth!
 		// Unauthorized for fetching any UserSettings except your own
-		if (requestAuth.id !== request.params.id) return response.error(HttpCodes.Unauthorized);
+		if (requestAuth.id !== request.params.id) return response.error(HttpCodes.Forbidden);
 
 		// Fetch current user settings
 		const { prisma, client } = this.container;
@@ -38,7 +38,7 @@ export class UserRoute extends Route {
 	public async [methods.POST](request: ApiRequest, response: ApiResponse) {
 		const requestAuth = request.auth!
 		// Unauthorized for fetching any UserSettings except your own
-		if (requestAuth.id !== request.params.id) return response.error(HttpCodes.Unauthorized);
+		if (requestAuth.id !== request.params.id) return response.error(HttpCodes.Forbidden);
 
 		// Get the settings submitted to us from the client
 		const body = request.body as any;
