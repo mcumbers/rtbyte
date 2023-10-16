@@ -15,24 +15,23 @@ export class UserEvent extends Listener {
 
 		const logChannel = thread.guild.channels.resolve(guildSettingsInfoLogs.infoLogChannel) as BaseGuildTextChannel;
 		const auditLogEntry = await getAuditLogEntry(AuditLogEvent.ThreadCreate, thread.guild, thread);
-		const isForumThread = thread.parent?.type === ChannelType.GuildForum;
 
-		return this.container.client.emit('guildLogCreate', logChannel, this.generateGuildLog(thread, auditLogEntry, isForumThread));
+		return this.container.client.emit('guildLogCreate', logChannel, this.generateGuildLog(thread, auditLogEntry));
 	}
 
-	private generateGuildLog(thread: ThreadChannel, auditLogEntry: GuildAuditLogsEntry | null, isForumThread: boolean) {
-		const postOrThread = isForumThread ? 'Post' : 'Thread';
+	private generateGuildLog(thread: ThreadChannel, auditLogEntry: GuildAuditLogsEntry | null) {
+		const threadDescriptor = thread.parent?.type === ChannelType.GuildForum ? 'Post' : 'Thread';
+		const parentDescriptor = thread.parent?.type === ChannelType.GuildForum ? 'Forum' : 'Channel';
+
 		const embed = new GuildLogEmbed()
-			.setAuthor({
-				name: thread.name,
-				url: `https://discord.com/channels/${thread.guildId}/${thread.id}`,
-				iconURL: thread.guild.iconURL() ?? undefined
-			})
-			.setDescription(inlineCodeBlock(thread.id))
-			.setFooter({ text: `${postOrThread} created ${isNullish(auditLogEntry?.executor) ? '' : `by ${auditLogEntry?.executor.username}`}`, iconURL: isNullish(auditLogEntry?.executor) ? undefined : auditLogEntry?.executor?.displayAvatarURL() })
+			.setTitle(`${threadDescriptor} Created`)
+			.setDescription(`${thread.url}`)
+			.setThumbnail(thread.guild.iconURL())
+			.setFooter({ text: `Thread ID: ${thread.id}` })
 			.setType(Events.ThreadCreate);
 
-		if (thread.parent) embed.addFields({ name: `${thread.parent.type === ChannelType.GuildAnnouncement ? 'Announcement' : 'Text'} channel`, value: `<#${thread.parentId}>`, inline: true });
+		if (thread.parent) embed.addFields({ name: `In ${parentDescriptor}`, value: thread.parent.url, inline: true });
+
 		if (thread.appliedTags.length && thread.parent?.type === ChannelType.GuildForum) {
 			const appliedTags = thread.parent.availableTags.filter(tag => thread.appliedTags.includes(tag.id)).map(tag => `${tag.emoji ? `${thread.guild.emojis.resolve(tag.emoji.id as string)} ` ?? `${tag.emoji.name} ` : ''}${inlineCodeBlock(tag.name)}`).join(' ');
 			embed.addFields({ name: 'Applied tags', value: appliedTags });
