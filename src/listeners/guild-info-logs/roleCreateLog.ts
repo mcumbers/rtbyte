@@ -1,33 +1,63 @@
 import { GuildLogEmbed } from '#lib/extensions/GuildLogEmbed';
-import { getAuditLogExecutor } from '#utils/util';
+import { getPermissionDifference } from '#utils/functions/permissions';
+import { getAuditLogEntry } from '#utils/util';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Events, Listener, type ListenerOptions } from '@sapphire/framework';
-import { inlineCodeBlock, isNullish } from '@sapphire/utilities';
-import { AuditLogEvent, BaseGuildTextChannel, Role, User } from 'discord.js';
+import { isNullish } from '@sapphire/utilities';
+import { AuditLogEvent, BaseGuildTextChannel, GuildAuditLogsEntry, PermissionsBitField, Role } from 'discord.js';
 
 @ApplyOptions<ListenerOptions>({ event: Events.GuildRoleCreate })
 export class UserEvent extends Listener {
 	public async run(role: Role) {
 		if (isNullish(role.id)) return;
+		if (isNullish(role.guild)) return;
 
 		const guildSettingsInfoLogs = await this.container.prisma.guildSettingsInfoLogs.findUnique({ where: { id: role.guild.id } });
 		if (!guildSettingsInfoLogs?.roleCreateLog || !guildSettingsInfoLogs.infoLogChannel) return;
 
 		const logChannel = role.guild.channels.resolve(guildSettingsInfoLogs.infoLogChannel) as BaseGuildTextChannel;
-		const executor = await getAuditLogExecutor(AuditLogEvent.RoleCreate, role.guild);
+		const auditLogEntry = await getAuditLogEntry(AuditLogEvent.RoleCreate, role.guild, role);
 
-		return this.container.client.emit('guildLogCreate', logChannel, this.generateGuildLog(role, executor));
+		return this.container.client.emit('guildLogCreate', logChannel, await this.generateGuildLog(role, auditLogEntry));
 	}
 
-	private generateGuildLog(role: Role, executor: User | null | undefined) {
+	private async generateGuildLog(role: Role, auditLogEntry: GuildAuditLogsEntry | null) {
 		const embed = new GuildLogEmbed()
-			.setAuthor({
-				name: `${role?.unicodeEmoji ?? ''} ${role.name}`,
-				iconURL: role.guild.iconURL() ?? undefined
-			})
-			.setDescription(inlineCodeBlock(role.id))
-			.setFooter({ text: `Role created ${isNullish(executor) ? '' : `by ${executor.username}`}`, iconURL: isNullish(executor) ? undefined : executor?.displayAvatarURL() })
+			.setTitle('Role Created')
+			.setDescription(`${role.toString()}`)
+			.setThumbnail(role.icon ? role.iconURL() : role.guild.iconURL())
+			.setFooter({ text: `Role ID: ${role.id}` })
 			.setType(Events.GuildRoleCreate);
+
+		if (role.color) embed.addFields({ name: 'Color', value: `${role.hexColor}`, inline: true });
+		if (role.unicodeEmoji) embed.addFields({ name: 'Emoji', value: role.unicodeEmoji as string, inline: true });
+		if (role.hoist) embed.addFields({ name: 'Separated', value: 'Yes', inline: true });
+
+		if (role.tags) {
+			if (role.tags.botId) embed.addFields({ name: 'Bot Role For', value: `<@${role.tags.botId}>`, inline: true });
+
+			if (role.tags.integrationId) {
+				const integrations = await role.guild.fetchIntegrations();
+				const integration = integrations.find((ign) => ign.id === role.tags?.integrationId);
+				embed.addFields({ name: 'Integration Role For', value: integration?.name as string, inline: true });
+			}
+
+			if (role.tags.premiumSubscriberRole) embed.addFields({ name: 'Role Type', value: 'Premium Subscriber Role', inline: true });
+			if (role.tags.guildConnections) embed.addFields({ name: 'Role Type', value: 'Server Linked Role', inline: true });
+			if (role.tags.availableForPurchase) embed.addFields({ name: 'Role Type', value: 'Purchasable Role', inline: true });
+		}
+
+		const permDifferences = getPermissionDifference(new PermissionsBitField, role.permissions);
+		// Role permissions are binary, and always default to not-granted when created
+		// So we only have to show "granted" permissions here. These should only appear if created by an app.
+		if (permDifferences.added.length) {
+			embed.addFields({ name: 'Permissions', value: `\`\`\`diff\n${[...permDifferences.added.map((str) => `+ ${str}`)].join('\n')}\n\`\`\``, inline: false });
+		}
+
+		if (auditLogEntry) {
+			if (!isNullish(auditLogEntry.reason)) embed.addFields({ name: 'Reason', value: auditLogEntry.reason, inline: false });
+			if (!isNullish(auditLogEntry.executor)) embed.addFields({ name: 'Created By', value: auditLogEntry.executor.toString(), inline: false });
+		}
 
 		return [embed]
 	}

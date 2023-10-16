@@ -23,7 +23,7 @@ export class UserEvent extends Listener {
 		return this.container.client.emit('guildLogCreate', logChannel, this.generateGuildLog(fetchedInvite, executor));
 	}
 
-	private generateGuildLog(invite: Invite | undefined, executor: User | null | undefined) {
+	private generateGuildLog(invite: Invite | undefined, creator: User | null | undefined) {
 		if (!invite) return null;
 
 		const embed = new GuildLogEmbed()
@@ -39,7 +39,7 @@ export class UserEvent extends Listener {
 		if (invite.guildScheduledEvent) embed.addFields({ name: 'Event', value: invite.guildScheduledEvent.url, inline: true });
 		if (invite.temporary) embed.addFields({ name: 'Membership Type', value: '`Temporary`', inline: true });
 
-		if (!isNullish(executor)) embed.addFields({ name: 'Created By', value: executor.toString(), inline: true });
+		if (!isNullish(creator)) embed.addFields({ name: 'Created By', value: creator.toString(), inline: true });
 
 		return [embed]
 	}

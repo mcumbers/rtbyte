@@ -23,7 +23,7 @@ export class UserEvent extends Listener {
 		if (oldMessage.attachments.size !== message.attachments.size) {
 			const differenceCollection = oldMessage.attachments.difference(message.attachments);
 			for (const attachmentPair of differenceCollection) {
-				this.container.client.emit('messageAttachmentDeleteLog', message, attachmentPair[1], false);
+				this.container.client.emit('messageAttachmentDeleteLog', message, attachmentPair[1]);
 			}
 		}
 

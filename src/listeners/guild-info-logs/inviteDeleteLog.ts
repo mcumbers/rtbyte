@@ -1,9 +1,9 @@
 import { GuildLogEmbed } from '#lib/extensions/GuildLogEmbed';
-import { getAuditLogExecutor } from '#utils/util';
+import { getAuditLogEntry } from '#utils/util';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Events, Listener, type ListenerOptions } from '@sapphire/framework';
 import { isNullish } from '@sapphire/utilities';
-import { AuditLogEvent, BaseGuildTextChannel, Invite, User } from 'discord.js';
+import { AuditLogEvent, BaseGuildTextChannel, Invite, type GuildAuditLogsEntry } from 'discord.js';
 
 @ApplyOptions<ListenerOptions>({ event: Events.InviteDelete })
 export class UserEvent extends Listener {
@@ -17,12 +17,12 @@ export class UserEvent extends Listener {
 		if (!guild) return;
 
 		const logChannel = guild.channels.resolve(guildSettingsInfoLogs.infoLogChannel) as BaseGuildTextChannel;
-		const executor = await getAuditLogExecutor(AuditLogEvent.InviteDelete, guild, invite);
+		const auditLogEntry = await getAuditLogEntry(AuditLogEvent.InviteDelete, guild, invite);
 
-		return this.container.client.emit('guildLogCreate', logChannel, this.generateGuildLog(invite, executor));
+		return this.container.client.emit('guildLogCreate', logChannel, this.generateGuildLog(invite, auditLogEntry));
 	}
 
-	private generateGuildLog(invite: Invite | undefined, executor: User | null | undefined) {
+	private generateGuildLog(invite: Invite | undefined, auditLogEntry: GuildAuditLogsEntry | null) {
 		if (!invite) return null;
 
 		const embed = new GuildLogEmbed()
@@ -36,7 +36,10 @@ export class UserEvent extends Listener {
 
 		// Unfortunately, the Invite object given from this Event doesn't have the createdTimestamp, so we can't show when it was created
 
-		if (!isNullish(executor)) embed.addFields({ name: 'Deleted By', value: executor.toString(), inline: true });
+		if (auditLogEntry) {
+			if (!isNullish(auditLogEntry.reason)) embed.addFields({ name: 'Reason', value: auditLogEntry.reason, inline: false });
+			if (!isNullish(auditLogEntry.executor)) embed.addFields({ name: 'Deleted By', value: auditLogEntry.executor.toString(), inline: false });
+		}
 
 		return [embed]
 	}

@@ -2,7 +2,7 @@ import { authenticated } from '#root/lib/util/decorators/routeAuthenticated';
 import { ApplyOptions } from '@sapphire/decorators';
 import { HttpCodes, Route, methods, type ApiRequest, type ApiResponse } from '@sapphire/plugin-api';
 import { isNullishOrEmpty } from '@sapphire/utilities';
-import { PermissionsBitField } from 'discord.js';
+import { ChannelType, PermissionsBitField } from 'discord.js';
 
 @ApplyOptions<Route.Options>({
 	name: 'guildChannels',
@@ -30,20 +30,31 @@ export class UserRoute extends Route {
 		const canManageServer: boolean = guild.ownerId === member.id || member.permissions.has(PermissionsBitField.Flags.ManageGuild) || member.permissions.has(PermissionsBitField.Flags.Administrator);
 		if (!canManageServer) return response.error(HttpCodes.Forbidden);
 
-		// Start our channels collection
-		let channels = guild.channels.cache;
+		// Start our Channels collection
+		// Filter out DMs and Threads for the sake of our own API
+		let channels = (await guild.channels.fetch()).filter((channel) => {
+			if (!channel) return false;
+			switch (channel.type as ChannelType) {
+				case ChannelType.DM:
+				case ChannelType.GroupDM:
+				case ChannelType.AnnouncementThread:
+				case ChannelType.PublicThread:
+				case ChannelType.PrivateThread: return false
+				default: return true;
+			}
+		});
 
 		// Get query Params
 		const queryParams = request.query;
 		// If channel type specified, filter by it
 		if (!isNullishOrEmpty(queryParams.type)) {
 			const paramType: number = parseInt(queryParams.type as string, 10);
-			channels = channels.filter((channel) => channel.type === paramType);
+			channels = channels.filter((channel) => channel && channel.type === paramType);
 		}
 		// If channel name specified, filter by it
 		if (!isNullishOrEmpty(queryParams.name)) {
 			const paramName: string = queryParams.name as string;
-			channels = channels.filter((channel) => channel.name === paramName);
+			channels = channels.filter((channel) => channel && channel.name === paramName);
 		}
 		// If no channels are left after filtering, Error 404
 		if (!channels.size) return response.error(HttpCodes.NotFound);

@@ -1,12 +1,12 @@
 import { GuildLogEmbed } from '#lib/extensions/GuildLogEmbed';
 import { minutes, seconds } from '#utils/common/times';
 import { Emojis } from '#utils/constants';
-import { getAuditLogExecutor } from '#utils/util';
+import { getAuditLogEntry } from '#utils/util';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Events, Listener, type ListenerOptions } from '@sapphire/framework';
 import { DurationFormatter } from '@sapphire/time-utilities';
 import { inlineCodeBlock, isNullish } from '@sapphire/utilities';
-import { AuditLogEvent, BaseGuildTextChannel, ChannelType, ForumChannel, ThreadChannel, User } from 'discord.js';
+import { AuditLogEvent, BaseGuildTextChannel, ChannelType, ForumChannel, GuildAuditLogsEntry, ThreadChannel } from 'discord.js';
 
 @ApplyOptions<ListenerOptions>({ event: Events.ThreadUpdate })
 export class UserEvent extends Listener {
@@ -17,13 +17,13 @@ export class UserEvent extends Listener {
 		if (!guildSettingsInfoLogs?.threadUpdateLog || !guildSettingsInfoLogs.infoLogChannel) return;
 
 		const logChannel = thread.guild.channels.resolve(guildSettingsInfoLogs.infoLogChannel) as BaseGuildTextChannel;
-		const executor = await getAuditLogExecutor(AuditLogEvent.ThreadUpdate, thread.guild);
+		const auditLogEntry = await getAuditLogEntry(AuditLogEvent.ThreadUpdate, thread.guild, thread);
 		const isForumThread = thread.parent?.type === ChannelType.GuildForum;
 
-		return this.container.client.emit('guildLogCreate', logChannel, this.generateGuildLog(oldThread, thread, executor, isForumThread));
+		return this.container.client.emit('guildLogCreate', logChannel, this.generateGuildLog(oldThread, thread, auditLogEntry, isForumThread));
 	}
 
-	private generateGuildLog(oldThread: ThreadChannel, thread: ThreadChannel, executor: User | null | undefined, isForumThread: boolean) {
+	private generateGuildLog(oldThread: ThreadChannel, thread: ThreadChannel, auditLogEntry: GuildAuditLogsEntry | null, isForumThread: boolean) {
 		const postOrThread = isForumThread ? 'Post' : 'Thread';
 		const embed = new GuildLogEmbed()
 			.setAuthor({
@@ -32,7 +32,7 @@ export class UserEvent extends Listener {
 				iconURL: thread.guild.iconURL() ?? undefined
 			})
 			.setDescription(inlineCodeBlock(thread.id))
-			.setFooter({ text: `${postOrThread} edited ${isNullish(executor) ? '' : `by ${executor.username}`}`, iconURL: isNullish(executor) ? undefined : executor?.displayAvatarURL() })
+			.setFooter({ text: `${postOrThread} edited ${isNullish(auditLogEntry?.executor) ? '' : `by ${auditLogEntry?.executor.username}`}`, iconURL: isNullish(auditLogEntry?.executor) ? undefined : auditLogEntry?.executor?.displayAvatarURL() })
 			.setType(Events.ThreadUpdate);
 
 		if (thread.parent) embed.addFields({ name: `${thread.parent.type === ChannelType.GuildAnnouncement ? 'Announcement' : 'Text'} channel`, value: `<#${thread.parentId}>`, inline: true });

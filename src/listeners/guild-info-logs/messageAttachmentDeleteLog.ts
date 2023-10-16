@@ -8,7 +8,7 @@ const embeddedImageMIMETypes = ['image/gif', 'image/jpeg', 'image/png', 'image/w
 
 @ApplyOptions<ListenerOptions>({ event: 'messageAttachmentDeleteLog' })
 export class UserEvent extends Listener {
-	public async run(message: Message, attachment: Attachment, messageDeleted?: boolean) {
+	public async run(message: Message, attachment: Attachment) {
 		if (isNullish(message.id)) return;
 		if (isNullish(message.guild)) return;
 
@@ -17,14 +17,14 @@ export class UserEvent extends Listener {
 
 		const logChannel = message.guild.channels.resolve(guildSettingsInfoLogs.infoLogChannel) as BaseGuildTextChannel;
 
-		return this.container.client.emit('guildLogCreate', logChannel, this.generateGuildLog(message, attachment, messageDeleted));
+		return this.container.client.emit('guildLogCreate', logChannel, this.generateGuildLog(message, attachment));
 	}
 
-	private generateGuildLog(message: Message, attachment: Attachment, messageDeleted?: boolean) {
+	private generateGuildLog(message: Message, attachment: Attachment) {
 		const embed = new GuildLogEmbed()
 			.setTitle('Attachment Deleted')
 			.addBlankFields({ name: 'Link', value: `[Click to View](${attachment.url})`, inline: true })
-			.setDescription(`${message.member!.toString()}: ${messageDeleted ? message.channel.url : message.url}`)
+			.setDescription(`${message.member!.toString()}: ${message.url}`)
 			.setThumbnail(message.member!.displayAvatarURL())
 			.addBlankFields({ name: 'Title', value: attachment.name, inline: true })
 			.setFooter({ text: `Attachment ID: ${attachment.id}` })

@@ -1,9 +1,9 @@
 import { GuildLogEmbed } from '#lib/extensions/GuildLogEmbed';
-import { getAuditLogExecutor } from '#utils/util';
+import { getAuditLogEntry } from '#utils/util';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Events, Listener, type ListenerOptions } from '@sapphire/framework';
 import { isNullish } from '@sapphire/utilities';
-import { AuditLogEvent, type APIEmbedField, type BaseGuildTextChannel, type GuildMember, type User } from 'discord.js';
+import { AuditLogEvent, type APIEmbedField, type BaseGuildTextChannel, type GuildAuditLogsEntry, type GuildMember } from 'discord.js';
 
 @ApplyOptions<ListenerOptions>({ event: Events.GuildMemberUpdate })
 export class UserEvent extends Listener {
@@ -14,12 +14,12 @@ export class UserEvent extends Listener {
 		if (!guildSettingsInfoLogs?.guildMemberUpdateLog || !guildSettingsInfoLogs.infoLogChannel) return;
 
 		const logChannel = member.guild.channels.resolve(guildSettingsInfoLogs.infoLogChannel) as BaseGuildTextChannel;
-		const executor = await getAuditLogExecutor(AuditLogEvent.MemberUpdate, member.guild);
+		const auditLogEntry = await getAuditLogEntry(AuditLogEvent.MemberUpdate, member.guild, member.user);
 
-		return this.container.client.emit('guildLogCreate', logChannel, this.generateGuildLog(oldMember, member, executor));
+		return this.container.client.emit('guildLogCreate', logChannel, this.generateGuildLog(oldMember, member, auditLogEntry));
 	}
 
-	private generateGuildLog(oldMember: GuildMember, member: GuildMember, executor: User | null | undefined) {
+	private generateGuildLog(oldMember: GuildMember, member: GuildMember, auditLogEntry: GuildAuditLogsEntry | null) {
 		// Some updates that raise this event don't show in the server Audit Log (like updating a server-specific avatar)
 		// This means the executor grabbed from the audit log won't be accurate--as there actually isn't one.
 		let showsInAuditLog: boolean = true;
@@ -85,8 +85,9 @@ export class UserEvent extends Listener {
 		if (changes.length) embed.addBlankFields(changes);
 
 		// Show if changes were made by a different user or if we can see the executor
-		if (showsInAuditLog && executor && executor.id !== member.id) {
-			embed.addFields({ name: 'Changes Made By', value: executor.toString(), inline: false });
+		if (showsInAuditLog && auditLogEntry) {
+			if (!isNullish(auditLogEntry.reason)) embed.addFields({ name: 'Reason', value: auditLogEntry.reason, inline: false });
+			if (!isNullish(auditLogEntry.executor)) embed.addFields({ name: 'Edited By', value: auditLogEntry.executor.toString(), inline: false });
 		}
 
 		return [embed];

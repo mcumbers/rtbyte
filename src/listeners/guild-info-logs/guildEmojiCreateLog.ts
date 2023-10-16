@@ -1,9 +1,9 @@
 import { GuildLogEmbed } from '#lib/extensions/GuildLogEmbed';
-import { getAuditLogExecutor } from '#utils/util';
+import { getAuditLogEntry } from '#utils/util';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Events, Listener, type ListenerOptions } from '@sapphire/framework';
 import { isNullish } from '@sapphire/utilities';
-import { AuditLogEvent, BaseGuildTextChannel, GuildEmoji, User } from 'discord.js';
+import { AuditLogEvent, BaseGuildTextChannel, GuildEmoji, type GuildAuditLogsEntry } from 'discord.js';
 
 @ApplyOptions<ListenerOptions>({ event: Events.GuildEmojiCreate })
 export class UserEvent extends Listener {
@@ -14,12 +14,12 @@ export class UserEvent extends Listener {
 		if (!guildSettingsInfoLogs?.emojiCreateLog || !guildSettingsInfoLogs.infoLogChannel) return;
 
 		const logChannel = emoji.guild.channels.resolve(guildSettingsInfoLogs.infoLogChannel) as BaseGuildTextChannel;
-		const executor = await getAuditLogExecutor(AuditLogEvent.EmojiCreate, emoji.guild, emoji);
+		const auditLogEntry = await getAuditLogEntry(AuditLogEvent.EmojiCreate, emoji.guild, emoji);
 
-		return this.container.client.emit('guildLogCreate', logChannel, this.generateGuildLog(emoji, executor));
+		return this.container.client.emit('guildLogCreate', logChannel, this.generateGuildLog(emoji, auditLogEntry));
 	}
 
-	private generateGuildLog(emoji: GuildEmoji, executor: User | null | undefined) {
+	private generateGuildLog(emoji: GuildEmoji, auditLogEntry: GuildAuditLogsEntry | null) {
 		const embed = new GuildLogEmbed()
 			.setTitle('Emoji Created')
 			.setDescription(emoji.name)
@@ -27,7 +27,10 @@ export class UserEvent extends Listener {
 			.setFooter({ text: `Emoji ID: ${emoji.id}` })
 			.setType(Events.GuildEmojiCreate);
 
-		if (!isNullish(executor)) embed.addFields({ name: 'Created By', value: executor.toString(), inline: true });
+		if (auditLogEntry) {
+			if (!isNullish(auditLogEntry.reason)) embed.addFields({ name: 'Reason', value: auditLogEntry.reason, inline: false });
+			if (!isNullish(auditLogEntry.executor)) embed.addFields({ name: 'Created By', value: auditLogEntry.executor.toString(), inline: false });
+		}
 
 		return [embed]
 	}

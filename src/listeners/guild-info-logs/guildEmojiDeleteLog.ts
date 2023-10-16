@@ -1,9 +1,9 @@
 import { GuildLogEmbed } from '#lib/extensions/GuildLogEmbed';
-import { getAuditLogExecutor } from '#utils/util';
+import { getAuditLogEntry } from '#utils/util';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Events, Listener, type ListenerOptions } from '@sapphire/framework';
 import { isNullish } from '@sapphire/utilities';
-import { AuditLogEvent, BaseGuildTextChannel, GuildEmoji, User } from 'discord.js';
+import { AuditLogEvent, BaseGuildTextChannel, GuildEmoji, type GuildAuditLogsEntry } from 'discord.js';
 
 @ApplyOptions<ListenerOptions>({ event: Events.GuildEmojiDelete })
 export class UserEvent extends Listener {
@@ -14,12 +14,12 @@ export class UserEvent extends Listener {
 		if (!guildSettingsInfoLogs?.emojiDeleteLog || !guildSettingsInfoLogs.infoLogChannel) return;
 
 		const logChannel = emoji.guild.channels.resolve(guildSettingsInfoLogs.infoLogChannel) as BaseGuildTextChannel;
-		const executor = await getAuditLogExecutor(AuditLogEvent.EmojiDelete, emoji.guild, emoji);
+		const auditLogEntry = await getAuditLogEntry(AuditLogEvent.EmojiDelete, emoji.guild, emoji);
 
-		return this.container.client.emit('guildLogCreate', logChannel, this.generateGuildLog(emoji, executor));
+		return this.container.client.emit('guildLogCreate', logChannel, this.generateGuildLog(emoji, auditLogEntry));
 	}
 
-	private generateGuildLog(emoji: GuildEmoji, executor: User | null | undefined) {
+	private generateGuildLog(emoji: GuildEmoji, auditLogEntry: GuildAuditLogsEntry | null) {
 		const embed = new GuildLogEmbed()
 			.setTitle('Emoji Deleted')
 			.setDescription(emoji.name)
@@ -29,7 +29,10 @@ export class UserEvent extends Listener {
 
 		if (emoji.createdTimestamp) embed.addFields({ name: 'Created', value: `<t:${Math.round(emoji.createdTimestamp as number / 1000)}:R>`, inline: true });
 
-		if (!isNullish(executor)) embed.addFields({ name: 'Deleted By', value: executor.toString(), inline: false });
+		if (auditLogEntry) {
+			if (!isNullish(auditLogEntry.reason)) embed.addFields({ name: 'Reason', value: auditLogEntry.reason, inline: false });
+			if (!isNullish(auditLogEntry.executor)) embed.addFields({ name: 'Deleted By', value: auditLogEntry.executor.toString(), inline: false });
+		}
 
 		return [embed]
 	}

@@ -18,7 +18,7 @@ export class UserEvent extends Listener {
 
 		if (message.attachments.size) {
 			for (const attachmentPair of message.attachments) {
-				this.container.client.emit('messageAttachmentDeleteLog', message, attachmentPair[1], true);
+				this.container.client.emit('messageAttachmentDeleteLog', message, attachmentPair[1]);
 			}
 		}
 
@@ -31,7 +31,7 @@ export class UserEvent extends Listener {
 	private generateGuildLog(message: Message) {
 		const embed = new GuildLogEmbed()
 			.setTitle('Message Deleted')
-			.setDescription(`${message.member!.toString()}: ${message.channel.url}`)
+			.setDescription(`${message.member!.toString()}: ${message.url}`)
 			.setThumbnail(message.member!.displayAvatarURL())
 			.setFooter({ text: `Message ID: ${message.id}` })
 			.setType(Events.MessageDelete);

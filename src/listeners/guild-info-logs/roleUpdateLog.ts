@@ -39,9 +39,10 @@ export class UserEvent extends Listener {
 		if (oldRole.hoist !== role.hoist) changes.push(`${Emojis.Bullet}**Displayed separately**: ${role.hoist ? Emojis.ToggleOn : Emojis.ToggleOff}`);
 		if (oldRole.mentionable !== role.mentionable) changes.push(`${Emojis.Bullet}**Mentionable**: ${role.mentionable ? Emojis.ToggleOn : Emojis.ToggleOff}`);
 		if (oldRole.permissions !== role.permissions) {
-			const permissionDifference = getPermissionDifference(oldRole.permissions, role.permissions);
-			if (permissionDifference.added.length) changes.push(`${Emojis.Bullet}**Permissions added**: ${permissionDifference.added.join(' ')}`);
-			if (permissionDifference.removed.length) changes.push(`${Emojis.Bullet}**Permissions removed**: ${permissionDifference.removed.join(' ')}`);
+			const permDifferences = getPermissionDifference(oldRole.permissions, role.permissions);
+			if (permDifferences.added.length || permDifferences.removed.length) {
+				embed.addFields({ name: 'Permissions Changed', value: `\`\`\`diff\n${[...permDifferences.added.map((str) => `+ ${str}`), ...permDifferences.removed.map((str) => `- ${str}`)].join('\n')}\n\`\`\``, inline: false });
+			}
 		}
 		if (oldRole.managed !== role.managed) changes.push(`${Emojis.Bullet}**Managed by external service**: ${role.managed ? Emojis.ToggleOn : Emojis.ToggleOff}`);
 		if (changes.length) embed.addFields({ name: 'Changes', value: changes.join('\n') });

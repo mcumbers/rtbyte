@@ -1,10 +1,10 @@
 import { GuildLogEmbed } from '#lib/extensions/GuildLogEmbed';
-import { getAuditLogExecutor } from '#utils/util';
+import { getAuditLogEntry } from '#utils/util';
 import { UpdateLogStyle } from '@prisma/client';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Events, Listener, type ListenerOptions } from '@sapphire/framework';
 import { isNullish } from '@sapphire/utilities';
-import { AuditLogEvent, BaseGuildTextChannel, Guild, Sticker, User } from 'discord.js';
+import { AuditLogEvent, BaseGuildTextChannel, Guild, Sticker, type GuildAuditLogsEntry } from 'discord.js';
 
 @ApplyOptions<ListenerOptions>({ event: Events.GuildStickerUpdate })
 export class UserEvent extends Listener {
@@ -16,12 +16,12 @@ export class UserEvent extends Listener {
 		if (!guildSettingsInfoLogs?.stickerUpdateLog || !guildSettingsInfoLogs.infoLogChannel) return;
 
 		const logChannel = sticker.guild?.channels.resolve(guildSettingsInfoLogs.infoLogChannel) as BaseGuildTextChannel;
-		const executor = await getAuditLogExecutor(AuditLogEvent.StickerUpdate, sticker.guild as Guild, sticker);
+		const auditLogEntry = await getAuditLogEntry(AuditLogEvent.StickerUpdate, sticker.guild as Guild, sticker);
 
-		return this.container.client.emit('guildLogCreate', logChannel, await this.generateGuildLog(oldSticker, sticker, executor, guildSettingsInfoLogs.stickerUpdateLogStyle));
+		return this.container.client.emit('guildLogCreate', logChannel, await this.generateGuildLog(oldSticker, sticker, auditLogEntry, guildSettingsInfoLogs.stickerUpdateLogStyle));
 	}
 
-	private async generateGuildLog(oldSticker: Sticker, sticker: Sticker, executor: User | null, style: UpdateLogStyle) {
+	private async generateGuildLog(oldSticker: Sticker, sticker: Sticker, auditLogEntry: GuildAuditLogsEntry | null, style: UpdateLogStyle) {
 		const embed = new GuildLogEmbed()
 			.setTitle('Sticker Edited')
 			.setDescription(sticker.name)
@@ -40,7 +40,10 @@ export class UserEvent extends Listener {
 			embed.addFields({ name: 'Emoji Changed', value: `${oldEmoji?.toString()}   ->   ${emoji?.toString()}`, inline: true });
 		}
 
-		if (!isNullish(executor)) embed.addFields({ name: 'Edited By', value: executor.toString(), inline: false });
+		if (auditLogEntry) {
+			if (!isNullish(auditLogEntry.reason)) embed.addFields({ name: 'Reason', value: auditLogEntry.reason, inline: false });
+			if (!isNullish(auditLogEntry.executor)) embed.addFields({ name: 'Edited By', value: auditLogEntry.executor.toString(), inline: false });
+		}
 
 		return [embed]
 	}

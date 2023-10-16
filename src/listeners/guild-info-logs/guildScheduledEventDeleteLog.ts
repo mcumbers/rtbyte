@@ -1,9 +1,9 @@
 import { GuildLogEmbed } from '#lib/extensions/GuildLogEmbed';
-import { getAuditLogExecutor } from '#utils/util';
+import { getAuditLogEntry } from '#utils/util';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Events, Listener, type ListenerOptions } from '@sapphire/framework';
 import { isNullish } from '@sapphire/utilities';
-import { AuditLogEvent, BaseGuildTextChannel, Guild, GuildScheduledEvent, User } from 'discord.js';
+import { AuditLogEvent, BaseGuildTextChannel, Guild, GuildScheduledEvent, type GuildAuditLogsEntry } from 'discord.js';
 
 @ApplyOptions<ListenerOptions>({ event: Events.GuildScheduledEventDelete })
 export class UserEvent extends Listener {
@@ -14,12 +14,12 @@ export class UserEvent extends Listener {
 		if (!guildSettingsInfoLogs?.guildScheduledEventDeleteLog || !guildSettingsInfoLogs.infoLogChannel) return;
 
 		const logChannel = event.guild?.channels.resolve(guildSettingsInfoLogs.infoLogChannel) as BaseGuildTextChannel;
-		const executor = await getAuditLogExecutor(AuditLogEvent.GuildScheduledEventDelete, event.guild as Guild, event);
+		const auditLogEntry = await getAuditLogEntry(AuditLogEvent.GuildScheduledEventDelete, event.guild as Guild, event);
 
-		return this.container.client.emit('guildLogCreate', logChannel, this.generateGuildLog(event, executor));
+		return this.container.client.emit('guildLogCreate', logChannel, this.generateGuildLog(event, auditLogEntry));
 	}
 
-	private generateGuildLog(event: GuildScheduledEvent, executor: User | null | undefined) {
+	private generateGuildLog(event: GuildScheduledEvent, auditLogEntry: GuildAuditLogsEntry | null) {
 		const embed = new GuildLogEmbed()
 			.setTitle('Event Deleted')
 			.setThumbnail(event.guild!.iconURL())
@@ -30,7 +30,11 @@ export class UserEvent extends Listener {
 		if (event.description && !event.name) embed.addFields({ name: 'Description', value: event.description as string, inline: false });
 
 		if (event.createdTimestamp) embed.addFields({ name: 'Created', value: `<t:${Math.round(event.createdTimestamp as number / 1000)}:R>`, inline: true });
-		if (!isNullish(executor)) embed.addFields({ name: 'Deleted By', value: executor.toString(), inline: false });
+
+		if (auditLogEntry) {
+			if (!isNullish(auditLogEntry.reason)) embed.addFields({ name: 'Reason', value: auditLogEntry.reason, inline: false });
+			if (!isNullish(auditLogEntry.executor)) embed.addFields({ name: 'Deleted By', value: auditLogEntry.executor.toString(), inline: false });
+		}
 
 		return [embed]
 	}

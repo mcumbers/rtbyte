@@ -20,7 +20,7 @@ export class UserEvent extends Listener {
 		return this.container.client.emit('guildLogCreate', logChannel, this.generateGuildLog(fetchedEvent, fetchedEvent.creator));
 	}
 
-	private generateGuildLog(event: GuildScheduledEvent, executor: User | null | undefined) {
+	private generateGuildLog(event: GuildScheduledEvent, creator: User | null | undefined) {
 		const embed = new GuildLogEmbed()
 			.setTitle('Event Created')
 			.setDescription(`[${event.name as string}](${event.url as string})`)
@@ -34,7 +34,7 @@ export class UserEvent extends Listener {
 		if (event.scheduledEndTimestamp) embed.addFields({ name: 'End Time', value: `<t:${Math.round(event.scheduledEndTimestamp as number / 1000)}>`, inline: true });
 		if (event.channel) embed.addFields({ name: 'Event Channel', value: event.channel.url, inline: true });
 
-		if (!isNullish(executor)) embed.addFields({ name: 'Created By', value: executor.toString(), inline: false });
+		if (!isNullish(creator)) embed.addFields({ name: 'Created By', value: creator.toString(), inline: false });
 
 		return [embed]
 	}

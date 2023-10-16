@@ -1,9 +1,9 @@
 import { GuildLogEmbed } from '#lib/extensions/GuildLogEmbed';
-import { getAuditLogExecutor, getChannelDescriptor } from '#utils/util';
+import { getAuditLogEntry, getChannelDescriptor } from '#utils/util';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Events, Listener, type ListenerOptions } from '@sapphire/framework';
 import { isNullish } from '@sapphire/utilities';
-import { AuditLogEvent, BaseGuildTextChannel, GuildChannel, User } from 'discord.js';
+import { AuditLogEvent, BaseGuildTextChannel, GuildAuditLogsEntry, GuildChannel } from 'discord.js';
 
 @ApplyOptions<ListenerOptions>({ event: Events.ChannelCreate })
 export class UserEvent extends Listener {
@@ -14,12 +14,12 @@ export class UserEvent extends Listener {
 		if (!guildSettingsInfoLogs?.channelCreateLog || !guildSettingsInfoLogs.infoLogChannel) return;
 
 		const logChannel = channel.guild.channels.resolve(guildSettingsInfoLogs.infoLogChannel) as BaseGuildTextChannel;
-		const executor = await getAuditLogExecutor(AuditLogEvent.ChannelCreate, channel.guild, channel);
+		const auditLogEntry = await getAuditLogEntry(AuditLogEvent.ChannelCreate, channel.guild, channel);
 
-		return this.container.client.emit('guildLogCreate', logChannel, this.generateGuildLog(channel, executor));
+		return this.container.client.emit('guildLogCreate', logChannel, this.generateGuildLog(channel, auditLogEntry));
 	}
 
-	private generateGuildLog(channel: GuildChannel, executor: User | null | undefined) {
+	private generateGuildLog(channel: GuildChannel, auditLogEntry: GuildAuditLogsEntry | null) {
 		const channelDescriptor = getChannelDescriptor(channel.type);
 
 		const embed = new GuildLogEmbed()
@@ -31,7 +31,11 @@ export class UserEvent extends Listener {
 
 		if (channel.parent) embed.addFields({ name: 'In Category', value: channel.parent.name, inline: true });
 
-		if (!isNullish(executor)) embed.addFields({ name: 'Created By', value: executor.toString(), inline: true });
+		if (auditLogEntry) {
+			if (!isNullish(auditLogEntry.reason)) embed.addFields({ name: 'Reason', value: auditLogEntry.reason, inline: false });
+			if (!isNullish(auditLogEntry.executor)) embed.addFields({ name: 'Created By', value: auditLogEntry.executor.toString(), inline: false });
+		}
+
 
 		return [embed]
 	}

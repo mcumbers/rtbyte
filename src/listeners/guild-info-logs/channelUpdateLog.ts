@@ -1,12 +1,12 @@
 import { GuildLogEmbed } from '#lib/extensions/GuildLogEmbed';
 import { minutes, seconds } from '#utils/common/times';
 import { Emojis } from '#utils/constants';
-import { getAuditLogExecutor, getChannelDescriptor, getRegionOverride } from '#utils/util';
+import { getAuditLogEntry, getChannelDescriptor, getRegionOverride } from '#utils/util';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Events, Listener, type ListenerOptions } from '@sapphire/framework';
 import { DurationFormatter } from '@sapphire/time-utilities';
 import { codeBlock, inlineCodeBlock, isNullish } from '@sapphire/utilities';
-import { AuditLogEvent, BaseGuildTextChannel, CategoryChannel, ChannelType, ForumChannel, NewsChannel, StageChannel, TextChannel, User, VoiceChannel } from 'discord.js';
+import { AuditLogEvent, BaseGuildTextChannel, CategoryChannel, ChannelType, ForumChannel, NewsChannel, StageChannel, TextChannel, VoiceChannel, type GuildAuditLogsEntry } from 'discord.js';
 
 type GuildBasedChannel = CategoryChannel | NewsChannel | StageChannel | TextChannel | VoiceChannel | ForumChannel
 
@@ -19,12 +19,12 @@ export class UserEvent extends Listener {
 		if (!guildSettingsInfoLogs?.channelUpdateLog || !guildSettingsInfoLogs.infoLogChannel) return;
 
 		const logChannel = channel.guild.channels.resolve(guildSettingsInfoLogs.infoLogChannel) as BaseGuildTextChannel;
-		const executor = await getAuditLogExecutor(AuditLogEvent.ChannelUpdate, channel.guild, channel);
+		const auditLogEntry = await getAuditLogEntry(AuditLogEvent.ChannelUpdate, channel.guild, channel);
 
-		return this.container.client.emit('guildLogCreate', logChannel, this.generateGuildLog(oldChannel, channel, executor));
+		return this.container.client.emit('guildLogCreate', logChannel, this.generateGuildLog(oldChannel, channel, auditLogEntry));
 	}
 
-	private generateGuildLog(oldChannel: GuildBasedChannel, channel: GuildBasedChannel, executor: User | null | undefined) {
+	private generateGuildLog(oldChannel: GuildBasedChannel, channel: GuildBasedChannel, auditLogEntry: GuildAuditLogsEntry | null) {
 		const channelDescriptor = getChannelDescriptor(channel.type);
 
 		const embed = new GuildLogEmbed()
@@ -88,7 +88,10 @@ export class UserEvent extends Listener {
 
 		if (changes.length) embed.addFields({ name: 'Changes', value: changes.join('\n') });
 
-		if (!isNullish(executor)) embed.addFields({ name: 'Edited By', value: executor.toString(), inline: true });
+		if (auditLogEntry) {
+			if (!isNullish(auditLogEntry.reason)) embed.addFields({ name: 'Reason', value: auditLogEntry.reason, inline: false });
+			if (!isNullish(auditLogEntry.executor)) embed.addFields({ name: 'Edited By', value: auditLogEntry.executor.toString(), inline: false });
+		}
 
 		if (changes.length) return [embed];
 		return [];

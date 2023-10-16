@@ -1,12 +1,12 @@
 import { GuildLogEmbed } from '#lib/extensions/GuildLogEmbed';
 import { seconds } from '#utils/common/times';
 import { Emojis } from '#utils/constants';
-import { getAuditLogExecutor } from '#utils/util';
+import { getAuditLogEntry } from '#utils/util';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Events, Listener, type ListenerOptions } from '@sapphire/framework';
 import { DurationFormatter } from '@sapphire/time-utilities';
 import { codeBlock, inlineCodeBlock, isNullish } from '@sapphire/utilities';
-import { AuditLogEvent, BaseGuildTextChannel, Guild, GuildFeature, User } from 'discord.js';
+import { AuditLogEvent, BaseGuildTextChannel, Guild, GuildFeature, type GuildAuditLogsEntry } from 'discord.js';
 
 @ApplyOptions<ListenerOptions>({ event: Events.GuildUpdate })
 export class UserEvent extends Listener {
@@ -17,12 +17,12 @@ export class UserEvent extends Listener {
 		if (!guildSettingsInfoLogs?.guildUpdateLog || !guildSettingsInfoLogs?.infoLogChannel) return;
 
 		const infoLogChannel = guild.channels.resolve(guildSettingsInfoLogs.infoLogChannel) as BaseGuildTextChannel;
-		const executor = await getAuditLogExecutor(AuditLogEvent.GuildUpdate, guild);
+		const auditLogEntry = await getAuditLogEntry(AuditLogEvent.GuildUpdate, guild);
 
-		return this.container.client.emit('guildLogCreate', infoLogChannel, this.generateGuildLog(oldGuild, guild, executor));
+		return this.container.client.emit('guildLogCreate', infoLogChannel, this.generateGuildLog(oldGuild, guild, auditLogEntry));
 	}
 
-	private generateGuildLog(oldGuild: Guild, guild: Guild, executor: User | null | undefined) {
+	private generateGuildLog(oldGuild: Guild, guild: Guild, auditLogEntry: GuildAuditLogsEntry | null) {
 		const embed = new GuildLogEmbed()
 			.setAuthor({
 				name: guild.name,
@@ -30,7 +30,7 @@ export class UserEvent extends Listener {
 				iconURL: guild.iconURL() ?? undefined
 			})
 			.setDescription(inlineCodeBlock(guild.id))
-			.setFooter({ text: `Server updated ${isNullish(executor) ? '' : `by ${executor.username}`}`, iconURL: isNullish(executor) ? undefined : executor?.displayAvatarURL() })
+			.setFooter({ text: `Server updated ${isNullish(auditLogEntry?.executor) ? '' : `by ${auditLogEntry?.executor.username}`}`, iconURL: isNullish(auditLogEntry?.executor) ? undefined : auditLogEntry?.executor?.displayAvatarURL() })
 			.setType(Events.GuildUpdate);
 
 		const changes = [];
