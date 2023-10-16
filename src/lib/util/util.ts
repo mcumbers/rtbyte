@@ -30,6 +30,26 @@ export async function getAuditLogExecutor(action: AuditLogEvent, guild: Guild, t
 	return executor || null;
 }
 
+export async function getAuditLogEntry(action: AuditLogEvent, guild: Guild, target?: Guild | GuildChannel | User | Role | Invite | Webhook | Emoji | Message | Interaction | StageInstance | Sticker | ThreadChannel | GuildScheduledEvent | ApplicationCommandPermissions) {
+	// TODO: Make target required--once I've fixed all the other logs
+	if (isNullishOrEmpty(target)) return null;
+	if (!guild.members.cache.get(container.client.user!.id)?.permissions.has(PermissionFlagsBits.ViewAuditLog)) return null;
+
+	const auditLogEntries = await guild.fetchAuditLogs({ type: action });
+
+	// Pesky Invites don't have IDs
+	if (target instanceof Invite) {
+		const handleTarget = target as Invite;
+		const targetAuditLotEntry = auditLogEntries.entries.find((entry: any) => entry.target?.code && entry.target.code === handleTarget.code);
+		return targetAuditLotEntry || null;
+	}
+
+	// Casting target to any as all possible target types except Invite can be compared like this
+	const handleTarget = target as any;
+	const targetAuditLotEntry = auditLogEntries.entries.find((entry: any) => entry.target?.id && entry.target.id === handleTarget.id);
+	return targetAuditLotEntry || null;
+}
+
 /**
  * Get the content from a message.
  * @param message The Message instance to get the content from
