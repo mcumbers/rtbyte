@@ -25,7 +25,7 @@ export class UserEvent extends Listener {
 		const embed = new GuildLogEmbed()
 			.setTitle('Role Created')
 			.setDescription(`${role.toString()}`)
-			.setThumbnail(role.icon ? role.iconURL() : role.guild.iconURL())
+			.setThumbnail(role.icon ? role.iconURL() ?? role.guild.iconURL() : role.guild.iconURL())
 			.setFooter({ text: `Role ID: ${role.id}` })
 			.setType(Events.GuildRoleCreate);
 
@@ -34,12 +34,12 @@ export class UserEvent extends Listener {
 		if (role.hoist) embed.addFields({ name: 'Separated', value: 'Yes', inline: true });
 
 		if (role.tags) {
-			if (role.tags.botId) embed.addFields({ name: 'Bot Role For', value: `<@${role.tags.botId}>`, inline: true });
+			if (role.tags.botId) embed.addFields({ name: 'Bot Role For', value: `<@${role.tags.botId}> (Bot)`, inline: true });
 
 			if (role.tags.integrationId) {
 				const integrations = await role.guild.fetchIntegrations();
 				const integration = integrations.find((ign) => ign.id === role.tags?.integrationId);
-				embed.addFields({ name: 'Integration Role For', value: integration?.name as string, inline: true });
+				if (integration) embed.addFields({ name: 'Integration Role For', value: integration?.name as string, inline: true });
 			}
 
 			if (role.tags.premiumSubscriberRole) embed.addFields({ name: 'Role Type', value: 'Premium Subscriber Role', inline: true });

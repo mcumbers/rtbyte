@@ -2,7 +2,7 @@ import { GuildLogEmbed } from '#lib/extensions/GuildLogEmbed';
 import { getAuditLogEntry } from '#utils/util';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Events, Listener, type ListenerOptions } from '@sapphire/framework';
-import { inlineCodeBlock, isNullish } from '@sapphire/utilities';
+import { isNullish } from '@sapphire/utilities';
 import { AuditLogEvent, BaseGuildTextChannel, Role, type GuildAuditLogsEntry } from 'discord.js';
 
 @ApplyOptions<ListenerOptions>({ event: Events.GuildRoleDelete })
@@ -16,20 +16,32 @@ export class UserEvent extends Listener {
 		const logChannel = role.guild.channels.resolve(guildSettingsInfoLogs.infoLogChannel) as BaseGuildTextChannel;
 		const auditLogEntry = await getAuditLogEntry(AuditLogEvent.RoleDelete, role.guild, role);
 
-		return this.container.client.emit('guildLogCreate', logChannel, this.generateGuildLog(role, auditLogEntry));
+		return this.container.client.emit('guildLogCreate', logChannel, await this.generateGuildLog(role, auditLogEntry));
 	}
 
-	private generateGuildLog(role: Role, auditLogEntry: GuildAuditLogsEntry | null) {
+	private async generateGuildLog(role: Role, auditLogEntry: GuildAuditLogsEntry | null) {
 		const embed = new GuildLogEmbed()
-			.setAuthor({
-				name: `${role?.unicodeEmoji ?? ''} ${role.name}`,
-				iconURL: role.guild.iconURL() ?? undefined
-			})
-			.setDescription(inlineCodeBlock(role.id))
-			.setFooter({ text: `Role deleted ${isNullish(auditLogEntry?.executor) ? '' : `by ${auditLogEntry?.executor.username}`}`, iconURL: isNullish(auditLogEntry?.executor) ? undefined : auditLogEntry?.executor?.displayAvatarURL() })
+			.setTitle('Role Deleted')
+			.setDescription(`${role.name}`)
+			.setThumbnail(role.icon ? role.iconURL() ?? role.guild.iconURL() : role.guild.iconURL())
+			.setFooter({ text: `Role ID: ${role.id}` })
 			.setType(Events.GuildRoleDelete);
 
-		if (role?.createdTimestamp) embed.addFields({ name: 'Created', value: `<t:${Math.round(role.createdTimestamp as number / 1000)}:R>`, inline: true });
+		if (role.createdTimestamp) embed.addFields({ name: 'Created', value: `<t:${Math.round(role.createdTimestamp as number / 1000)}:R>`, inline: true });
+
+		if (role.tags) {
+			if (role.tags.botId) embed.addFields({ name: 'Bot Role For', value: `<@${role.tags.botId}> (Bot)`, inline: true });
+
+			if (role.tags.integrationId) {
+				const integrations = await role.guild.fetchIntegrations();
+				const integration = integrations.find((ign) => ign.id === role.tags?.integrationId);
+				if (integration) embed.addFields({ name: 'Integration Role For', value: integration?.name as string, inline: true });
+			}
+
+			if (role.tags.premiumSubscriberRole) embed.addFields({ name: 'Role Type', value: 'Premium Subscriber Role', inline: true });
+			if (role.tags.guildConnections) embed.addFields({ name: 'Role Type', value: 'Server Linked Role', inline: true });
+			if (role.tags.availableForPurchase) embed.addFields({ name: 'Role Type', value: 'Purchasable Role', inline: true });
+		}
 
 		if (auditLogEntry) {
 			if (!isNullish(auditLogEntry.reason)) embed.addFields({ name: 'Reason', value: auditLogEntry.reason, inline: false });
