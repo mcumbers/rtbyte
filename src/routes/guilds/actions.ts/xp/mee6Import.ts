@@ -45,11 +45,11 @@ export class UserRoute extends Route {
 
 			for await (const entry of mee6XPData) {
 				// See if member already has XP Data
-				const memberXPData = await prisma.memberXP.findFirst({ where: { userID: entry.id, guildID: entry.guild_id } });
+				const memberDataXP = await prisma.memberDataXP.findFirst({ where: { userID: entry.id, guildID: entry.guild_id } });
 
 				// Create XP Data for member if none exists
-				if (!memberXPData) {
-					await prisma.memberXP.create({
+				if (!memberDataXP) {
+					await prisma.memberDataXP.create({
 						data: {
 							userID: entry.id,
 							guildID: entry.guild_id,
@@ -63,13 +63,13 @@ export class UserRoute extends Route {
 				}
 
 				// Add XP from mee6
-				let newXP = BigInt(memberXPData.currentXP) + BigInt(entry.xp);
+				let newXP = BigInt(memberDataXP.currentXP) + BigInt(entry.xp);
 				// Subtract any xp already imported from mee6
-				if (BigInt(memberXPData.mee6ImportedXP) !== BigInt(0)) newXP -= memberXPData.mee6ImportedXP;
+				if (BigInt(memberDataXP.mee6ImportedXP) !== BigInt(0)) newXP -= memberDataXP.mee6ImportedXP;
 
 				// Update Member XP record
-				await prisma.memberXP.update({
-					where: { id: memberXPData.id }, data: {
+				await prisma.memberDataXP.update({
+					where: { id: memberDataXP.id }, data: {
 						currentXP: newXP,
 						mee6ImportedXP: BigInt(entry.xp),
 						mee6ImportedTime: new Date(Date.now())

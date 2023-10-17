@@ -433,10 +433,10 @@ model GuildSettingsXP {
 
     mee6ImportedTime DateTime? @map("xp_imported_mee6_time")
 
-    @@map("guildXPSettings")
+    @@map("guildSettingsXP")
 }
 
-model MemberXP {
+model MemberDataXP {
     id         Int       @id @default(autoincrement())
     userID     String    @map("user_id")
     guildID    String    @map("guild_id")
@@ -447,7 +447,7 @@ model MemberXP {
     mee6ImportedXP   BigInt    @default(0) @map("xp_imported_mee6")
     mee6ImportedTime DateTime? @map("xp_imported_mee6_time")
 
-    @@map("memberXP")
+    @@map("memberDataXP")
 }
 
 // TODO: Starboard, pinboard, custom commands, autoresponder. Twitch?
