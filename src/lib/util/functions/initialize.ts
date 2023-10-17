@@ -25,6 +25,7 @@ export async function initializeGuild(guild: Guild) {
 	let guildSettingsChatFilter = await prisma.guildSettingsChatFilter.findUnique({ where: { id: guild.id } });
 	let guildSettingsLogs = await prisma.guildSettingsInfoLogs.findUnique({ where: { id: guild.id } });
 	let guildSettingsModActions = await prisma.guildSettingsModActions.findUnique({ where: { id: guild.id } });
+	let guildSettingsXP = await prisma.guildSettingsXP.findUnique({ where: { id: guild.id } });
 
 	if (!guildInfo || !guildSettings || !guildSettingsChatFilter || !guildSettingsLogs || !guildSettingsModActions) {
 		logger.debug(`Initializing guild ${bold(guild.name)} (${gray(guild.id)})...`)
@@ -84,6 +85,18 @@ export async function initializeGuild(guild: Guild) {
 				}
 			}).catch(e => {
 				logger.error(`Failed to initialize guildSettingsModActions for ${bold(guild.name)} (${gray(guild.id)}), error below.`);
+				logger.error(e);
+				return null;
+			});
+		}
+
+		if (!guildSettingsXP) {
+			guildSettingsXP = await prisma.guildSettingsXP.create({
+				data: {
+					id: guild.id
+				}
+			}).catch(e => {
+				logger.error(`Failed to initialize guildSettingsXP for ${bold(guild.name)} (${gray(guild.id)}), error below.`);
 				logger.error(e);
 				return null;
 			});
