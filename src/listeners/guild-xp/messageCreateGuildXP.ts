@@ -47,8 +47,6 @@ export class UserEvent extends Listener {
 		// Emit guildXPLevelUp event if member levelled up with this message
 		if (oldLevel.level > newLevel.level) this.container.client.emit('guildXPLevelUp', message.member, newLevel);
 
-		this.container.logger.debug(`${message.author.username}: +${earnedXP} | LVL${newLevel.level} | ${newLevel.levelXP}/${newLevel.levelThreshhold}`)
-
 		// Update memberXP object in the database
 		return prisma.memberDataXP.update({
 			where: { id: memberDataXP.id }, data: {
