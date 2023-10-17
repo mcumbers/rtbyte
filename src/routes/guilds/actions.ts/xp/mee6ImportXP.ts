@@ -8,8 +8,8 @@ const MEE6_ENTRIES_MAX = 500;
 const MEE6_IMPORT_COOLDOWN = 24 * 60 * 60 * 1000;
 
 @ApplyOptions<Route.Options>({
-	name: 'mee6Import',
-	route: 'guilds/:guildID/actions/xp/mee6-import'
+	name: 'mee6ImportXP',
+	route: 'guilds/:guildID/actions/xp/mee6-import-xp'
 })
 
 export class UserRoute extends Route {
@@ -119,7 +119,21 @@ interface Mee6PlayerData {
 	xp: number
 }
 
-interface Mee6RoleReward {
+interface Mee6PlayerData {
+	avatar: string,
+	detailed_xp: number[],
+	discriminator: string,
+	guild_id: string,
+	id: string,
+	is_monetize_subscriber: boolean,
+	level: number,
+	message_count: number,
+	monetize_xp_boost: number,
+	username: string,
+	xp: number
+}
+
+interface Mee6RankReward {
 	rank: number,
 	role: {
 		color: number,
@@ -160,7 +174,7 @@ interface Mee6Data {
 	page: number,
 	player: null,
 	players: Mee6PlayerData[],
-	role_rewards: Mee6RoleReward[],
+	role_rewards: Mee6RankReward[],
 	user_guild_settings: null,
 	xp_per_message: number[],
 	xp_rate: number
