@@ -9,14 +9,14 @@ export async function initializeGuild(guild: Guild) {
 	// Fetch Owner's User so it's in cache
 	const owner = await client.users.fetch(guild.ownerId);
 
-	if (botGlobalSettings?.guildBlacklist.includes(guild.id)) {
+	if (botGlobalSettings?.guildBlocklist.includes(guild.id)) {
 		await guild.leave();
-		logger.debug(`Guild ${bold(guild.name)} (${gray(guild.id)}) is on the guild blacklist, leaving...`);
+		logger.debug(`Guild ${bold(guild.name)} (${gray(guild.id)}) is on the guild blocklist, leaving...`);
 	}
 
-	if (botGlobalSettings?.userBlacklist.includes(owner.id)) {
+	if (botGlobalSettings?.userBlocklist.includes(owner.id)) {
 		await guild.leave();
-		logger.debug(`Guild ${bold(guild.name)} (${gray(guild.id)}) is owned by user (${owner.id}) on global blacklist, leaving...`);
+		logger.debug(`Guild ${bold(guild.name)} (${gray(guild.id)}) is owned by user (${owner.id}) on global blocklist, leaving...`);
 	}
 
 	// Check if entry exists for guild. If not, create it
@@ -108,7 +108,7 @@ export async function initializeUser(user?: User, userID?: string) {
 
 	logger.debug(`Initializing user ${user ? bold(user.username) : '...'} (${gray(userID!)})...`);
 
-	if (botGlobalSettings?.userBlacklist.includes(userID!)) logger.debug(`User ${user ? bold(user.username) : '...'} (${gray(userID!)}) is on the user blacklist...`);
+	if (botGlobalSettings?.userBlocklist.includes(userID!)) logger.debug(`User ${user ? bold(user.username) : '...'} (${gray(userID!)}) is on the user blocklist...`);
 
 	const userInfo = await prisma.user.findUnique({ where: { id: userID } });
 	const userSettings = await prisma.userSettings.findUnique({ where: { id: userID } });
@@ -148,7 +148,7 @@ export async function initializeMember(user: User, guild: Guild, member?: GuildM
 
 	logger.debug(`Initializing member ${bold(user.username)} (${gray(user.id)}) in guild ${bold(guild.name)} (${gray(guild.id)})...`);
 
-	if (botGlobalSettings?.userBlacklist.includes(user.id)) logger.debug(`User ${bold(user.username)} (${gray(user.id)}) is on the user blacklist...`);
+	if (botGlobalSettings?.userBlocklist.includes(user.id)) logger.debug(`User ${bold(user.username)} (${gray(user.id)}) is on the user blocklist...`);
 
 	if (!member) member = await guild.members.fetch(user.id);
 	let memberInfo = await prisma.member.findFirst({ where: { userID: user.id, guildID: guild.id } });

@@ -9,8 +9,8 @@ generator client {
 
 model BotGlobalSettings {
     id                      String   @id @map("client_id")
-    userBlacklist           String[] @map("user_blacklist")
-    guildBlacklist          String[] @map("guild_blacklist")
+    userBlocklist           String[] @map("user_blocklist")
+    guildBlocklist          String[] @map("guild_blocklist")
     botOwners               String[] @map("bot_owners")
     controlGuildID          String?  @map("control_guild_id")
     globalLogChannelPublic  String?  @map("global_log_channel_public")
@@ -145,18 +145,18 @@ model GuildSettingsCommand {
     enabled                 Boolean       @map("command_enabled")
     slashCommand            Boolean       @map("slash_command_enabled")
     contextCommand          Boolean       @map("context_command_enabled")
-    channelWhitelistEnabled Boolean       @map("channel_whitelist_enabled")
-    channelWhitelist        String[]      @map("channel_whitelist")
-    channelBlacklistEnabled Boolean       @map("channel_blacklist_enabled")
-    channelBlacklist        String[]      @map("channel_blacklist")
-    memberWhitelistEnabled  Boolean       @map("member_whitelist_enabled")
-    memberWhitelist         String[]      @map("member_whitelist")
-    memberBlacklistEnabled  Boolean       @map("member_blacklist_enabled")
-    memberBlacklist         String[]      @map("member_blacklist")
-    roleWhitelistEnabled    Boolean       @map("role_whitelist_enabled")
-    roleWhitelist           String[]      @map("role_whitelist")
-    roleBlacklistEnabled    Boolean       @map("role_blacklist_enabled")
-    roleBlacklist           String[]      @map("role_blacklist")
+    channelAllowlistEnabled Boolean       @map("channel_allowlist_enabled")
+    channelAllowlist        String[]      @map("channel_allowlist")
+    channelBlocklistEnabled Boolean       @map("channel_blocklist_enabled")
+    channelBlocklist        String[]      @map("channel_blocklist")
+    memberAllowlistEnabled  Boolean       @map("member_allowlist_enabled")
+    memberAllowlist         String[]      @map("member_allowlist")
+    memberBlocklistEnabled  Boolean       @map("member_blocklist_enabled")
+    memberBlocklist         String[]      @map("member_blocklist")
+    roleAllowlistEnabled    Boolean       @map("role_allowlist_enabled")
+    roleAllowlist           String[]      @map("role_allowlist")
+    roleBlocklistEnabled    Boolean       @map("role_blocklist_enabled")
+    roleBlocklist           String[]      @map("role_blocklist")
     other                   Json?         @map("other")
 
     @@map("guildCommandSettings")
@@ -173,8 +173,8 @@ model GuildSettingsChatFilter {
     modBypass            Boolean  @default(true) @map("filters_mod_bypass")
     deleteOffending      Boolean  @default(true) @map("filters_delete_offending")
     checkDisplayNames    Boolean  @default(true) @map("filters_check_display_names")
-    wordBlacklist        String[] @map("filters_word_blacklist")
-    inviteWhitelist      String[] @map("filters_invite_whitelist")
+    wordBlocklist        String[] @map("filters_word_blocklist")
+    inviteAllowlist      String[] @map("filters_invite_allowlist")
     mentionSpamThreshold Int      @default(12) @map("filters_mention_spam_threshold")
 
     @@map("guildChatFilterSettings")
@@ -407,6 +407,47 @@ model ModAction {
     silent      Boolean?      @default(false) @map("silent")
 
     @@map("modActions")
+}
+
+// XP Settings
+model GuildSettingsXP {
+    id                 String  @id @map("guild_id")
+    enabled            Boolean @default(true) @map("xp_enabled")
+    purgeOnMemberLeave Boolean @default(false) @map("xp_delete_on_member_leave")
+    hideOnMemberLeave  Boolean @default(true) @map("xp_hide_on_member_leave")
+
+    channelAllowlistEnabled Boolean  @default(false) @map("channel_allowlist_enabled")
+    channelAllowlist        String[] @map("channel_allowlist")
+    channelBlocklistEnabled Boolean  @default(false) @map("channel_blocklist_enabled")
+    channelBlocklist        String[] @map("channel_blocklist")
+    // Per-channel multipliers?
+    roleAllowlistEnabled    Boolean  @default(false) @map("role_allowlist_enabled")
+    roleAllowlist           String[] @map("role_allowlist")
+    roleBlocklistEnabled    Boolean  @default(false) @map("role_blocklist_enabled")
+    roleBlocklist           String[] @map("role_blocklist")
+    // Per-role multipliers?
+    memberAllowlistEnabled  Boolean  @default(false) @map("member_allowlist_enabled")
+    memberAllowlist         String[] @map("member_allowlist")
+    memberBlocklistEnabled  Boolean  @default(false) @map("member_blocklist_enabled")
+    memberBlocklist         String[] @map("member_blocklist")
+
+    mee6ImportedTime DateTime? @map("xp_imported_mee6_time")
+
+    @@map("guildXPSettings")
+}
+
+model MemberXP {
+    id         Int       @id @default(autoincrement())
+    userID     String    @map("user_id")
+    guildID    String    @map("guild_id")
+    currentXP  BigInt    @default(0) @map("xp_current")
+    multiplier Int       @default(1) @map("xp_multiplier")
+    lastEarned DateTime? @map("xp_last_earned")
+
+    mee6ImportedXP   BigInt    @default(0) @map("xp_imported_mee6")
+    mee6ImportedTime DateTime? @map("xp_imported_mee6_time")
+
+    @@map("memberXP")
 }
 
 // TODO: Starboard, pinboard, custom commands, autoresponder. Twitch?

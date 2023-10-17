@@ -49,8 +49,8 @@ export class UserEvent extends Listener {
 				logger.warn('Is this the first run? Creating Global Bot Settings in the Database..');
 				const newSettingsObj: BotGlobalSettings = {
 					id: client.id,
-					userBlacklist: [],
-					guildBlacklist: [],
+					userBlocklist: [],
+					guildBlocklist: [],
 					botOwners: [],
 					controlGuildID: '',
 					globalLogChannelPublic: '',
