@@ -38,6 +38,8 @@ export class UserRoute extends Route {
 
 		// 24-hour cooldown for mee6 XP Imports
 		if (guildSettingsXP.mee6ImportedTime && new Date(Date.now() + MEE6_IMPORT_COOLDOWN) > guildSettingsXP.mee6ImportedTime) return response.error(HttpCodes.TooManyRequests);
+		// Set import time on guildSettingsXP before fetching mee6 data so we don't spam the API if the request fails
+		guildSettingsXP = await prisma.guildSettingsXP.update({ where: { id: guildSettingsXP.id }, data: { mee6ImportedTime: new Date(Date.now()) } });
 
 		try {
 			// Grab all leaderboard entries from mee6 API
