@@ -9,7 +9,7 @@ const XP_COOLDOWN = 60 * 1000;
 @ApplyOptions<ListenerOptions>({ event: Events.MessageCreate })
 export class UserEvent extends Listener {
 	public async run(message: Message) {
-		if (isNullish(message.author.id) || message.author.bot || isNullish(message.guild)) return;
+		if (isNullish(message.author.id) || message.author.bot || isNullish(message.guild) || message.author.system || message.webhookId) return;
 		const { prisma } = this.container;
 
 		// Stop if Guild hasn't configured or enabled XP settings

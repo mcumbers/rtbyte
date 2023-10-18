@@ -41,8 +41,8 @@ model Guild {
 model Member {
     id      Int    @id @default(autoincrement())
     userID  String @map("user_id")
-    guildID String @map("guild_id")
     user    User   @relation(fields: [userID], references: [id], onUpdate: Cascade)
+    guildID String @map("guild_id")
     guild   Guild  @relation(fields: [guildID], references: [id], onUpdate: Cascade)
 
     joinTimes  DateTime[] @map("join_times")
@@ -51,6 +51,7 @@ model Member {
     usernameHistory    String[] @map("username_history")
     displayNameHistory String[] @map("display_name_history")
 
+    @@unique([userID, guildID])
     @@map("members")
 }
 
@@ -133,6 +134,7 @@ model GuildSettings {
     chatFilter GuildSettingsChatFilter?
     infoLogs   GuildSettingsInfoLogs?
     modActions GuildSettingsModActions?
+    xp         GuildSettingsXP?
 
     @@map("guildSettings")
 }
@@ -411,10 +413,11 @@ model ModAction {
 
 // XP Settings
 model GuildSettingsXP {
-    id                 String  @id @map("guild_id")
-    enabled            Boolean @default(true) @map("xp_enabled")
-    purgeOnMemberLeave Boolean @default(false) @map("xp_delete_on_member_leave")
-    hideOnMemberLeave  Boolean @default(true) @map("xp_hide_on_member_leave")
+    id                 String        @id @map("guild_id")
+    guildSettings      GuildSettings @relation(fields: [id], references: [id], onUpdate: Cascade)
+    enabled            Boolean       @default(true) @map("xp_enabled")
+    purgeOnMemberLeave Boolean       @default(false) @map("xp_delete_on_member_leave")
+    hideOnMemberLeave  Boolean       @default(true) @map("xp_hide_on_member_leave")
 
     channelAllowlistEnabled Boolean  @default(false) @map("channel_allowlist_enabled")
     channelAllowlist        String[] @map("channel_allowlist")
@@ -431,6 +434,14 @@ model GuildSettingsXP {
     memberBlocklistEnabled  Boolean  @default(false) @map("member_blocklist_enabled")
     memberBlocklist         String[] @map("member_blocklist")
 
+    // Level Up Notificaiton Settings
+    levelUpNotifiy        Boolean @default(false) @map("level_up_notify_enabled")
+    levelUpNotifiyMessage String? @map("level_up_notify_message")
+    levelUpNotifyReply    Boolean @default(false) @map("level_up_notify_reply")
+    levelUpNotifyDM       Boolean @default(false) @map("level_up_notify_dm")
+    levelUpNotifyChannel  String? @map("level_up_notify_channel")
+
+    // mee6 import tracking
     mee6ImportedTime DateTime? @map("xp_imported_mee6_time")
 
     @@map("guildSettingsXP")
@@ -447,6 +458,7 @@ model MemberDataXP {
     mee6ImportedXP   BigInt    @default(0) @map("xp_imported_mee6")
     mee6ImportedTime DateTime? @map("xp_imported_mee6_time")
 
+    @@unique([userID, guildID])
     @@map("memberDataXP")
 }
 
