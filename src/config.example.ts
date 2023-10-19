@@ -1,5 +1,6 @@
 import { transformLoginData } from '#root/transformers/loginData';
 import { LogLevel } from '@sapphire/framework';
+import '@sapphire/plugin-hmr/register';
 import { GatewayIntentBits, OAuth2Scopes, Partials, type ClientOptions } from 'discord.js';
 
 export const DEV = process.env.NODE_ENV !== 'production';
@@ -62,6 +63,9 @@ export const CLIENT_OPTIONS: ClientOptions = {
 		listenOptions: {
 			port: 4000
 		}
+	},
+	hmr: {
+		enabled: process.env.NODE_ENV === 'development'
 	}
 };
 

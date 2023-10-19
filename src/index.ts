@@ -2,6 +2,12 @@ import { BotClient } from '#lib/BotClient';
 import '#lib/setup';
 import { TOKENS } from '#root/config';
 
+declare module '@sapphire/framework' {
+	interface Preconditions {
+		OwnerOnly: never;
+	}
+}
+
 const client = new BotClient;
 
 const main = async () => {
