@@ -1,4 +1,5 @@
 import { BotEmbed } from '#lib/extensions/BotEmbed';
+import { CONTROL_GUILD } from '#root/config';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command } from '@sapphire/framework';
 import { memoryUsage } from 'node:process';
@@ -9,14 +10,17 @@ import { memoryUsage } from 'node:process';
 })
 export class UserCommand extends Command {
 	public override registerApplicationCommands(registry: Command.Registry) {
-		registry.registerChatInputCommand((builder) =>
+		registry.registerChatInputCommand((builder) => {
 			builder
 				.setName(this.name)
 				.setDescription(this.description)
 				.addBooleanOption((option) =>
 					option
 						.setName('ephemeral')
-						.setDescription('Whether or not the message should be shown only to you (default false)')));
+						.setDescription('Whether or not the message should be shown only to you (default false)')
+				)
+		}, { guildIds: [CONTROL_GUILD] }
+		);
 	}
 
 	public override async chatInputRun(interaction: Command.ChatInputCommandInteraction) {
@@ -57,8 +61,10 @@ export class UserCommand extends Command {
 			.setThumbnail(this.container.client.user?.avatarURL() ?? null)
 			.addFields({ name: 'Guilds', value: `${guildCount}`, inline: true })
 			.addFields({ name: 'Members', value: `${memberCount}`, inline: true })
+			.addBlankFields({ inline: true })
 			.addFields({ name: 'Memory Use', value: `${megabytesUsed}MB`, inline: true })
 			.addFields({ name: 'Last Restart', value: `<t:${Math.trunc(lastRestart.getTime() / 1000)}>`, inline: true })
+			.addBlankFields({ inline: true })
 			.addFields({ name: 'Global Commands', value: `${globalAppCommandCount}`, inline: true })
 			.addFields({ name: 'Guild Commands', value: `${guildAppCommandCount}`, inline: true });
 

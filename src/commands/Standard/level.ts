@@ -3,7 +3,8 @@ import { ApplyOptions } from '@sapphire/decorators';
 import { Command } from '@sapphire/framework';
 
 @ApplyOptions<Command.Options>({
-	description: 'Check Your XP Level'
+	description: 'Check Your XP Level',
+	preconditions: ['OwnerOnly']
 })
 export class UserCommand extends Command {
 	public override registerApplicationCommands(registry: Command.Registry) {
