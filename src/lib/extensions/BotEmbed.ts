@@ -1,7 +1,13 @@
 import { Colors, ZeroWidthSpace } from "#utils/constants";
 import { UpdateLogStyle } from "@prisma/client";
 import * as Diff from 'diff';
-import { EmbedBuilder, type APIEmbedField } from "discord.js";
+import { EmbedBuilder } from "discord.js";
+
+export interface BlankableAPIEmbedField {
+	name?: string;
+	value?: string;
+	inline?: boolean;
+}
 
 export class BotEmbed extends EmbedBuilder {
 	public constructor() {
@@ -10,7 +16,7 @@ export class BotEmbed extends EmbedBuilder {
 		this.setTimestamp()
 	}
 
-	public addBlankFields(fields?: APIEmbedField | APIEmbedField[]) {
+	public addBlankFields(fields?: BlankableAPIEmbedField | BlankableAPIEmbedField[]) {
 		if (!fields) return this.addFields({ name: ZeroWidthSpace, value: ZeroWidthSpace });
 
 		if (Array.isArray(fields)) {
