@@ -27,7 +27,7 @@ export async function initializeGuild(guild: Guild) {
 	let guildSettingsModActions = await prisma.guildSettingsModActions.findUnique({ where: { id: guild.id } });
 	let guildSettingsXP = await prisma.guildSettingsXP.findUnique({ where: { id: guild.id } });
 
-	if (!guildInfo || !guildSettings || !guildSettingsChatFilter || !guildSettingsLogs || !guildSettingsModActions) {
+	if (!guildInfo || !guildSettings || !guildSettingsChatFilter || !guildSettingsLogs || !guildSettingsModActions || !guildSettingsXP) {
 		logger.debug(`Initializing guild ${bold(guild.name)} (${gray(guild.id)})...`)
 
 		if (!guildInfo) {
