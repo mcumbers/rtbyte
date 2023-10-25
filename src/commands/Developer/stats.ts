@@ -33,19 +33,17 @@ export class UserCommand extends Command {
 
 		// Combined number of users of all guilds the bot is in
 		let memberCount = 0;
+		let guildAppCommandCount = 0;
 		for await (const guild of this.container.client.guilds.cache) {
 			memberCount += guild[1].memberCount;
+			const guildCommands = await guild[1].commands.fetch();
+			guildAppCommandCount += guildCommands.size;
 		}
 
 		// Counts for both global and guild-specific application commands
 		let globalAppCommandCount = 0;
-		let guildAppCommandCount = 0;
 		for await (const appCommand of this.container.client.application?.commands.cache ?? []) {
-			if (appCommand[1].guild) {
-				guildAppCommandCount++;
-				continue;
-			}
-			globalAppCommandCount++;
+			if (appCommand) globalAppCommandCount++;
 		}
 
 		// Memory usage on host machine for this process
