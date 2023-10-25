@@ -6,3 +6,4 @@ node_modules
 config.ts
 .DS_Store
 .npmrc
+prisma/migrations
