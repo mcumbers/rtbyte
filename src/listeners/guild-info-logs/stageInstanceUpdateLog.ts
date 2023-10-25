@@ -1,9 +1,8 @@
 import { GuildLogEmbed } from '#lib/extensions/GuildLogEmbed';
-import { Emojis } from '#utils/constants';
 import { getAuditLogEntry } from '#utils/util';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Events, Listener, type ListenerOptions } from '@sapphire/framework';
-import { codeBlock, cutText, inlineCodeBlock, isNullish } from '@sapphire/utilities';
+import { isNullish } from '@sapphire/utilities';
 import { AuditLogEvent, BaseGuildTextChannel, Guild, StageInstance, type GuildAuditLogsEntry } from 'discord.js';
 
 @ApplyOptions<ListenerOptions>({ event: Events.StageInstanceUpdate })
@@ -21,24 +20,45 @@ export class UserEvent extends Listener {
 	}
 
 	private generateGuildLog(oldStage: StageInstance, stage: StageInstance, auditLogEntry: GuildAuditLogsEntry | null) {
+		if (!stage.channel || !stage.guild) return [];
+
+		// Build Main Embed
 		const embed = new GuildLogEmbed()
-			.setAuthor({
-				name: cutText(stage.topic, 256),
-				url: `https://discord.com/channels/${stage.guildId}/${stage.channelId}`,
-				iconURL: stage.guild?.iconURL() ?? undefined
-			})
-			.setDescription(inlineCodeBlock(stage.id))
-			.setFooter({ text: `Stage updated ${isNullish(auditLogEntry?.executor) ? '' : `by ${auditLogEntry?.executor.username}`}`, iconURL: isNullish(auditLogEntry?.executor) ? undefined : auditLogEntry?.executor?.displayAvatarURL() })
+			.setTitle('Stage Instance Updated')
+			.setDescription(`${stage.channel.url}${stage.topic ? `: ${stage.topic}` : ''}`)
+			.setThumbnail(stage.guild.iconURL())
+			.setFooter({ text: `Stage ID: ${stage.id}` })
 			.setType(Events.StageInstanceUpdate);
 
-		if (stage.guildScheduledEvent) embed.addFields({ name: 'Associated event', value: `[${inlineCodeBlock(`${stage.guildScheduledEvent.name}`)}](${stage.guildScheduledEvent.url})`, inline: true });
+		// Linked Event
+		if (oldStage.guildScheduledEventId !== stage.guildScheduledEventId) {
+			if (!oldStage.guildScheduledEventId) embed.addFields({ name: 'Stage Event Added', value: `[${stage.guildScheduledEvent?.name as string}](${stage.guildScheduledEvent?.url as string})`, inline: true });
+			if (!stage.guildScheduledEventId) embed.addFields({ name: 'Stage Event Removed', value: `[${oldStage.guildScheduledEvent?.name as string}](${oldStage.guildScheduledEvent?.url as string})`, inline: true });
+			if (oldStage.guildScheduledEventId && stage.guildScheduledEventId) embed.addFields({ name: 'Stage Event Changed', value: `[${oldStage.guildScheduledEvent?.name as string}](${oldStage.guildScheduledEvent?.url as string}) -> [${stage.guildScheduledEvent?.name as string}](${stage.guildScheduledEvent?.url as string})`, inline: true });
+		}
 
-		const changes = [];
-		const privacyLevels = ['', 'Public', 'Members only']
-		if (oldStage.topic !== stage.topic) changes.push(`${Emojis.Bullet}**Topic**:\n${codeBlock(`${oldStage.topic}`)}to\n${codeBlock(`${stage.topic}`)}`);
-		if (oldStage.privacyLevel !== stage.privacyLevel) changes.push(`${Emojis.Bullet}**Privacy**: ${privacyLevels[oldStage.privacyLevel]} to ${privacyLevels[stage.privacyLevel]}`);
-		if (changes.length) embed.addFields({ name: 'Changes', value: changes.join('\n') });
+		// Topic
+		if (oldStage.topic !== stage.topic) {
+			if (!oldStage.topic) embed.addFields({ name: 'Topic Added', value: stage.topic as string, inline: true });
+			if (!stage.topic) embed.addFields({ name: 'Topic Removed', value: oldStage.topic as string, inline: true });
+			if (oldStage.topic && stage.topic) embed.addFields({ name: 'Topic Changed', value: `\`\`\`diff\n-${oldStage.topic}\n+${stage.topic}\n\`\`\``, inline: false });
+		}
 
-		return [embed]
+		// Privacy Level
+		const privacyLevels = ['', 'Public', 'Members only'];
+		if (oldStage.privacyLevel !== stage.privacyLevel) {
+			if (!oldStage.privacyLevel) embed.addFields({ name: 'Privacy Level Added', value: privacyLevels[stage.privacyLevel], inline: true });
+			if (!stage.privacyLevel) embed.addFields({ name: 'Privacy Level Removed', value: privacyLevels[oldStage.privacyLevel], inline: true });
+			if (oldStage.topic && stage.topic) embed.addFields({ name: 'Privacy Level Changed', value: `\`\`\`diff\n-${privacyLevels[oldStage.privacyLevel]}\n+${privacyLevels[stage.privacyLevel]}\n\`\`\``, inline: false });
+		}
+
+		// Add audit log info to embed
+		if (auditLogEntry) {
+			if (!isNullish(auditLogEntry.reason)) embed.addFields({ name: 'Reason', value: auditLogEntry.reason, inline: false });
+			if (!isNullish(auditLogEntry.executor)) embed.addFields({ name: 'Edited By', value: auditLogEntry.executor.toString(), inline: false });
+		}
+
+		if (embed.data.fields?.length) return [embed];
+		return [];
 	}
 }
