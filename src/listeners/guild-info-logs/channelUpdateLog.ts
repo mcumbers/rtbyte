@@ -83,7 +83,61 @@ export class UserEvent extends Listener {
 				const forumLayout = ['Not set', 'List view', 'Gallery view'];
 				const sortOrder = ['Recent activity', 'Creation time'];
 
-				// TODO: Forum Tags add/remove/update
+				// Forum Tags
+				if (oldChannel.availableTags !== channel.availableTags) {
+					const addedTags = channel.availableTags.filter((tag) => !oldChannel.availableTags.find((oldTag) => oldTag.id === tag.id));
+					const removedTags = oldChannel.availableTags.filter((tag) => !channel.availableTags.find((oldTag) => oldTag.id === tag.id));
+					const changedTags = channel.availableTags.filter((tag) => {
+						const oldTag = oldChannel.availableTags.find((oldTag) => oldTag.id === tag.id);
+						if (!oldTag) return false;
+						if (oldTag === tag) return false;
+						return true;
+					});
+
+					if (addedTags.length) {
+						for (const tag of addedTags) {
+							const tagType = tag.moderated ? 'Mod-Only Tag' : 'Tag';
+							const emojiString = tag.emoji?.id ? (await channel.guild.emojis.fetch(tag.emoji.id)).toString() : tag.emoji?.name ? `${tag.emoji.name}` : '';
+							embed.addFields({ name: `${tagType} Created`, value: `${emojiString} **${tag.name}**`, inline: true });
+						}
+					}
+
+					if (removedTags.length) {
+						for (const tag of removedTags) {
+							const tagType = tag.moderated ? 'Mod-Only Tag' : 'Tag';
+							const emojiString = tag.emoji?.id ? (await channel.guild.emojis.fetch(tag.emoji.id)).toString() : tag.emoji?.name ? `${tag.emoji.name}` : '';
+							embed.addFields({ name: `${tagType} Deleted`, value: `${emojiString} **${tag.name}**`, inline: true });
+						}
+					}
+
+					if (changedTags.length) {
+						for (const tag of changedTags) {
+							const tagType = tag.moderated ? 'Mod-Only Tag' : 'Tag';
+							const emojiString = tag.emoji?.id ? (await channel.guild.emojis.fetch(tag.emoji.id)).toString() : tag.emoji?.name ? `${tag.emoji.name}` : '';
+
+							const oldTag = oldChannel.availableTags.find((oldTag) => oldTag.id === tag.id);
+							if (!oldTag) continue;
+							const oldTagType = oldTag.moderated ? 'Mod-Only Tag' : 'Tag';
+							const oldEmojiString = oldTag.emoji?.id ? (await channel.guild.emojis.fetch(oldTag.emoji.id)).toString() : oldTag.emoji?.name ? `${oldTag.emoji.name}` : '';
+
+							const lines = [];
+
+							if (oldTag.name !== tag.name) {
+								lines.push(`~~~ Tag Name Changed ~~~\n-${oldTag.name}\n+${tag.name}`);
+							}
+
+							if (oldTagType !== tagType) {
+								lines.push(`~~~ Tag Type Changed ~~~\n-${oldTagType}\n+${tagType}`);
+							}
+
+							if (oldEmojiString !== emojiString) {
+								lines.push(`~~~ Tag Emoji Changed ~~~\n-${oldEmojiString}\n+${emojiString}`);
+							}
+
+							if (lines.length) embed.addFields({ name: `${tagType} Edited`, value: `${emojiString} **${tag.name}**\n\`\`\`diff\n${lines.join('\n')}\n\`\`\``, inline: true });
+						}
+					}
+				}
 
 				// Default Reaction Emoji
 				if (oldChannel.defaultReactionEmoji?.id !== channel.defaultReactionEmoji?.id) {
