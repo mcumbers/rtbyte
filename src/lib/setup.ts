@@ -7,7 +7,13 @@ import { container } from '@sapphire/framework';
 import '@sapphire/plugin-api/register';
 import '@sapphire/plugin-logger/register';
 import { createColors } from 'colorette';
+import { Collection, type Snowflake } from 'discord.js';
 import { inspect } from 'util';
+
+interface RoleUpdate {
+	lastUpdated?: number
+}
+const roleUpdates = new Collection<Snowflake, RoleUpdate>();
 
 // TODO: Implement prisma-field-encryption
 const prisma = new PrismaClient();
@@ -15,9 +21,11 @@ const prisma = new PrismaClient();
 inspect.defaultOptions.depth = 1;
 createColors({ useColor: true });
 container.prisma = prisma;
+container.roleUpdates = roleUpdates;
 
 declare module '@sapphire/pieces' {
 	interface Container {
 		prisma: typeof prisma;
+		roleUpdates: typeof roleUpdates;
 	}
 }

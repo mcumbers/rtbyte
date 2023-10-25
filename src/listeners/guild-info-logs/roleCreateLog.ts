@@ -31,10 +31,11 @@ export class UserEvent extends Listener {
 
 		if (role.color) embed.addFields({ name: 'Color', value: `${role.hexColor}`, inline: true });
 		if (role.unicodeEmoji) embed.addFields({ name: 'Emoji', value: role.unicodeEmoji as string, inline: true });
-		if (role.hoist) embed.addFields({ name: 'Separated', value: 'Yes', inline: true });
+		if (role.hoist) embed.addFields({ name: 'Role Display', value: 'Separated', inline: true });
+		if (role.mentionable) embed.addFields({ name: 'Role Status', value: 'Mentionable', inline: true });
 
 		if (role.tags) {
-			if (role.tags.botId) embed.addFields({ name: 'Bot Role For', value: `<@${role.tags.botId}> (Bot)`, inline: true });
+			if (role.tags.botId) embed.addFields({ name: 'Bot Role For', value: `<@${role.tags.botId}>`, inline: true });
 
 			if (role.tags.integrationId) {
 				const integrations = await role.guild.fetchIntegrations();
@@ -42,7 +43,7 @@ export class UserEvent extends Listener {
 				if (integration) embed.addFields({ name: 'Integration Role For', value: integration?.name as string, inline: true });
 			}
 
-			if (role.tags.premiumSubscriberRole) embed.addFields({ name: 'Role Type', value: 'Premium Subscriber Role', inline: true });
+			if (role.tags.premiumSubscriberRole) embed.addFields({ name: 'Role Type', value: 'Server Booster Role', inline: true });
 			if (role.tags.guildConnections) embed.addFields({ name: 'Role Type', value: 'Server Linked Role', inline: true });
 			if (role.tags.availableForPurchase) embed.addFields({ name: 'Role Type', value: 'Purchasable Role', inline: true });
 		}

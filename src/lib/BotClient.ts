@@ -7,12 +7,13 @@ export class BotClient extends SapphireClient {
 		super(CLIENT_OPTIONS);
 	}
 
-	public async login(token?: string) {
+	public override async login(token?: string) {
 		this.logger.info('Connecting to Discord...');
 		return super.login(token);
 	}
 
-	public destroy() {
+	public override async destroy() {
+		await this.prisma.$disconnect();
 		return super.destroy();
 	}
 }
