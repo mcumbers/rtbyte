@@ -1,9 +1,8 @@
 import { GuildLogEmbed } from '#lib/extensions/GuildLogEmbed';
-import { Emojis } from '#utils/constants';
 import { getAuditLogEntry } from '#utils/util';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Events, Listener, type ListenerOptions } from '@sapphire/framework';
-import { codeBlock, inlineCodeBlock, isNullish } from '@sapphire/utilities';
+import { inlineCodeBlock, isNullish } from '@sapphire/utilities';
 import { AuditLogEvent, BaseGuildTextChannel, Guild, GuildScheduledEvent, type GuildAuditLogsEntry } from 'discord.js';
 
 @ApplyOptions<ListenerOptions>({ event: Events.GuildScheduledEventUpdate })
@@ -22,29 +21,49 @@ export class UserEvent extends Listener {
 
 	private generateGuildLog(oldEvent: GuildScheduledEvent, event: GuildScheduledEvent, auditLogEntry: GuildAuditLogsEntry | null) {
 		const embed = new GuildLogEmbed()
-			.setAuthor({
-				name: event.name,
-				url: event.url,
-				iconURL: event.guild?.iconURL() ?? undefined
-			})
-			.setDescription(inlineCodeBlock(event.id))
-			.setFooter({ text: `Event edited ${isNullish(auditLogEntry?.executor) ? '' : `by ${auditLogEntry?.executor.username}`}`, iconURL: isNullish(auditLogEntry?.executor) ? undefined : auditLogEntry?.executor?.displayAvatarURL() })
+			.setTitle(`Event Updated`)
+			.setDescription(`[${event.name as string}](${event.url as string})`)
+			.setThumbnail(event.guild!.iconURL())
+			.setFooter({ text: `Event ID: ${event.id}` })
 			.setType(Events.GuildScheduledEventUpdate);
 
-		const changes = [];
-		const oldEndTimestamp = oldEvent.scheduledEndTimestamp ? `<t:${Math.round(oldEvent.scheduledEndTimestamp as number / 1000)}:f>` : inlineCodeBlock('Not set');
-		const endTimestamp = event.scheduledEndTimestamp ? `<t:${Math.round(event.scheduledEndTimestamp as number / 1000)}:f>` : inlineCodeBlock('Not set');
-		if ((oldEvent.entityType !== event.entityType) || oldEvent.channel !== event.channel) {
-			const oldEventLocation = oldEvent.entityMetadata?.location ? inlineCodeBlock(oldEvent.entityMetadata.location) : `<#${oldEvent.channelId}>`;
-			const eventLocation = event.entityMetadata?.location ? inlineCodeBlock(event.entityMetadata.location) : `<#${event.channelId}>`;
-			changes.push(`${Emojis.Bullet}**Location**: ${oldEventLocation} to ${eventLocation}`);
+		if (oldEvent.name !== event.name) {
+			embed.addFields({ name: 'Name Changed', value: `\`\`\`diff\n-${oldEvent.name}\n+${event.name}\n\`\`\``, inline: false });
 		}
-		if (oldEvent.name !== event.name) changes.push(`${Emojis.Bullet}**Name**: ${inlineCodeBlock(`${oldEvent.name}`)} to ${inlineCodeBlock(`${event.name}`)}`);
-		if (oldEvent.scheduledStartTimestamp !== event.scheduledStartTimestamp) changes.push(`${Emojis.Bullet}**Scheduled start**: <t:${Math.round(oldEvent.scheduledStartTimestamp as number / 1000)}:f> to <t:${Math.round(event.scheduledStartTimestamp as number / 1000)}:f>`);
-		if (oldEvent.scheduledEndTimestamp !== event.scheduledEndTimestamp) changes.push(`${Emojis.Bullet}**Scheduled end**: ${oldEndTimestamp} to ${endTimestamp}`);
-		if (oldEvent.image !== event.image) changes.push(`${Emojis.Bullet}**Cover image**: ${oldEvent.coverImageURL() ? `[${inlineCodeBlock('click to view')}](${oldEvent.coverImageURL()})` : inlineCodeBlock('Not set')} to ${event.coverImageURL() ? `[${inlineCodeBlock('click to view')}](${event.coverImageURL()})` : inlineCodeBlock('Not set')}`);
-		if (oldEvent.description !== event.description) changes.push(`${Emojis.Bullet}**Description**:\n${oldEvent.description ? codeBlock(`${oldEvent.description}`) : codeBlock('Not set')}to\n${event.description ? codeBlock(`${event.description}`) : codeBlock('Not set')}`);
-		if (changes.length) embed.addFields({ name: 'Changes', value: changes.join('\n') });
+
+		if ((oldEvent.entityType !== event.entityType) || oldEvent.channel !== event.channel) {
+			const oldEventLocation = oldEvent.entityMetadata?.location ? `${oldEvent.entityMetadata.location}` : `<#${oldEvent.channelId}>`;
+			const eventLocation = event.entityMetadata?.location ? `${event.entityMetadata.location}` : `<#${event.channelId}>`;
+			embed.addFields({ name: 'Location Changed', value: `${oldEventLocation} -> ${eventLocation}`, inline: false });
+		}
+
+		if (oldEvent.scheduledStartTimestamp !== event.scheduledStartTimestamp) {
+			const oldStartTimestamp = `<t:${Math.round(oldEvent.scheduledStartTimestamp as number / 1000)}:f>`;
+			const startTimestamp = `<t:${Math.round(event.scheduledStartTimestamp as number / 1000)}:f>`;
+			embed.addFields({ name: 'Start Time Changed', value: `${oldStartTimestamp} -> ${startTimestamp}`, inline: false });
+		}
+
+		if (oldEvent.scheduledEndTimestamp !== event.scheduledEndTimestamp) {
+			const oldEndTimestamp = oldEvent.scheduledEndTimestamp ? `<t:${Math.round(oldEvent.scheduledEndTimestamp as number / 1000)}:f>` : inlineCodeBlock('Not set');
+			const endTimestamp = event.scheduledEndTimestamp ? `<t:${Math.round(event.scheduledEndTimestamp as number / 1000)}:f>` : inlineCodeBlock('Not set');
+			embed.addFields({ name: 'End Time Changed', value: `${oldEndTimestamp} -> ${endTimestamp}`, inline: false });
+		}
+
+		if (oldEvent.description !== event.description) {
+			embed.addFields({ name: 'Description Changed', value: `\`\`\`diff\n-${oldEvent.description}\n+${event.description}\n\`\`\``, inline: false });
+		}
+
+		if (oldEvent.image !== event.image) {
+			if (!oldEvent.image) embed.addFields({ name: 'Image Added', value: `[New Image](${event.coverImageURL()})`, inline: true });
+			if (!event.image) embed.addFields({ name: 'Image Changed', value: 'Image Removed', inline: true });
+			if (oldEvent.image && event.image) embed.addFields({ name: 'Image Changed', value: `[New Image](${event.coverImageURL()})`, inline: false });
+		}
+
+		// Add audit log info to embed
+		if (auditLogEntry) {
+			if (!isNullish(auditLogEntry.reason)) embed.addFields({ name: 'Reason', value: auditLogEntry.reason, inline: false });
+			if (!isNullish(auditLogEntry.executor)) embed.addFields({ name: 'Edited By', value: auditLogEntry.executor.toString(), inline: false });
+		}
 
 		return [embed]
 	}
