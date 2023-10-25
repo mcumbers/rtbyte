@@ -3,7 +3,7 @@ import { getAuditLogEntry } from '#utils/util';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Events, Listener, type ListenerOptions } from '@sapphire/framework';
 import { isNullish } from '@sapphire/utilities';
-import { AuditLogEvent, type APIEmbedField, type BaseGuildTextChannel, type GuildAuditLogsEntry, type GuildMember } from 'discord.js';
+import { AuditLogEvent, type BaseGuildTextChannel, type GuildAuditLogsEntry, type GuildMember, type Role } from 'discord.js';
 
 @ApplyOptions<ListenerOptions>({ event: Events.GuildMemberUpdate })
 export class UserEvent extends Listener {
@@ -28,61 +28,50 @@ export class UserEvent extends Listener {
 			.setDescription(member.toString())
 			.setThumbnail(member.user.displayAvatarURL())
 			.setFooter({ text: `User ID: ${member.user.id}` })
-			.setTimestamp(Date.now())
 			.setType(Events.GuildMemberUpdate);
-
-		const changes: APIEmbedField[] = [];
 
 		// Check if Nickname changed
 		if (oldMember.nickname !== member.nickname) {
-			if (!oldMember.nickname) {
-				changes.push({ name: 'Nickname Added', value: `\`\`\`diff\n+ ${member.nickname}\n\`\`\``, inline: false });
-			}
-			if (!member.nickname) {
-				changes.push({ name: 'Nickname Removed', value: `\`\`\`diff\n- ${oldMember.nickname}\n\`\`\``, inline: false });
-			}
-			if (oldMember.nickname && member.nickname) {
-				changes.push({ name: 'Nickname Changed', value: `\`\`\`diff\n- ${oldMember.nickname}\n+ ${member.nickname}\n\`\`\``, inline: false });
-			}
+			if (!oldMember.nickname) embed.addFields({ name: 'Nickname Added', value: `\`\`\`diff\n+${member.nickname}\n\`\`\``, inline: false });
+			if (!member.nickname) embed.addFields({ name: 'Nickname Removed', value: `\`\`\`diff\n-${oldMember.nickname}\n\`\`\``, inline: false });
+			if (oldMember.nickname && member.nickname) embed.addFields({ name: 'Nickname Changed', value: `\`\`\`diff\n-${oldMember.nickname}\n+${member.nickname}\n\`\`\``, inline: false });
 		}
 
 		// Check if Avatar changed
 		// NOTE: Does not create an entry in the Audit Log
 		if (oldMember.avatar !== member.avatar) {
 			showsInAuditLog = false;
-			if (!oldMember.avatar) {
-				changes.push({ name: 'Server Avatar Added', value: '', inline: false });
-			}
-			if (!member.avatar) {
-				changes.push({ name: 'Server Avatar Removed', value: '', inline: false });
-			}
-			if (oldMember.avatar && member.avatar) {
-				changes.push({ name: 'Server Avatar Changed', value: '', inline: false });
-			}
+			if (!oldMember.avatar) embed.addFields({ name: 'Server Avatar Added', value: '', inline: false });
+			if (!member.avatar) embed.addFields({ name: 'Server Avatar Removed', value: '', inline: false });
+			if (oldMember.avatar && member.avatar) embed.addFields({ name: 'Server Avatar Changed', value: '', inline: false });
 		}
 
 		// Check if Roles changed
 		if (oldMember.roles.cache !== member.roles.cache) {
 			const oldRoles = oldMember.roles.cache;
 			const roles = member.roles.cache;
-			const addedRoles = [];
-			const removedRoles = [];
+			const addedRoles: Role[] = [];
+			const removedRoles: Role[] = [];
+
 			for (const [key, role] of roles.entries()) {
-				if (!oldRoles.has(key)) addedRoles.push(`${role}`);
+				if (!oldRoles.has(key)) addedRoles.push(role);
 			}
 			for (const [key, role] of oldRoles.entries()) {
-				if (!roles.has(key)) removedRoles.push(`${role}`);
+				if (!roles.has(key)) removedRoles.push(role);
 			}
-			if (addedRoles.length) {
-				changes.push({ name: `Role${addedRoles.length > 1 ? 's' : ''} Added`, value: addedRoles.join(' '), inline: false });
-			}
-			if (removedRoles.length) {
-				changes.push({ name: `Role${removedRoles.length > 1 ? 's' : ''} Removed`, value: removedRoles.join(' '), inline: false });
-			}
-		}
 
-		// Add fields to embed
-		if (changes.length) embed.addBlankFields(changes);
+			const lines = [];
+			if (addedRoles.length || removedRoles.length) {
+				for (const role of addedRoles) {
+					lines.push(`+${role.name}`);
+				}
+				for (const role of removedRoles) {
+					lines.push(`-${role.name}`);
+				}
+			}
+
+			if (lines.length) embed.addFields({ name: 'Roles Changed', value: `\`\`\`diff\n${lines.join('\n')}\n\`\`\``, inline: false });
+		}
 
 		// Show if changes were made by a different user or if we can see the executor
 		if (showsInAuditLog && auditLogEntry) {
