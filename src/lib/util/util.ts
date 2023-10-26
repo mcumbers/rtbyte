@@ -1,6 +1,6 @@
 import { container } from "@sapphire/framework";
 import { isNullishOrEmpty } from "@sapphire/utilities";
-import { ChannelType, GuildChannel, Invite, PermissionFlagsBits, type ApplicationCommandPermissions, type AuditLogEvent, type Emoji, type Guild, type GuildScheduledEvent, type Interaction, type Message, type Role, type StageChannel, type StageInstance, type Sticker, type ThreadChannel, type User, type VoiceChannel, type Webhook } from "discord.js";
+import { ChannelType, GuildChannel, GuildSystemChannelFlags, Invite, PermissionFlagsBits, type ApplicationCommandPermissions, type AuditLogEvent, type Emoji, type Guild, type GuildScheduledEvent, type Interaction, type Message, type Role, type StageChannel, type StageInstance, type Sticker, type ThreadChannel, type User, type VoiceChannel, type Webhook } from "discord.js";
 
 /**
  * Get the executor user from the last audit log entry of specific type
@@ -163,5 +163,17 @@ export function getChannelDescriptor(channelType: ChannelType) {
 		case ChannelType.GuildText: return 'Text Channel';
 		case ChannelType.GuildVoice: return 'Voice Channel';
 		default: return 'Channel';
+	}
+}
+
+export function getSystemChannelFlagString(flag: GuildSystemChannelFlags) {
+	switch (flag) {
+		case GuildSystemChannelFlags.SuppressGuildReminderNotifications: return "Server Setup Tips";
+		case GuildSystemChannelFlags.SuppressJoinNotificationReplies: return "Join Message Stickers";
+		case GuildSystemChannelFlags.SuppressJoinNotifications: return "Join Messages";
+		case GuildSystemChannelFlags.SuppressPremiumSubscriptions: return "Server Boost Notifications";
+		case GuildSystemChannelFlags.SuppressRoleSubscriptionPurchaseNotificationReplies: return "Subscription Role Purchase Stickers";
+		case GuildSystemChannelFlags.SuppressRoleSubscriptionPurchaseNotifications: return "Subscription Role Purchase Messages";
+		default: return null;
 	}
 }
