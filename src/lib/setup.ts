@@ -8,6 +8,7 @@ import '@sapphire/plugin-api/register';
 import '@sapphire/plugin-logger/register';
 import { createColors } from 'colorette';
 import { Collection, type Snowflake } from 'discord.js';
+import { fieldEncryptionExtension } from 'prisma-field-encryption';
 import { inspect } from 'util';
 
 interface RoleUpdate {
@@ -16,7 +17,9 @@ interface RoleUpdate {
 const roleUpdates = new Collection<Snowflake, RoleUpdate>();
 
 // TODO: Implement prisma-field-encryption
-const prisma = new PrismaClient();
+const prisma = new PrismaClient().$extends(
+	fieldEncryptionExtension()
+);
 
 inspect.defaultOptions.depth = 1;
 createColors({ useColor: true });

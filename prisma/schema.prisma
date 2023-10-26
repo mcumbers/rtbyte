@@ -48,8 +48,8 @@ model Member {
     joinTimes  DateTime[] @map("join_times")
     leaveTimes DateTime[] @map("leave_times")
 
-    usernameHistory    String[] @map("username_history")
-    displayNameHistory String[] @map("display_name_history")
+    usernameHistory    String[] @map("username_history") /// @encrypted?mode=strict
+    displayNameHistory String[] @map("display_name_history") /// @encrypted?mode=strict
 
     @@unique([userID, guildID])
     @@map("members")
@@ -404,7 +404,7 @@ model ModAction {
     target      String        @map("target_id")
     moderator   String        @map("moderator_id")
     timestamp   DateTime      @map("timestamp")
-    description String?       @map("description") /// @encrypted
+    description String?       @map("description") /// @encrypted?mode=strict
     duration    Int?          @map("duration_minutes")
     silent      Boolean?      @default(false) @map("silent")
 
