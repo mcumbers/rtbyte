@@ -2,22 +2,20 @@ import { transformLoginData } from '#root/transformers/loginData';
 import { LogLevel } from '@sapphire/framework';
 import '@sapphire/plugin-hmr/register';
 import { GatewayIntentBits, OAuth2Scopes, Partials, type ClientOptions } from 'discord.js';
+import * as dotenv from "dotenv";
+dotenv.config();
 
 export const DEV = process.env.NODE_ENV !== 'production';
+const { OAUTH_SECRET, BOT_TOKEN } = process.env;
 
-export const CLIENT_ID = '';
-export const CONTROL_GUILD = '';
-export const OWNERS: string[] = [''];
-export const PREFIX = '=';
-export const VERSION = '0.0.0';
+export const CONTROL_GUILD = '250501026958934020';
+export const OWNERS: string[] = ['109004714934300672'];
+export const VERSION = '0.1.0';
+
 export const INIT_ALL_USERS = false;
 export const INIT_ALL_MEMBERS = false;
 
 export const CLIENT_OPTIONS: ClientOptions = {
-	caseInsensitiveCommands: true,
-	caseInsensitivePrefixes: true,
-	defaultPrefix: PREFIX,
-	regexPrefix: /^(hey +)?bot[,! ]/i,
 	shards: 'auto',
 	intents: [
 		GatewayIntentBits.Guilds,
@@ -51,10 +49,11 @@ export const CLIENT_OPTIONS: ClientOptions = {
 	},
 	api: {
 		auth: {
-			id: CLIENT_ID,
-			secret: '',
+			id: '1141471276268011740',
+			secret: OAUTH_SECRET as string,
 			cookie: 'SB_AUTH',
-			redirect: '',
+			domainOverwrite: 'localhost',
+			redirect: 'http://localhost:5173/oauth/register',
 			scopes: [OAuth2Scopes.Identify, OAuth2Scopes.Guilds, OAuth2Scopes.GuildsMembersRead],
 			transformers: [transformLoginData]
 		},
@@ -65,10 +64,10 @@ export const CLIENT_OPTIONS: ClientOptions = {
 		}
 	},
 	hmr: {
-		enabled: process.env.NODE_ENV === 'development'
+		enabled: !DEV
 	}
 };
 
 export const TOKENS = {
-	BOT_TOKEN: '',
+	BOT_TOKEN
 };

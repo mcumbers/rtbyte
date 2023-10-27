@@ -1,7 +1,7 @@
 {
 	"name": "stickbot",
 	"description": "A personal fork of RTByte--An open source, multipurpose Discord Bot",
-	"version": "0.0.1",
+	"version": "0.1.0",
 	"main": "./dist/index.js",
 	"type": "module",
 	"author": "Michael Cumbers",
@@ -21,7 +21,7 @@
 		"start": "node dist/index.js",
 		"prisma-build": "npx prisma generate",
 		"prisma-migrate": "npx prisma migrate dev --name init",
-		"postinstall": "echo 'Install successful\nAdd environment variables and build once before running dev:\nnpm run build\nnpm run dev'"
+		"docker-build": "docker build -t mcumbers/stickbot ."
 	},
 	"imports": {
 		"#root/*": "./dist/*.js",
