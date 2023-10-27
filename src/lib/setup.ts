@@ -16,7 +16,6 @@ interface RoleUpdate {
 }
 const roleUpdates = new Collection<Snowflake, RoleUpdate>();
 
-// TODO: Implement prisma-field-encryption
 const prisma = new PrismaClient().$extends(
 	fieldEncryptionExtension()
 );

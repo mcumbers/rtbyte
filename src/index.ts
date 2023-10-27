@@ -15,7 +15,7 @@ const main = async () => {
 		await client.login(TOKENS.BOT_TOKEN);
 	} catch (error) {
 		client.logger.fatal(error);
-		client.destroy();
+		await client.destroy();
 		process.exit(1);
 	}
 };
