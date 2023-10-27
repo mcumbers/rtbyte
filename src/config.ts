@@ -52,8 +52,8 @@ export const CLIENT_OPTIONS: ClientOptions = {
 			id: '1141471276268011740',
 			secret: OAUTH_SECRET as string,
 			cookie: 'SB_AUTH',
-			domainOverwrite: 'localhost',
-			redirect: 'http://localhost:5173/oauth/register',
+			domainOverwrite: DEV ? 'localhost' : undefined,
+			redirect: DEV ? 'http://localhost:5173/oauth/register' : 'http://stickbot.stickman.codes/oauth/register',
 			scopes: [OAuth2Scopes.Identify, OAuth2Scopes.Guilds, OAuth2Scopes.GuildsMembersRead],
 			transformers: [transformLoginData]
 		},
