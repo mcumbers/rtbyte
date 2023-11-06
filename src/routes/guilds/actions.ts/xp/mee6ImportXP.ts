@@ -1,8 +1,8 @@
 import { authenticated } from '#root/lib/util/decorators/routeAuthenticated';
 import { ApplyOptions } from '@sapphire/decorators';
+import { FetchResultTypes, fetch } from '@sapphire/fetch';
 import { ApiResponse, HttpCodes, Route, methods, type ApiRequest } from '@sapphire/plugin-api';
 import { Guild, PermissionsBitField } from 'discord.js';
-import fetch from 'node-fetch';
 
 const MEE6_ENTRIES_MAX = 500;
 const MEE6_IMPORT_COOLDOWN = 24 * 60 * 60 * 1000;
@@ -37,7 +37,14 @@ export class UserRoute extends Route {
 		if (!guildSettingsXP) guildSettingsXP = await prisma.guildSettingsXP.create({ data: { id: guild.id } });
 
 		// 24-hour cooldown for mee6 XP Imports
-		if (guildSettingsXP.mee6ImportedTime && new Date(Date.now() + MEE6_IMPORT_COOLDOWN) > guildSettingsXP.mee6ImportedTime) return response.error(HttpCodes.TooManyRequests);
+		if (guildSettingsXP.mee6ImportedTime && new Date(Date.now() + MEE6_IMPORT_COOLDOWN) > guildSettingsXP.mee6ImportedTime) {
+			// Get botGlobalSettings...
+			const botGlobalSettings = await prisma.botGlobalSettings.findFirst({ where: { id: client.id as string } });
+
+			// Enforce cooldown if request wasn't made by a bot owner
+			if (!botGlobalSettings || !botGlobalSettings.botOwners.includes(requestAuth.id)) return response.error(HttpCodes.TooManyRequests)
+		};
+
 		// Set import time on guildSettingsXP before fetching mee6 data so we don't spam the API if the request fails
 		guildSettingsXP = await prisma.guildSettingsXP.update({ where: { id: guildSettingsXP.id }, data: { mee6ImportedTime: new Date(Date.now()) } });
 
@@ -83,7 +90,7 @@ export class UserRoute extends Route {
 			return response.ok();
 		} catch (error) {
 			// VERY naive error handling here...
-			// I'm assuming if an error is thrown here it's from node-fetch getting a 404 from mee6
+			// I'm assuming if an error is thrown here it's from fetch getting a 404 from mee6
 			return response.error(HttpCodes.NotFound);
 		}
 	}
@@ -93,8 +100,10 @@ export class UserRoute extends Route {
 		let pgNum = 0;
 
 		while (true) {
-			const response = await fetch(`https://mee6.xyz/api/plugins/levels/leaderboard/${guild.id}?limit=${MEE6_ENTRIES_MAX}&page=${pgNum}`);
-			const data = await response.json() as Mee6Data;
+			const data = await fetch<Mee6Data>(
+				`https://mee6.xyz/api/plugins/levels/leaderboard/${guild.id}?limit=${MEE6_ENTRIES_MAX}&page=${pgNum}`,
+				FetchResultTypes.JSON
+			);
 			const memberEntries = data.players;
 			entries.push(...memberEntries);
 
@@ -103,20 +112,6 @@ export class UserRoute extends Route {
 		}
 	}
 
-}
-
-interface Mee6PlayerData {
-	avatar: string,
-	detailed_xp: number[],
-	discriminator: string,
-	guild_id: string,
-	id: string,
-	is_monetize_subscriber: boolean,
-	level: number,
-	message_count: number,
-	monetize_xp_boost: number,
-	username: string,
-	xp: number
 }
 
 interface Mee6PlayerData {
