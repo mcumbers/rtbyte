@@ -1,14 +1,13 @@
 import { CONTROL_GUILD, DEV, INIT_ALL_MEMBERS, INIT_ALL_USERS, OWNERS } from '#root/config';
 import { initializeGuild, initializeMember, initializeUser } from '#utils/functions/initialize';
 import type { BotGlobalSettings } from '@prisma/client';
-import type { ListenerOptions, PieceContext } from '@sapphire/framework';
 import { Listener, Store } from '@sapphire/framework';
 import { blue, gray, yellow } from 'colorette';
 
 export class UserEvent extends Listener {
 	private readonly style = DEV ? yellow : blue;
 
-	public constructor(context: PieceContext, options?: ListenerOptions) {
+	public constructor(context: Listener.LoaderContext, options?: Listener.Options) {
 		super(context, {
 			...options,
 			once: true

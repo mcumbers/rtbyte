@@ -14,7 +14,7 @@ export abstract class BotCommand extends Command {
 }
 
 export abstract class BotSubCommand extends Subcommand {
-	public constructor(context: Command.Context, options: Command.Options) {
+	public constructor(context: Command.LoaderContext, options: Command.Options) {
 		const resolvedPermissions = new PermissionsBitField(options.requiredClientPermissions).add(PermissionFlagsBits.EmbedLinks);
 
 		super(context, {

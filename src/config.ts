@@ -6,7 +6,7 @@ import * as dotenv from "dotenv";
 dotenv.config();
 
 export const DEV = process.env.NODE_ENV !== 'production';
-const { OAUTH_SECRET, BOT_TOKEN } = process.env;
+const { OAUTH_ID, OAUTH_SECRET, OAUTH_REDIRECT, BOT_TOKEN } = process.env;
 
 export const CONTROL_GUILD = '250501026958934020';
 export const OWNERS: string[] = ['109004714934300672'];
@@ -49,11 +49,11 @@ export const CLIENT_OPTIONS: ClientOptions = {
 	},
 	api: {
 		auth: {
-			id: '1141471276268011740',
+			id: OAUTH_ID as string,
 			secret: OAUTH_SECRET as string,
 			cookie: 'SB_AUTH',
 			domainOverwrite: DEV ? 'localhost' : undefined,
-			redirect: DEV ? 'http://localhost:5173/oauth/register' : 'http://stickbot.stickman.codes/oauth/register',
+			redirect: DEV ? 'http://localhost:5173/oauth/register' : OAUTH_REDIRECT as string,
 			scopes: [OAuth2Scopes.Identify, OAuth2Scopes.Guilds, OAuth2Scopes.GuildsMembersRead],
 			transformers: [transformLoginData]
 		},
