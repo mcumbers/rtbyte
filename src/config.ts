@@ -6,7 +6,7 @@ import * as dotenv from "dotenv";
 dotenv.config();
 
 export const DEV = process.env.NODE_ENV !== 'production';
-const { OAUTH_ID, OAUTH_SECRET, OAUTH_REDIRECT, BOT_TOKEN } = process.env;
+const { OAUTH_ID, OAUTH_SECRET, OAUTH_REDIRECT, API_PORT, BOT_TOKEN } = process.env;
 
 export const CONTROL_GUILD = '250501026958934020';
 export const OWNERS: string[] = ['109004714934300672'];
@@ -60,7 +60,7 @@ export const CLIENT_OPTIONS: ClientOptions = {
 		prefix: '/',
 		origin: '*',
 		listenOptions: {
-			port: 4000
+			port: parseInt(API_PORT as string, 10)
 		}
 	},
 	hmr: {

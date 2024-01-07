@@ -45,7 +45,7 @@ export class UserEvent extends Listener {
 		if (client.id) {
 			let globalBotSettings = await prisma.botGlobalSettings.findFirst({ where: { id: client.id } });
 			if (!globalBotSettings) {
-				logger.warn('Is this the first run? Creating Global Bot Settings in the Database..');
+				logger.warn('Is this the first run? Creating Global Bot Settings in the Database...');
 				const newSettingsObj: BotGlobalSettings = {
 					id: client.id,
 					userBlocklist: [],
