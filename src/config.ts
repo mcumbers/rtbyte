@@ -64,7 +64,7 @@ export const CLIENT_OPTIONS: ClientOptions = {
 		}
 	},
 	hmr: {
-		enabled: !DEV
+		enabled: DEV
 	}
 };
 
