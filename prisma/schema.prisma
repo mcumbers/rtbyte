@@ -442,7 +442,8 @@ model GuildSettingsXP {
     levelUpNotifyChannel  String? @map("level_up_notify_channel")
 
     // mee6 import tracking
-    mee6ImportedTime DateTime? @map("xp_imported_mee6_time")
+    mee6ImportedTime   DateTime? @map("xp_imported_mee6_time")
+    mee6ImportTimeNext DateTime? @map("xp_import_mee6_next")
 
     @@map("guildSettingsXP")
 }

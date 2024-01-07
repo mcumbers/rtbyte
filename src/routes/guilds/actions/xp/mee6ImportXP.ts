@@ -46,7 +46,7 @@ export class UserRoute extends Route {
 		};
 
 		// Set import time on guildSettingsXP before fetching mee6 data so we don't spam the API if the request fails
-		guildSettingsXP = await prisma.guildSettingsXP.update({ where: { id: guildSettingsXP.id }, data: { mee6ImportedTime: new Date(Date.now()) } });
+		guildSettingsXP = await prisma.guildSettingsXP.update({ where: { id: guildSettingsXP.id }, data: { mee6ImportedTime: new Date(Date.now()), mee6ImportTimeNext: new Date(Date.now() + MEE6_IMPORT_COOLDOWN) } });
 
 		try {
 			// Grab all leaderboard entries from mee6 API
