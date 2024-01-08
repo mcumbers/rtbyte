@@ -63,6 +63,11 @@ export class UserRoute extends Route {
 
 		const updatedSettings = await prisma.userSettings.update({ where: { id: submittedSettings.id }, data: updateSettings });
 
+		if (updatedSettings.disableBot) {
+			const user = await client.users.fetch(requestAuth.id);
+			client.emit('userDisableBot', user);
+		}
+
 		response.json({ data: { userSettings: updatedSettings } });
 	}
 }
