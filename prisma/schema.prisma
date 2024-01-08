@@ -51,6 +51,8 @@ model Member {
     usernameHistory    String[] @map("username_history") /// @encrypted?mode=strict
     displayNameHistory String[] @map("display_name_history") /// @encrypted?mode=strict
 
+    xpData MemberDataXP?
+
     @@unique([userID, guildID])
     @@map("members")
 }
@@ -450,6 +452,7 @@ model GuildSettingsXP {
 
 model MemberDataXP {
     id         Int       @id @default(autoincrement())
+    member     Member    @relation(fields: [id], references: [id], onUpdate: Cascade)
     userID     String    @map("user_id")
     guildID    String    @map("guild_id")
     currentXP  BigInt    @default(0) @map("xp_current")

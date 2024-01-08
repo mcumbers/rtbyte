@@ -10,8 +10,10 @@ export class UserEvent extends Listener {
 		if (member.user.bot) return;
 
 		const memberData = await this.container.prisma.member.findFirst({ where: { userID: member.id, guildID: member.guild.id } });
+		// Don't bother initializing memberData if it doesn't already exist. They just left the server.
 		if (!memberData) return;
 
+		// Join & Leave times will be tracked even if user opted out
 		const leaveTimes = memberData?.leaveTimes;
 		leaveTimes?.push(new Date(Date.now()));
 
