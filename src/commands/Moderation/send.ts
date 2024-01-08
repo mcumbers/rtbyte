@@ -7,8 +7,9 @@ import { ChannelType, PermissionFlagsBits } from 'discord.js';
 
 @ApplyOptions<ChatInputCommand.Options>({
 	description: 'Sends a message to the specified channel as the bot',
-	preconditions: ['OwnerOnly']
+	preconditions: ['OwnerOnly', 'GuildOnly']
 })
+
 export class UserCommand extends BotCommand {
 	public override registerApplicationCommands(registry: ChatInputCommand.Registry) {
 		registry.registerChatInputCommand((builder) =>

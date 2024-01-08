@@ -8,8 +8,9 @@ import { PermissionFlagsBits } from 'discord.js';
 
 @ApplyOptions<ChatInputCommand.Options>({
 	description: 'Retrieve information about a role',
-	preconditions: ['OwnerOnly']
+	preconditions: ['OwnerOnly', 'GuildOnly']
 })
+
 export class UserCommand extends BotCommand {
 	public override registerApplicationCommands(registry: ChatInputCommand.Registry) {
 		registry.registerChatInputCommand((builder) =>

@@ -4,8 +4,10 @@ import { Command } from '@sapphire/framework';
 
 @ApplyOptions<Command.Options>({
 	description: 'Check Your XP Level',
-	preconditions: ['OwnerOnly']
+	preconditions: ['OwnerOnly', 'GuildOnly'],
+	cooldownDelay: 15000
 })
+
 export class UserCommand extends Command {
 	public override registerApplicationCommands(registry: Command.Registry) {
 		registry.registerChatInputCommand((builder) =>

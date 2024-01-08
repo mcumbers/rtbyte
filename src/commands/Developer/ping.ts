@@ -8,6 +8,7 @@ import { type ChatInputCommand } from '@sapphire/framework';
 	description: 'Check Bot\'s Ping',
 	preconditions: ['OwnerOnly']
 })
+
 export class UserCommand extends BotCommand {
 	public override registerApplicationCommands(registry: ChatInputCommand.Registry) {
 		registry.registerChatInputCommand((builder) => builder.setName(this.name).setDescription(this.description));

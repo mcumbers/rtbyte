@@ -7,8 +7,10 @@ import { ApplicationCommandType, PermissionFlagsBits } from 'discord.js';
 
 @ApplyOptions<ChatInputCommand.Options>({
 	description: 'Quote a message',
-	preconditions: ['OwnerOnly']
+	preconditions: ['OwnerOnly', 'GuildOnly'],
+	cooldownDelay: 15000
 })
+
 export class UserCommand extends BotCommand {
 	public override registerApplicationCommands(registry: ChatInputCommand.Registry) {
 		registry.registerContextMenuCommand((builder) =>

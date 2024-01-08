@@ -8,6 +8,7 @@ import { memoryUsage } from 'node:process';
 	description: 'See statistics about the Bot.',
 	preconditions: ['OwnerOnly']
 })
+
 export class UserCommand extends Command {
 	public override registerApplicationCommands(registry: Command.Registry) {
 		registry.registerChatInputCommand((builder) => {
