@@ -135,6 +135,10 @@ model GuildSettings {
     greetingGoodbyeMessage       String? @map("greeting_dismiss_message")
     greetingGoodbyeMessageRejoin String? @map("greeting_dismiss_message_rejoin")
 
+    // ~~~~~     Quick Permissions Settings     ~~~~~ //
+    adminRoles     String[] @map("permissions_roles_admin")
+    moderatorRoles String[] @map("permissions_roles_moderator")
+
     // Per-Command Settings
     commands   GuildSettingsCommand[]
     chatFilter GuildSettingsChatFilter?

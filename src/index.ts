@@ -5,6 +5,8 @@ import { TOKENS } from '#root/config';
 declare module '@sapphire/framework' {
 	interface Preconditions {
 		OwnerOnly: never;
+		HasModRole: never;
+		HasAdminRole: never;
 	}
 }
 
