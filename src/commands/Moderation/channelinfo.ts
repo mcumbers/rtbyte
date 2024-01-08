@@ -10,7 +10,7 @@ import { ChannelType, PermissionFlagsBits } from 'discord.js';
 
 @ApplyOptions<ChatInputCommand.Options>({
 	description: 'Retrieve information about a channel',
-	preconditions: ['OwnerOnly', 'GuildOnly']
+	preconditions: [['HasAdminRole', ['HasModRole']]]
 })
 
 export class UserCommand extends BotCommand {
