@@ -124,12 +124,16 @@ model GuildSettings {
     shareGuildModerationDetailed   Boolean @default(false) @map("analytics_guild_moderation_detailed")
 
     // ~~~~~     Greeting Settings     ~~~~~ //
-    greetingWelcomeEnabled Boolean @default(false) @map("greeting_welcome_users")
-    greetingWelcomeChannel String? @map("greeting_welcome_channel")
-    greetingWelcomeMessage String? @map("greeting_welcome_message")
-    greetingGoodbyeEnabled Boolean @default(false) @map("greeting_dismiss_users")
-    greetingGoodbyeChannel String? @map("greeting_dismiss_channel")
-    greetingGoodbyeMessage String? @map("greeting_dismiss_message")
+    greetingWelcomeEnabled       Boolean @default(false) @map("greeting_welcome_users")
+    greetingWelcomeRejoins       Boolean @default(true) @map("greeting_welcome_rejoins")
+    greetingWelcomeChannel       String? @map("greeting_welcome_channel")
+    greetingWelcomeMessage       String? @map("greeting_welcome_message")
+    greetingWelcomeMessageRejoin String? @map("greeting_welcome_message_rejoin")
+    greetingGoodbyeEnabled       Boolean @default(false) @map("greeting_dismiss_users")
+    greetingGoodbyeRejoins       Boolean @default(true) @map("greeting_dismiss_rejoins")
+    greetingGoodbyeChannel       String? @map("greeting_dismiss_channel")
+    greetingGoodbyeMessage       String? @map("greeting_dismiss_message")
+    greetingGoodbyeMessageRejoin String? @map("greeting_dismiss_message_rejoin")
 
     // Per-Command Settings
     commands   GuildSettingsCommand[]
