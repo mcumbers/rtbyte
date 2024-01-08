@@ -4,7 +4,7 @@ import { Command } from '@sapphire/framework';
 
 @ApplyOptions<Command.Options>({
 	description: 'Check Your XP Rank',
-	preconditions: ['OwnerOnly', 'GuildOnly'],
+	preconditions: ['GuildOnly'],
 	cooldownDelay: 15000
 })
 

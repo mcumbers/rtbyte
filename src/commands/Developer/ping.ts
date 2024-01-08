@@ -6,7 +6,7 @@ import { type ChatInputCommand } from '@sapphire/framework';
 
 @ApplyOptions<ChatInputCommand.Options>({
 	description: 'Check Bot\'s Ping',
-	preconditions: ['OwnerOnly']
+	preconditions: ['DevOnly']
 })
 
 export class UserCommand extends BotCommand {

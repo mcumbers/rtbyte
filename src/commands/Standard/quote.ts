@@ -7,7 +7,7 @@ import { ApplicationCommandType, PermissionFlagsBits } from 'discord.js';
 
 @ApplyOptions<ChatInputCommand.Options>({
 	description: 'Quote a message',
-	preconditions: ['OwnerOnly', 'GuildOnly'],
+	preconditions: ['GuildOnly'],
 	cooldownDelay: 15000
 })
 
