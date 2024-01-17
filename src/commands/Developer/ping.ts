@@ -26,7 +26,7 @@ export class UserCommand extends BotCommand {
 		return interaction.editReply(`Failed to retrieve ping.`);
 	}
 
-	async getDBPing(startTime = Date.now()) {
+	private async getDBPing(startTime = Date.now()) {
 		const result = await this.container.prisma.$queryRaw(Prisma.sql`SELECT 1`);
 		return result ? Date.now() - startTime : null;
 	}
