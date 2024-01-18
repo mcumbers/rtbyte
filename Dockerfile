@@ -12,7 +12,6 @@ COPY prisma ./prisma
 
 # Install Deps & Build
 RUN npm install
-RUN npm run prisma-migrate
 RUN npm run build
 
 # Run
