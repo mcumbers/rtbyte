@@ -60,6 +60,6 @@ export class UserEvent extends Listener {
 		// Add fields to embed
 		if (changes.length) embed.addBlankFields(changes);
 
-		return [embed];
+		return embed.data.fields?.length ? [embed] : [];
 	}
 }

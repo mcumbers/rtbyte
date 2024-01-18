@@ -71,7 +71,7 @@ export class UserEvent extends Listener {
 			}
 		}
 
-		return [embed];
+		return embed.data.fields?.length ? [embed] : [];
 	}
 
 	private getTagDifference(forumChannel: ForumChannel, oldTag: string[], tag: string[]) {

@@ -46,7 +46,6 @@ export class UserEvent extends Listener {
 
 		if (oldMessageContent !== messageContent) embed.addDiffFields(oldMessageContent as string, messageContent as string, 'Message', style);
 
-		if (!embed.data.fields?.length) return;
-		return [embed]
+		return embed.data.fields?.length ? [embed] : [];
 	}
 }

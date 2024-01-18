@@ -309,7 +309,6 @@ export class UserEvent extends Listener {
 		// 256 chars/field name max
 		// 1024 chars/field value max
 		// TODO: Need to implement checks for this and split embeds
-		if (embed.data.fields?.length as number <= 25) return [embed];
-		return [];
+		return embed.data.fields?.length ? [embed] : [];;
 	}
 }

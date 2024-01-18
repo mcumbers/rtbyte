@@ -58,7 +58,6 @@ export class UserEvent extends Listener {
 			if (!isNullish(auditLogEntry.executor)) embed.addFields({ name: 'Edited By', value: auditLogEntry.executor.toString(), inline: false });
 		}
 
-		if (embed.data.fields?.length) return [embed];
-		return [];
+		return embed.data.fields?.length ? [embed] : [];
 	}
 }
