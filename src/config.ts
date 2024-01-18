@@ -6,14 +6,14 @@ import * as dotenv from "dotenv";
 dotenv.config();
 
 export const DEV = process.env.NODE_ENV !== 'production';
-const { OAUTH_ID, OAUTH_SECRET, OAUTH_REDIRECT, API_PORT, BOT_TOKEN } = process.env;
+const { OAUTH_ID, OAUTH_SECRET, OAUTH_REDIRECT, API_PORT, API_HOST, BOT_TOKEN, INIT_USERS, INIT_MEMBERS } = process.env;
 
 export const CONTROL_GUILD = '250501026958934020';
 export const OWNERS: string[] = ['109004714934300672'];
 export const VERSION = '0.1.0';
 
-export const INIT_ALL_USERS = false;
-export const INIT_ALL_MEMBERS = false;
+export const INIT_ALL_USERS = INIT_USERS || false;
+export const INIT_ALL_MEMBERS = INIT_MEMBERS || false;
 
 export const CLIENT_OPTIONS: ClientOptions = {
 	shards: 'auto',
@@ -53,12 +53,12 @@ export const CLIENT_OPTIONS: ClientOptions = {
 			secret: OAUTH_SECRET as string,
 			cookie: 'SB_AUTH',
 			domainOverwrite: DEV ? 'localhost' : undefined,
-			redirect: DEV ? 'http://localhost:5173/oauth/register' : OAUTH_REDIRECT as string,
+			redirect: OAUTH_REDIRECT as string,
 			scopes: [OAuth2Scopes.Identify, OAuth2Scopes.Guilds, OAuth2Scopes.GuildsMembersRead],
 			transformers: [transformLoginData]
 		},
 		prefix: '/',
-		origin: '*',
+		origin: API_HOST || '*',
 		listenOptions: {
 			port: parseInt(API_PORT as string, 10)
 		}
