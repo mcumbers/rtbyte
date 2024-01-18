@@ -137,6 +137,7 @@ model GuildSettings {
 
     // ~~~~~     Quick Permissions Settings     ~~~~~ //
     adminRoles     String[] @map("permissions_roles_admin")
+    botConfigRoles String[] @map("permissions_roles_bot_config")
     moderatorRoles String[] @map("permissions_roles_moderator")
 
     // Per-Command Settings
