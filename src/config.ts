@@ -6,7 +6,7 @@ import * as dotenv from "dotenv";
 dotenv.config();
 
 export const DEV = process.env.NODE_ENV !== 'production';
-const { OAUTH_ID, OAUTH_SECRET, OAUTH_REDIRECT, API_PORT, API_HOST, BOT_TOKEN, INIT_USERS, INIT_MEMBERS } = process.env;
+const { OAUTH_ID, OAUTH_SECRET, OAUTH_REDIRECT, API_PORT, PANEL_HOST, BOT_TOKEN, INIT_USERS, INIT_MEMBERS } = process.env;
 
 export const CONTROL_GUILD = '250501026958934020';
 export const OWNERS: string[] = ['109004714934300672'];
@@ -52,13 +52,13 @@ export const CLIENT_OPTIONS: ClientOptions = {
 			id: OAUTH_ID as string,
 			secret: OAUTH_SECRET as string,
 			cookie: 'SB_AUTH',
-			domainOverwrite: DEV ? 'localhost' : undefined,
+			domainOverwrite: new URL(PANEL_HOST as string).host || 'localhost',
 			redirect: OAUTH_REDIRECT as string,
 			scopes: [OAuth2Scopes.Identify, OAuth2Scopes.Guilds, OAuth2Scopes.GuildsMembersRead],
 			transformers: [transformLoginData]
 		},
 		prefix: '/',
-		origin: API_HOST || '*',
+		origin: PANEL_HOST || '*',
 		listenOptions: {
 			port: parseInt(API_PORT as string, 10)
 		}
