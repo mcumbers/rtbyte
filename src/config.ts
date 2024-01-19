@@ -52,7 +52,7 @@ export const CLIENT_OPTIONS: ClientOptions = {
 			id: OAUTH_ID as string,
 			secret: OAUTH_SECRET as string,
 			cookie: 'SB_AUTH',
-			domainOverwrite: new URL(PANEL_HOST as string).host || 'localhost',
+			domainOverwrite: PANEL_HOST ? new URL(PANEL_HOST as string).host : 'localhost',
 			redirect: OAUTH_REDIRECT as string,
 			scopes: [OAuth2Scopes.Identify, OAuth2Scopes.Guilds, OAuth2Scopes.GuildsMembersRead],
 			transformers: [transformLoginData]
