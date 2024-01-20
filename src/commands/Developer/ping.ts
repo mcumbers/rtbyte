@@ -20,7 +20,7 @@ export class UserCommand extends BotCommand {
 		if (isMessageInstance(msg)) {
 			const ping = msg.createdTimestamp - interaction.createdTimestamp;
 			const dbPing = await this.getDBPing(Date.now());
-			return interaction.editReply(`🏓 Pong! \`Bot: ${ping}ms\` \`DB: ${dbPing}ms\``);
+			return interaction.editReply(`🏓 Pong! \`Bot: ${ping}ms\` \`Database: ${dbPing}ms\``);
 		}
 
 		return interaction.editReply(`Failed to retrieve ping.`);
