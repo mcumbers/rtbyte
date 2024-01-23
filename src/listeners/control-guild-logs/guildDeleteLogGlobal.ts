@@ -6,7 +6,6 @@ import { BaseGuildTextChannel, Guild, User } from 'discord.js';
 @ApplyOptions<ListenerOptions>({ event: Events.GuildDelete })
 export class UserEvent extends Listener {
 	public async run(guild: Guild) {
-		if (!guild.available) return;
 		const { client, prisma } = this.container;
 
 		const botGlobalSettings = await prisma.botGlobalSettings.findUnique({ where: { id: client.id as string } });
