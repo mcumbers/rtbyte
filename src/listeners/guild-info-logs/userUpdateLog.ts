@@ -2,7 +2,7 @@ import { GuildLogEmbed } from '#lib/extensions/GuildLogEmbed';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Events, Listener, type ListenerOptions } from '@sapphire/framework';
 import { isNullish } from '@sapphire/utilities';
-import { type APIEmbedField, type BaseGuildTextChannel, type User } from 'discord.js';
+import type { BaseGuildTextChannel, User } from 'discord.js';
 
 @ApplyOptions<ListenerOptions>({ event: Events.UserUpdate })
 export class UserEvent extends Listener {
@@ -33,32 +33,28 @@ export class UserEvent extends Listener {
 			.setTimestamp(Date.now())
 			.setType(Events.GuildMemberUpdate);
 
-		const changes: APIEmbedField[] = [];
 		// Check if Username changed
 		if (oldUser.username !== user.username) {
-			changes.push({ name: 'Username Changed', value: `\`\`\`diff\n- ${oldUser.username}\n+ ${user.username}\n\`\`\``, inline: false });
+			embed.addFields({ name: 'Username Changed', value: `\`\`\`diff\n-${oldUser.username}\n+${user.username}\n\`\`\``, inline: false });
 		}
 
 		// Check if Display Name changed
 		if (oldUser.globalName !== user.globalName) {
 			if (!oldUser.globalName) {
-				changes.push({ name: 'Display Name Added', value: `\`\`\`diff\n+ ${user.globalName}\n\`\`\``, inline: false });
+				embed.addFields({ name: 'Display Name Added', value: `\`\`\`diff\n+ ${user.globalName}\n\`\`\``, inline: false });
 			}
 			if (!user.globalName) {
-				changes.push({ name: 'Display Name Removed', value: `\`\`\`diff\n- ${oldUser.globalName}\n\`\`\``, inline: false });
+				embed.addFields({ name: 'Display Name Removed', value: `\`\`\`diff\n- ${oldUser.globalName}\n\`\`\``, inline: false });
 			}
 			if (oldUser.globalName && user.globalName) {
-				changes.push({ name: 'Display Name Changed', value: `\`\`\`diff\n- ${oldUser.globalName}\n+ ${user.globalName}\n\`\`\``, inline: false });
+				embed.addFields({ name: 'Display Name Changed', value: `\`\`\`diff\n- ${oldUser.globalName}\n+ ${user.globalName}\n\`\`\``, inline: false });
 			}
 		}
 
 		// Check if Avatar changed
 		if (oldUser.avatar !== user.avatar) {
-			changes.push({ name: 'User Avatar Changed', value: '', inline: false });
+			embed.addBlankFields({ name: 'User Avatar Changed', value: '', inline: false });
 		}
-
-		// Add fields to embed
-		if (changes.length) embed.addBlankFields(changes);
 
 		return embed.data.fields?.length ? [embed] : [];
 	}
