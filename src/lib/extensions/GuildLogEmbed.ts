@@ -18,6 +18,7 @@ export class GuildLogEmbed extends BotEmbed {
 			case Events.InviteCreate:
 			case Events.StageInstanceCreate:
 			case Events.ThreadCreate:
+			case Events.ClientReady:
 				this.setColor(Colors.Green);
 				break;
 			case Events.GuildDelete:
