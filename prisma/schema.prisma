@@ -277,6 +277,12 @@ model GuildSettingsInfoLogs {
     webhookUpdateLog      Boolean        @default(false) @map("log_webhook_update")
     webhookUpdateLogStyle UpdateLogStyle @default(before_after) @map("log_webhook_update_style")
 
+    // Pluralkit Compatibility
+    pluralkitenabled             Boolean @default(false) @map("log_pluralkit_enabled")
+    pluralkitFilterSourceDeletes Boolean @default(true) @map("log_pluralkit_filter_source_deletes")
+    pluralkitFilterCommands      Boolean @default(true) @map("log_pluralkit_filter_command_deletes")
+    pluralkitShowSourceAccount   Boolean @default(true) @map("log_pluralkit_show_source")
+
     @@map("guildSettingsInfoLogs")
 }
 
