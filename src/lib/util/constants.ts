@@ -1,3 +1,5 @@
+import type { Snowflake } from "discord.js";
+
 export const ZeroWidthSpace = '\u200B';
 
 export const enum Colors {
@@ -15,3 +17,7 @@ export const enum Emojis {
 	Warning = '<:rtbyte_warning:898950475628552223>',
 	X = '<:xMark:1127184643460960286>'
 }
+
+export const PluralKitBotID: Snowflake = '466378653216014359';
+
+export const PluralKitCommands: Array<string> = ['pk;system', 'pk;find', 'pk;member', 'pk;group', 'pk;switch', 'pk;autoproxy', 'pk;config', 'pk;log', 'pk;blacklist', 'pk;message', 'pk;invite', 'pk;import', 'pk;export', 'pk;debug', 'pk;edit', 'pk;reproxy', 'pk;link', 'pk;unlink', 'pk;random', 'pk;token', 'pk;s', 'pk;help', 'pk;commands'];
