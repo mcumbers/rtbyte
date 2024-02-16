@@ -1,17 +1,18 @@
 import { GuildLogEmbed } from '#lib/extensions/GuildLogEmbed';
+import { PluralKitMessage } from '#lib/util/pluralkit/PluralKitMessage';
+import { pluralkitInGuild } from '#lib/util/pluralkit/pluralkitInGuild';
 import { getContent } from '#utils/util';
 import { UpdateLogStyle } from '@prisma/client';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Events, Listener, type ListenerOptions } from '@sapphire/framework';
 import { isNullish } from '@sapphire/utilities';
-import { BaseGuildTextChannel, Message } from 'discord.js';
+import { BaseGuildTextChannel, GuildMember, Message } from 'discord.js';
 
 @ApplyOptions<ListenerOptions>({ event: Events.MessageUpdate })
 export class UserEvent extends Listener {
 	public async run(oldMessage: Message, message: Message) {
 		if (isNullish(message.id)) return;
 		if (isNullish(message.guild)) return;
-		if (message.author.bot) return;
 		if (message.author.system) return;
 
 		const guildSettingsInfoLogs = await this.container.prisma.guildSettingsInfoLogs.findUnique({ where: { id: message.guild?.id } });
@@ -27,17 +28,37 @@ export class UserEvent extends Listener {
 			}
 		}
 
+		let authorOverrideID = '';
+		let authorOverride: GuildMember | null = null;
+
+		// Only check if it's a pluralkit message if any of the settings are set to true AND the bot is in the guild
+		if ((guildSettingsInfoLogs.pluralkitFilterSourceDeletes || guildSettingsInfoLogs.pluralkitShowSourceAccount) && (guildSettingsInfoLogs.pluralkitenabled || await pluralkitInGuild(message.guild))) {
+			const pluralkitMessage = await new PluralKitMessage().fetchMessage(message.id);
+
+			// We only need to act if the message was actually handled by PluralKit
+			if (pluralkitMessage) {
+				// Grab ID of original sender
+				if (guildSettingsInfoLogs.pluralkitShowSourceAccount && pluralkitMessage.authorID) authorOverrideID = pluralkitMessage.authorID;
+			}
+		}
+
+		// If we need to fetch the original author, do that now.
+		if (authorOverrideID && authorOverrideID.length) {
+			authorOverride = await message.guild.members.fetch(authorOverrideID);
+		}
+
 		// Check if this log is enabled in this server after letting the messageAttachmentDeleteLog events fire
 		if (!guildSettingsInfoLogs.messageUpdateLog) return;
 
-		return this.container.client.emit('guildLogCreate', logChannel, this.generateGuildLog(oldMessage, message, guildSettingsInfoLogs.messageUpdateLogStyle));
+		return this.container.client.emit('guildLogCreate', logChannel, this.generateGuildLog(oldMessage, message, guildSettingsInfoLogs.messageUpdateLogStyle, authorOverride));
 	}
 
-	private generateGuildLog(oldMessage: Message, message: Message, style: UpdateLogStyle) {
+	private generateGuildLog(oldMessage: Message, message: Message, style: UpdateLogStyle, authorOverride: GuildMember | null) {
+		const author = authorOverride || message.member;
 		const embed = new GuildLogEmbed()
 			.setTitle('Message Edited')
-			.setDescription(`${message.member!.toString()}: ${message.url}`)
-			.setThumbnail(message.member!.displayAvatarURL())
+			.setDescription(`${author!.toString()}: ${message.url}${authorOverride ? ' **(Proxied by PluralKit)**' : ''}`)
+			.setThumbnail(author!.displayAvatarURL())
 			.setFooter({ text: `Message ID: ${message.id}` })
 			.setType(Events.MessageUpdate);
 

@@ -1,8 +1,10 @@
 import { GuildLogEmbed } from '#lib/extensions/GuildLogEmbed';
+import { PluralKitMessage } from '#lib/util/pluralkit/PluralKitMessage';
+import { pluralkitInGuild } from '#lib/util/pluralkit/pluralkitInGuild';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Listener, type ListenerOptions } from '@sapphire/framework';
 import { isNullish } from '@sapphire/utilities';
-import { Attachment, Events, type BaseGuildTextChannel, type Message } from 'discord.js';
+import { Attachment, Events, type BaseGuildTextChannel, type GuildMember, type Message } from 'discord.js';
 
 const embeddedImageMIMETypes = ['image/gif', 'image/jpeg', 'image/png', 'image/webp'];
 
@@ -17,15 +19,35 @@ export class UserEvent extends Listener {
 
 		const logChannel = message.guild.channels.resolve(guildSettingsInfoLogs.infoLogChannel) as BaseGuildTextChannel;
 
-		return this.container.client.emit('guildLogCreate', logChannel, this.generateGuildLog(message, attachment));
+		let authorOverrideID = '';
+		let authorOverride: GuildMember | null = null;
+
+		// Only check if it's a pluralkit message if any of the settings are set to true AND the bot is in the guild
+		if ((guildSettingsInfoLogs.pluralkitShowSourceAccount) && (guildSettingsInfoLogs.pluralkitenabled || await pluralkitInGuild(message.guild))) {
+			const pluralkitMessage = await new PluralKitMessage().fetchMessage(message.id);
+
+			// We only need to act if the message was actually handled by PluralKit
+			if (pluralkitMessage) {
+				// Grab ID of original sender
+				if (guildSettingsInfoLogs.pluralkitShowSourceAccount && pluralkitMessage.authorID) authorOverrideID = pluralkitMessage.authorID;
+			}
+		}
+
+		// If we need to fetch the original author, do that now.
+		if (authorOverrideID && authorOverrideID.length) {
+			authorOverride = await message.guild.members.fetch(authorOverrideID);
+		}
+
+		return this.container.client.emit('guildLogCreate', logChannel, this.generateGuildLog(message, attachment, authorOverride));
 	}
 
-	private generateGuildLog(message: Message, attachment: Attachment) {
+	private generateGuildLog(message: Message, attachment: Attachment, authorOverride: GuildMember | null) {
+		const author = authorOverride || message.member;
 		const embed = new GuildLogEmbed()
 			.setTitle('Attachment Deleted')
 			.addBlankFields({ name: 'Link', value: `[Click to View](${attachment.url})`, inline: true })
-			.setDescription(`${message.member!.toString()}: ${message.url}`)
-			.setThumbnail(message.member!.displayAvatarURL())
+			.setDescription(`${author!.toString()}: ${message.url}${authorOverride ? ' **(Proxied by PluralKit)**' : ''}`)
+			.setThumbnail(author!.displayAvatarURL())
 			.addBlankFields({ name: 'Title', value: attachment.name, inline: true })
 			.setFooter({ text: `Attachment ID: ${attachment.id}` })
 			.setType(Events.MessageDelete);
