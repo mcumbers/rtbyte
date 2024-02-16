@@ -8,7 +8,6 @@ import { BaseGuildTextChannel, GuildMember } from 'discord.js';
 export class UserEvent extends Listener {
 	public async run(member: GuildMember) {
 		if (isNullish(member.id)) return;
-		if (member.user.bot) return;
 
 		const guildSettingsInfoLogs = await this.container.prisma.guildSettingsInfoLogs.findUnique({ where: { id: member.guild.id } });
 		if (!guildSettingsInfoLogs?.guildMemberAddLog || !guildSettingsInfoLogs.infoLogChannel) return;
@@ -39,6 +38,10 @@ export class UserEvent extends Listener {
 				const lastLeave: Date = memberData?.leaveTimes[memberData.leaveTimes.length - 1];
 				embed.addFields({ name: 'Left Server', value: `<t:${Math.round(lastLeave.getTime() as number / 1000)}:R>`, inline: false });
 			}
+		}
+
+		if (member.user.bot) {
+			embed.setTitle('Bot Added to Server');
 		}
 
 		return [embed];
