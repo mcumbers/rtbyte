@@ -32,7 +32,7 @@
 	"dependencies": {
 		"@prisma/client": "^5.7.1",
 		"@sapphire/decorators": "^6.0.3",
-		"@sapphire/fetch": "^3.0.1",
+		"@sapphire/fetch": "^3.0.2",
 		"@sapphire/framework": "^5.0.5",
 		"@sapphire/plugin-api": "^6.1.0",
 		"@sapphire/plugin-hmr": "^3.0.0",
