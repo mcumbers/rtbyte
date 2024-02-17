@@ -19,7 +19,7 @@ export class UserEvent extends Listener {
 
 	private async generateGuildLog(member: GuildMember) {
 		const embed = new GuildLogEmbed()
-			.setTitle('User Joined Server')
+			.setTitle(`${member.user.bot ? 'Bot Added to' : 'User Joined'} Server`)
 			.setDescription(member.toString())
 			.setThumbnail(member.user.displayAvatarURL())
 			.addFields({ name: 'Username', value: member.user.username, inline: true })
@@ -30,7 +30,7 @@ export class UserEvent extends Listener {
 			.setTimestamp(member.joinedTimestamp);
 
 		if (member.flags.has("DidRejoin")) {
-			embed.setTitle('User re-Joined Server');
+			embed.setTitle(`${member.user.bot ? 'Bot Added Back to' : 'User re-Joined'} Server`);
 
 			const memberData = await this.container.prisma.member.findFirst({ where: { userID: member.id, guildID: member.guild.id } });
 
@@ -38,10 +38,6 @@ export class UserEvent extends Listener {
 				const lastLeave: Date = memberData?.leaveTimes[memberData.leaveTimes.length - 1];
 				embed.addFields({ name: 'Left Server', value: `<t:${Math.round(lastLeave.getTime() as number / 1000)}:R>`, inline: false });
 			}
-		}
-
-		if (member.user.bot) {
-			embed.setTitle('Bot Added to Server');
 		}
 
 		return [embed];
