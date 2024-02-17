@@ -2,7 +2,7 @@ import { BotCommand } from '#lib/extensions/BotCommand';
 import { BotEmbed } from '#lib/extensions/BotEmbed';
 import { Colors } from "#utils/constants";
 import { type ChatInputCommand, type ContextMenuCommand } from '@sapphire/framework';
-import { ActionRowBuilder, ApplicationCommandType, ChannelSelectMenuBuilder, ChannelType, ComponentType, PermissionFlagsBits, type TextChannel } from 'discord.js';
+import { ActionRowBuilder, ApplicationCommandType, ChannelSelectMenuBuilder, ChannelType, ComponentType, GuildMember, PermissionFlagsBits, type TextChannel } from 'discord.js';
 
 export class UserCommand extends BotCommand {
 	public override registerApplicationCommands(registry: ChatInputCommand.Registry) {
@@ -15,6 +15,7 @@ export class UserCommand extends BotCommand {
 
 	public async contextMenuRun(interaction: ContextMenuCommand.Interaction) {
 		if (!interaction.isMessageContextMenuCommand() || !interaction.targetMessage) return;
+		if (!interaction.user) return;
 		await interaction.deferReply({ ephemeral: true, fetchReply: true });
 
 		// Build the Quote Embed
@@ -53,6 +54,11 @@ export class UserCommand extends BotCommand {
 				// Shouldn't be possible, but fail if no targetChannel specified
 				if (!targetChannel) {
 					await interaction.editReply({ content: 'Whoops... Something went wrong...', components: [], embeds: [] });
+					return;
+				}
+
+				if (!targetChannel.permissionsFor(interaction.member as GuildMember).has(PermissionFlagsBits.SendMessages)) {
+					await interaction.editReply({ content: `You don't have permission to send messages in ${targetChannel.url}`, components: [], embeds: [] });
 					return;
 				}
 
