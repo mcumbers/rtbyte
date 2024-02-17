@@ -3,7 +3,8 @@ import { Command } from '@sapphire/framework';
 import { Collection, Message, TextChannel, type FetchMessagesOptions } from 'discord.js';
 
 @ApplyOptions<Command.Options>({
-	description: "Mass Delete Messages from this Channel"
+	description: "Mass Delete Messages from this Channel",
+	preconditions: [['IsGuildOwner', ['HasAdminRole', ['HasModRole']]]]
 })
 export class UserCommand extends Command {
 	public override registerApplicationCommands(registry: Command.Registry) {
