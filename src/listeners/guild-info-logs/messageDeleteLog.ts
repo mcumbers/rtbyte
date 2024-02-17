@@ -25,6 +25,13 @@ export class UserEvent extends Listener {
 			}
 		}
 
+		// Check if this log is enabled in this server after letting the messageAttachmentDeleteLog events fire
+		if (!guildSettingsInfoLogs.messageDeleteLog) return;
+
+		// See if this message was deleted as part of an ongoing purge--don't log it if it is
+		const interactionProgress = await this.container.prisma.interactionProgress.findFirst({ where: { entities: { has: message.id } } });
+		if (interactionProgress) return;
+
 		// If the message appears to be a PluralKit command, ignore the message delete
 		if (guildSettingsInfoLogs.pluralkitFilterCommands) {
 			if (PluralKitCommands.some(command => message.content.startsWith(command))) return;
@@ -51,9 +58,6 @@ export class UserEvent extends Listener {
 		if (authorOverrideID && authorOverrideID.length) {
 			authorOverride = await message.guild.members.fetch(authorOverrideID);
 		}
-
-		// Check if this log is enabled in this server after letting the messageAttachmentDeleteLog events fire
-		if (!guildSettingsInfoLogs.messageDeleteLog) return;
 
 		return this.container.client.emit('guildLogCreate', logChannel, this.generateGuildLog(message, authorOverride));
 	}
