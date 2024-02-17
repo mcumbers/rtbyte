@@ -481,4 +481,12 @@ model MemberDataXP {
     @@map("memberDataXP")
 }
 
+model InteractionProgress {
+    id         String   @id @map("interaction_id")
+    executorID String   @map("executor_id")
+    entities   String[] @map("interaction_entities")
+
+    @@map("interactionProgress")
+}
+
 // TODO: Starboard, pinboard, custom commands, autoresponder. Twitch?
