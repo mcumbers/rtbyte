@@ -1,6 +1,18 @@
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command } from '@sapphire/framework';
-import { Collection, Message, TextChannel, type FetchMessagesOptions } from 'discord.js';
+import { Collection, Message, TextChannel, type Channel, type FetchMessagesOptions, type Guild, type User } from 'discord.js';
+
+export interface ModActionPurgeEvent {
+	id: string,
+	executor: User,
+	channel: Channel,
+	guild: Guild,
+	messagesCount: number,
+	createdAt: Date,
+	createdTimestamp: number,
+	targetUser?: User,
+	reason?: string
+}
 
 @ApplyOptions<Command.Options>({
 	description: "Mass Delete Messages from this Channel",
@@ -25,6 +37,11 @@ export class UserCommand extends Command {
 						.setName('user')
 						.setDescription('Only Delete Messages from this User')
 				)
+				.addStringOption((option) =>
+					option
+						.setName('reason')
+						.setDescription('Reason for Deleting Messages')
+				)
 				.addBooleanOption((option) =>
 					option
 						.setName('purge-old')
@@ -46,8 +63,9 @@ export class UserCommand extends Command {
 		let messagesColl: null | Collection<string, Message<boolean>> = null;
 
 		let lastMessage: Message<boolean> | null = null;
-		// Default to fetching 500 messages at a time
-		const fetchLimit = numMessagesToDelete <= 100 ? numMessagesToDelete : 100;
+		// Can only fetch 100 messages at a time max
+		// If not deleting messages from a specific user, don't bother fetching extra messages
+		const fetchLimit = numMessagesToDelete <= 100 && !targetUser ? numMessagesToDelete : 100;
 
 		while (!messagesColl || messagesColl.size < numMessagesToDelete) {
 			const options: FetchMessagesOptions = { limit: fetchLimit };
@@ -83,6 +101,20 @@ export class UserCommand extends Command {
 			// Bulk Delete the messages and respond to the user
 			try {
 				await targetChannel.bulkDelete(targetMessages, true);
+
+				const purgeEvent: ModActionPurgeEvent = {
+					id: interaction.id,
+					executor: interaction.user,
+					channel: interaction.channel as Channel,
+					guild: interaction.guild,
+					messagesCount: targetMessages.size,
+					createdAt: interaction.createdAt,
+					createdTimestamp: interaction.createdTimestamp,
+					targetUser: targetUser ?? undefined,
+					reason: interaction.options.getString('reason') ?? undefined
+				}
+
+				this.container.client.emit('modActionPurge', purgeEvent);
 				return interaction.followUp({ content: `Deleted ${targetMessages.size} Messages ${targetUser ? `from ${targetUser.toString()} ` : ''}in this Channel.`, embeds: [], ephemeral: true });
 			} catch (error) {
 				return interaction.followUp({ content: 'Whoops... Something went wrong...' });
