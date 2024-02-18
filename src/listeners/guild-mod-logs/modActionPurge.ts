@@ -21,14 +21,14 @@ export class UserEvent extends Listener {
 	private generateGuildLog(purge: ModActionPurgeEvent) {
 		const embed = new GuildLogEmbed()
 			.setTitle('Messages Purged')
-			.setDescription(`${purge.messagesCount} Messages ${purge.targetUser ? `from ${purge.targetUser.toString()}` : ''}Deleted.`)
-			.setThumbnail(purge.guild.iconURL())
+			.setDescription(`${purge.messagesCount} Messages ${purge.targetUser ? `from ${purge.targetUser.toString()} ` : ''}Deleted`)
+			.setThumbnail(purge.targetUser ? purge.targetUser.avatarURL() : purge.guild.iconURL())
 			.setFooter({ text: `Interaction ID: ${purge.id}` })
 			.setType(Events.MessageDelete)
 			.addBlankFields({ name: 'In Channel', value: purge.channel.url, inline: false });
 
 		if (purge.reason) embed.addFields({ name: 'Reason', value: purge.reason, inline: false });
-		if (purge.executor) embed.addFields({ name: 'Purged By', value: purge.executor.toString(), inline: false });
+		if (purge.executor) embed.addFields({ name: 'Deleted By', value: purge.executor.toString(), inline: false });
 
 		return [embed];
 	}

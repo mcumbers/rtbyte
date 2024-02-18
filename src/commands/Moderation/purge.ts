@@ -1,6 +1,7 @@
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command } from '@sapphire/framework';
 import { Collection, Message, TextChannel, type Channel, type FetchMessagesOptions, type Guild, type User } from 'discord.js';
+import { setTimeout } from 'timers/promises';
 
 export interface ModActionPurgeEvent {
 	id: string,
@@ -96,26 +97,27 @@ export class UserCommand extends Command {
 		// Fail if no messages to delete
 		if (!targetMessages.size) return interaction.followUp({ content: 'Could not find any messages that fit the criteria in this Channel.', embeds: [], ephemeral: true });
 
+		// Prep ModActionPurgeEvent
+		const purgeEvent: ModActionPurgeEvent = {
+			id: interaction.id,
+			executor: interaction.user,
+			channel: interaction.channel as Channel,
+			guild: interaction.guild,
+			messagesCount: targetMessages.size,
+			createdAt: interaction.createdAt,
+			createdTimestamp: interaction.createdTimestamp,
+			targetUser: targetUser ?? undefined,
+			reason: interaction.options.getString('reason') ?? undefined
+		}
+
 		// If we're not forcing the delete of older messages, we're done
 		if (!interaction.options.getBoolean('purge-old')) {
 			// Bulk Delete the messages and respond to the user
 			try {
 				await targetChannel.bulkDelete(targetMessages, true);
 
-				const purgeEvent: ModActionPurgeEvent = {
-					id: interaction.id,
-					executor: interaction.user,
-					channel: interaction.channel as Channel,
-					guild: interaction.guild,
-					messagesCount: targetMessages.size,
-					createdAt: interaction.createdAt,
-					createdTimestamp: interaction.createdTimestamp,
-					targetUser: targetUser ?? undefined,
-					reason: interaction.options.getString('reason') ?? undefined
-				}
-
-				this.container.client.emit('modActionPurge', purgeEvent);
-				return interaction.followUp({ content: `Deleted ${targetMessages.size} Messages ${targetUser ? `from ${targetUser.toString()} ` : ''}in this Channel.`, embeds: [], ephemeral: true });
+				await interaction.followUp({ content: `Deleted ${targetMessages.size} Messages ${targetUser ? `from ${targetUser.toString()} ` : ''}in this Channel.`, embeds: [], ephemeral: true });
+				return this.sendLogEvent(purgeEvent);
 			} catch (error) {
 				return interaction.followUp({ content: 'Whoops... Something went wrong...' });
 			}
@@ -151,17 +153,23 @@ export class UserCommand extends Command {
 				await message.delete();
 
 				manualDeletedNum++;
-				if (manualDeletedNum >= nonBulkDeletable.size) return await interaction.editReply({ content: `Deleted ${targetMessages.size} Messages ${targetUser ? `from ${targetUser.toString()} ` : ''}in this Channel.` });
 				if (manualDeletedNum % updateInterval === 0) await interaction.editReply({ content: `Purge Running...\nDeleted ${bulkDeletable.size}/${bulkDeletable.size} Recent Messages...\nDeleted ${manualDeletedNum}/${nonBulkDeletable.size} Old Messages...` });
 			}
 
-			// Remove the information about this purge from the database
-			await this.container.prisma.interactionProgress.delete({ where: { id: interactionProgress.id } });
-			return await interaction.editReply({ content: `Deleted ${targetMessages.size} Messages ${targetUser ? `from ${targetUser.toString()} ` : ''}in this Channel.` });
+			// Wait 1 second, then remove the information about this purge from the database
+			// TODO: Change interactionProgress Schema to have a start time, then regularly just clean up the database?
+			await setTimeout(1000, await this.container.prisma.interactionProgress.delete({ where: { id: interactionProgress.id } }));
+
+			await interaction.editReply({ content: `Deleted ${targetMessages.size} Messages ${targetUser ? `from ${targetUser.toString()} ` : ''}in this Channel.` });
+			return this.sendLogEvent(purgeEvent);
 		} catch (error) {
 			return interaction.followUp({ content: 'Whoops... Something went wrong...' });
 		}
 
+	}
+
+	private sendLogEvent(logEvent: ModActionPurgeEvent) {
+		this.container.client.emit('modActionPurge', logEvent);
 	}
 
 }
