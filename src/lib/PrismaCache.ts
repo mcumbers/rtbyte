@@ -35,7 +35,7 @@ export class PrismaCache<PrismaModel> {
 		if (!result) return result;
 		this.cache.set(result.id as string, result as PrismaModel);
 
-		return result;
+		return result as PrismaModel;
 	}
 
 	public async findUnique(args: Args<PrismaModel, 'findUnique'>) {
@@ -43,7 +43,7 @@ export class PrismaCache<PrismaModel> {
 		if (!result) return result;
 		this.cache.set(result.id as string, result as PrismaModel);
 
-		return result;
+		return result as PrismaModel;
 	}
 
 	public async findMany(args: Args<PrismaModel, 'findMany'>) {
@@ -52,7 +52,7 @@ export class PrismaCache<PrismaModel> {
 		for (const entry of result) {
 			this.cache.set(entry.id as string, entry as PrismaModel);
 		}
-		return result;
+		return result as PrismaModel[];
 	}
 
 	public async update(args: Args<PrismaModel, 'update'>) {
@@ -60,7 +60,7 @@ export class PrismaCache<PrismaModel> {
 		if (!result) return result;
 		this.cache.set(result.id as string, result as PrismaModel);
 
-		return result;
+		return result as PrismaModel;
 	}
 
 	public async delete(args: Args<PrismaModel, 'delete'>) {
@@ -68,7 +68,7 @@ export class PrismaCache<PrismaModel> {
 		if (!result) return result;
 		this.cache.delete(result.id as string);
 
-		return result;
+		return result as PrismaModel;
 	}
 
 	public async fetch(id: string | string[], force?: boolean) {
@@ -97,19 +97,17 @@ export class PrismaCache<PrismaModel> {
 			const unCached: any[] = [];
 
 			for (const pair of idsArr) {
-				if (force || !this.cache.find((cached) => {
-					const asserted = <PrismaModel>cached;
-					return asserted[firstKey] === pair[0] && asserted[secondKey] === pair[1];
-				})) unCached.push({ [`${firstKey as string}`]: pair[0], [`${secondKey as string}`]: pair[1] });
+				if (force || !this.cache.find((cached) => cached[firstKey] === pair[0] && cached[secondKey] === pair[1])) {
+					unCached.push({ [`${firstKey as string}`]: pair[0], [`${secondKey as string}`]: pair[1] });
+				}
 			}
 
 			if (unCached.length) await this.findMany({ where: { OR: unCached } } as Args<PrismaModel, 'findMany'>);
+
+			return Array.from(this.cache.filter((cached) => idsArr.includes([cached[firstKey], cached[secondKey]] as PrismaCacheIDTuple)).values());
 		}
 
-		const cached = this.cache.find((cached) => {
-			const asserted = <PrismaModel>cached;
-			return asserted[firstKey] === ids[0] && asserted[secondKey] === ids[1];
-		});
+		const cached = this.cache.find((cached) => cached[firstKey] === ids[0] && cached[secondKey] === ids[1]);
 
 		if (!force && cached) return cached;
 
