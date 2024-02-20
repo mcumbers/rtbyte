@@ -3,7 +3,7 @@ process.env.NODE_ENV ??= 'development';
 
 import { PrismaCache } from '#root/lib/PrismaCache';
 import '#utils/Sanitizer/initClean';
-import type { BotGlobalSettings, Guild, GuildSettings, GuildSettingsChatFilter, GuildSettingsCommand, GuildSettingsInfoLogs, GuildSettingsModActions, GuildSettingsXP, InteractionProgress, Member, MemberDataXP, ModAction, User, UserSettings } from '@prisma/client';
+import type { BotGlobalSettings, Guild, GuildSettings, GuildSettingsChatFilter, GuildSettingsCommand, GuildSettingsInfoLogs, GuildSettingsModActions, GuildSettingsXP, Member, MemberDataXP, ModAction, User, UserSettings } from '@prisma/client';
 import { PrismaClient } from '@prisma/client';
 import { container } from '@sapphire/framework';
 import '@sapphire/plugin-api/register';
@@ -48,8 +48,7 @@ const prismaCache = {
 	guildSettingsModActions: new PrismaCache<GuildSettingsModActions>(prisma.guildSettingsModActions),
 	modAction: new PrismaCache<ModAction>(prisma.modAction),
 	guildSettingsXP: new PrismaCache<GuildSettingsXP>(prisma.guildSettingsXP),
-	memberDataXP: new PrismaCache<MemberDataXP>(prisma.memberDataXP),
-	interactionProgress: new PrismaCache<InteractionProgress>(prisma.interactionProgress)
+	memberDataXP: new PrismaCache<MemberDataXP>(prisma.memberDataXP)
 };
 
 inspect.defaultOptions.depth = 1;
