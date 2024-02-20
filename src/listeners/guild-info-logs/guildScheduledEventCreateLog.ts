@@ -12,7 +12,7 @@ export class UserEvent extends Listener {
 
 		const fetchedEvent = await event.guild.scheduledEvents.fetch(event.id);
 
-		const guildSettingsInfoLogs = await this.container.prisma.guildSettingsInfoLogs.findUnique({ where: { id: event.guild?.id } });
+		const guildSettingsInfoLogs = await this.container.prisma.guildSettingsInfoLogs.fetch(event.guild.id);
 		if (!guildSettingsInfoLogs?.guildScheduledEventCreateLog || !guildSettingsInfoLogs.infoLogChannel) return;
 
 		const logChannel = event.guild?.channels.resolve(guildSettingsInfoLogs.infoLogChannel) as BaseGuildTextChannel;

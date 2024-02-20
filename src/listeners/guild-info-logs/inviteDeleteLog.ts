@@ -10,7 +10,7 @@ export class UserEvent extends Listener {
 	public async run(invite: Invite) {
 		if (isNullish(invite.guild)) return;
 
-		const guildSettingsInfoLogs = await this.container.prisma.guildSettingsInfoLogs.findUnique({ where: { id: invite.guild.id } });
+		const guildSettingsInfoLogs = await this.container.prisma.guildSettingsInfoLogs.fetch(invite.guild.id);
 		if (!guildSettingsInfoLogs?.inviteDeleteLog || !guildSettingsInfoLogs.infoLogChannel) return;
 
 		const guild = this.container.client.guilds.resolve(invite.guild.id);

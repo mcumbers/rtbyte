@@ -7,7 +7,7 @@ import { Message, type GuildMember, type GuildTextBasedChannel } from 'discord.j
 export class UserEvent extends Listener {
 	public async run(member: GuildMember, xpLevel: XPLevel, message?: Message) {
 		// TODO: guildSettingsXp.levelUpNotifyMessage -- Make a simple and naive string replacer where you can use tags for contextual info?
-		const guildSettingsXP = await this.container.prisma.guildSettingsXP.findUnique({ where: { id: member.guild.id } });
+		const guildSettingsXP = await this.container.prisma.guildSettingsXP.fetch(member.guild.id);
 		if (!guildSettingsXP || !guildSettingsXP.levelUpNotifiy) return;
 
 		if (guildSettingsXP.levelUpNotifyReply) {

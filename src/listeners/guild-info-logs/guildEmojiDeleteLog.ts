@@ -10,7 +10,7 @@ export class UserEvent extends Listener {
 	public async run(emoji: GuildEmoji) {
 		if (isNullish(emoji.id)) return;
 
-		const guildSettingsInfoLogs = await this.container.prisma.guildSettingsInfoLogs.findUnique({ where: { id: emoji.guild.id } });
+		const guildSettingsInfoLogs = await this.container.prisma.guildSettingsInfoLogs.fetch(emoji.guild.id);
 		if (!guildSettingsInfoLogs?.emojiDeleteLog || !guildSettingsInfoLogs.infoLogChannel) return;
 
 		const logChannel = emoji.guild.channels.resolve(guildSettingsInfoLogs.infoLogChannel) as BaseGuildTextChannel;

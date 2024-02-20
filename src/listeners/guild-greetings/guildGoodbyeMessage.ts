@@ -10,7 +10,7 @@ export class UserEvent extends Listener {
 		if (isNullish(member.id)) return;
 		if (member.user.bot) return;
 
-		const guildSettings = await this.container.prisma.guildSettings.findUnique({ where: { id: member.guild.id } });
+		const guildSettings = await this.container.prisma.guildSettings.fetch(member.guild.id);
 		if (!guildSettings || !guildSettings?.greetingGoodbyeEnabled || !guildSettings?.greetingGoodbyeChannel) return;
 
 		const logChannel = member.guild.channels.resolve(guildSettings.greetingGoodbyeChannel) as BaseGuildTextChannel;

@@ -13,7 +13,7 @@ export class UserEvent extends Listener {
 	public async run(oldRole: Role, role: Role) {
 		if (isNullish(role.id)) return;
 
-		const guildSettingsInfoLogs = await this.container.prisma.guildSettingsInfoLogs.findUnique({ where: { id: role.guild.id } });
+		const guildSettingsInfoLogs = await this.container.prisma.guildSettingsInfoLogs.fetch(role.guild.id);
 		if (!guildSettingsInfoLogs?.roleUpdateLog || !guildSettingsInfoLogs.infoLogChannel) return;
 
 		/*

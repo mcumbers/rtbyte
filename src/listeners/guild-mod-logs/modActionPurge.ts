@@ -8,7 +8,7 @@ import type { BaseGuildTextChannel } from 'discord.js';
 export class UserEvent extends Listener {
 	public async run(purge: ModActionPurgeEvent) {
 
-		const guildSettingsModActions = await this.container.prisma.guildSettingsModActions.findUnique({ where: { id: purge.guild.id } });
+		const guildSettingsModActions = await this.container.prisma.guildSettingsModActions.fetch(purge.guild.id);
 		if (!guildSettingsModActions || !guildSettingsModActions.purgeLog && !guildSettingsModActions.purgeLogPublic) return;
 
 		const logChannel: BaseGuildTextChannel | null = guildSettingsModActions.modLogChannel ? purge.guild.channels.resolve(guildSettingsModActions.modLogChannel) as BaseGuildTextChannel : null;

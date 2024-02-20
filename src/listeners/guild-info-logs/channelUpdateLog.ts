@@ -15,7 +15,7 @@ export class UserEvent extends Listener {
 	public async run(oldChannel: GuildBasedChannel, channel: GuildBasedChannel) {
 		if (isNullish(channel.id)) return;
 
-		const guildSettingsInfoLogs = await this.container.prisma.guildSettingsInfoLogs.findUnique({ where: { id: channel.guild.id } });
+		const guildSettingsInfoLogs = await this.container.prisma.guildSettingsInfoLogs.fetch(channel.guild.id);;
 		if (!guildSettingsInfoLogs?.channelUpdateLog || !guildSettingsInfoLogs.infoLogChannel) return;
 
 		const logChannel = channel.guild.channels.resolve(guildSettingsInfoLogs.infoLogChannel) as BaseGuildTextChannel;

@@ -12,7 +12,7 @@ export class UserEvent extends Listener {
 		if (!guild.available) return;
 		const { client, prisma } = this.container;
 
-		const botGlobalSettings = await prisma.botGlobalSettings.findUnique({ where: { id: client.id as string } });
+		const botGlobalSettings = await prisma.botGlobalSettings.fetch(client.id as string);
 		const controlGuild = await client.guilds.fetch(botGlobalSettings?.controlGuildID as string);
 		const privateGlobalLogChannel = await controlGuild.channels.fetch(botGlobalSettings?.globalLogChannelPrivate as string) as BaseGuildTextChannel;
 

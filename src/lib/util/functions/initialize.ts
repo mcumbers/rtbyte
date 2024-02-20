@@ -4,7 +4,7 @@ import { Guild, GuildMember, User } from "discord.js";
 
 export async function initializeGuild(guild: Guild) {
 	const { logger, prisma, client } = container;
-	const botGlobalSettings = await prisma.botGlobalSettings.findUnique({ where: { id: client.id as string } });
+	const botGlobalSettings = await prisma.botGlobalSettings.fetch(client.id as string);
 
 	// Fetch Owner's User so it's in cache
 	const owner = await client.users.fetch(guild.ownerId);
@@ -20,12 +20,12 @@ export async function initializeGuild(guild: Guild) {
 	}
 
 	// Check if entry exists for guild. If not, create it
-	let guildInfo = await prisma.guild.findUnique({ where: { id: guild.id } });
-	let guildSettings = await prisma.guildSettings.findUnique({ where: { id: guild.id } });
-	let guildSettingsChatFilter = await prisma.guildSettingsChatFilter.findUnique({ where: { id: guild.id } });
-	let guildSettingsLogs = await prisma.guildSettingsInfoLogs.findUnique({ where: { id: guild.id } });
-	let guildSettingsModActions = await prisma.guildSettingsModActions.findUnique({ where: { id: guild.id } });
-	let guildSettingsXP = await prisma.guildSettingsXP.findUnique({ where: { id: guild.id } });
+	let guildInfo = await prisma.guild.fetch(guild.id);
+	let guildSettings = await prisma.guildSettings.fetch(guild.id);
+	let guildSettingsChatFilter = await prisma.guildSettingsChatFilter.fetch(guild.id);
+	let guildSettingsLogs = await prisma.guildSettingsInfoLogs.fetch(guild.id);
+	let guildSettingsModActions = await prisma.guildSettingsModActions.fetch(guild.id);
+	let guildSettingsXP = await prisma.guildSettingsXP.fetch(guild.id);
 
 	if (!guildInfo || !guildSettings || !guildSettingsChatFilter || !guildSettingsLogs || !guildSettingsModActions || !guildSettingsXP) {
 		logger.debug(`Initializing guild ${bold(guild.name)} (${gray(guild.id)})...`)
@@ -115,7 +115,7 @@ export async function initializeUser(user?: User, userID?: string) {
 		return null;
 	}
 
-	const botGlobalSettings = await prisma.botGlobalSettings.findUnique({ where: { id: client.id as string } });
+	const botGlobalSettings = await prisma.botGlobalSettings.fetch(client.id as string);
 
 	if (user || !userID) userID = user?.id;
 
@@ -123,8 +123,8 @@ export async function initializeUser(user?: User, userID?: string) {
 
 	if (botGlobalSettings?.userBlocklist.includes(userID!)) logger.debug(`User ${user ? bold(user.username) : '...'} (${gray(userID!)}) is on the user blocklist...`);
 
-	const userInfo = await prisma.user.findUnique({ where: { id: userID } });
-	const userSettings = await prisma.userSettings.findUnique({ where: { id: userID } });
+	const userInfo = await prisma.user.fetch(userID as string);
+	const userSettings = await prisma.userSettings.fetch(userID as string);
 
 	if (!userInfo) {
 		await prisma.user.create({
@@ -157,14 +157,14 @@ export async function initializeUser(user?: User, userID?: string) {
 export async function initializeMember(user: User, guild: Guild, member?: GuildMember) {
 	const { logger, prisma, client } = container;
 	await initializeUser(user);
-	const botGlobalSettings = await prisma.botGlobalSettings.findUnique({ where: { id: client.id as string } });
+	const botGlobalSettings = await prisma.botGlobalSettings.fetch(client.id as string);
 
 	logger.debug(`Initializing member ${bold(user.username)} (${gray(user.id)}) in guild ${bold(guild.name)} (${gray(guild.id)})...`);
 
 	if (botGlobalSettings?.userBlocklist.includes(user.id)) logger.debug(`User ${bold(user.username)} (${gray(user.id)}) is on the user blocklist...`);
 
 	if (!member) member = await guild.members.fetch(user.id);
-	let memberInfo = await prisma.member.findUnique({ where: { userID_guildID: { userID: user.id, guildID: guild.id } } });
+	let memberInfo = await prisma.member.fetchTuple([user.id, guild.id], ['userID', 'guildID']);
 
 	if (!memberInfo) {
 		const joinTimes: Date[] = [];

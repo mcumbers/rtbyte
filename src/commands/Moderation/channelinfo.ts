@@ -44,7 +44,7 @@ export class UserCommand extends BotCommand {
 		if (!targetChannel) return interaction.followUp({ content: `${Emojis.X} Unable to fetch information for ${targetChannel}, please try again later.`, ephemeral });
 
 		// Fetch this Guild's log settings
-		const guildLogSettings = await this.container.prisma.guildSettingsInfoLogs.findUnique({ where: { id: interaction.guild?.id } });
+		const guildLogSettings = await this.container.prisma.guildSettingsInfoLogs.fetch(interaction.guild?.id as string);
 
 		// Gather Info for Response Embed
 		const channelInfo = [];
