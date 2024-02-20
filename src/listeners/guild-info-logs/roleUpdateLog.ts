@@ -21,9 +21,9 @@ export class UserEvent extends Listener {
 		// Making multiple changes in Discord's native UI can fire the exact same Role Update event multiple times.
 		// Because of this, I've implemented a per-role cooldown for updates, and that means tracking them in a container-wide collection.
 		*/
-		const roleUpdate = this.container.roleUpdates.get(role.id);
+		const roleUpdate = this.container.liveCache.roleUpdates.get(role.id);
 		if (roleUpdate && ((roleUpdate.lastUpdated as number + ROLE_UPDATE_COOLDOWN) > Date.now())) return;
-		this.container.roleUpdates.set(role.id, { lastUpdated: Date.now() });
+		this.container.liveCache.roleUpdates.set(role.id, { id: role.id, lastUpdated: Date.now() });
 
 		const logChannel = role.guild.channels.resolve(guildSettingsInfoLogs.infoLogChannel) as BaseGuildTextChannel;
 		const auditLogEntry = await getAuditLogEntry(AuditLogEvent.RoleUpdate, role.guild, role);

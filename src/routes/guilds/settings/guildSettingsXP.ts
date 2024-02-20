@@ -33,12 +33,12 @@ export class UserRoute extends Route {
 
 		// Fetch the GuildSettingsXP from the database
 		const { prisma } = this.container;
-		let guildSettingsXP = await prisma.guildSettingsXP.findFirst({ where: { id: request.params.id } });
+		let guildSettingsXP = await prisma.guildSettingsXP.fetch(request.params.id);
 
 		// Initialize guild if it hasn't been initialized yet
 		if (!guildSettingsXP) {
 			await initializeGuild(guild);
-			guildSettingsXP = await prisma.guildSettingsXP.findFirst({ where: { id: request.params.id } });
+			guildSettingsXP = await prisma.guildSettingsXP.fetch(request.params.id);
 		}
 
 		return response.json({ data: { guildSettingsXP } });
@@ -66,12 +66,12 @@ export class UserRoute extends Route {
 		if (request.params.id !== submittedSettings.id) response.error(HttpCodes.BadRequest);
 
 		// Fetch current guild settings
-		let guildSettingsXP = await prisma.guildSettingsXP.findFirst({ where: { id: submittedSettings.id } });
+		let guildSettingsXP = await prisma.guildSettingsXP.fetch(submittedSettings.id);
 
 		// Initialize guild if it hasn't been initialized yet
 		if (!guildSettingsXP) {
 			await initializeGuild(guild);
-			guildSettingsXP = await prisma.guildSettingsXP.findFirst({ where: { id: submittedSettings.id } });
+			guildSettingsXP = await prisma.guildSettingsXP.fetch(submittedSettings.id);
 		}
 
 		// Iterate through local settings, building a list of updated fields

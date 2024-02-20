@@ -8,11 +8,11 @@ export class UserEvent extends Listener {
 	public async run(interaction: BaseInteraction) {
 		if (interaction.guild) {
 			// Make sure this Member is initialized in the database
-			const dbMember = await this.container.prisma.member.findFirst({ where: { userID: interaction.user.id, guildID: interaction.guild.id } });
+			const dbMember = await this.container.prisma.member.fetchTuple([interaction.user.id, interaction.guild.id], ['userID', 'guildID']);
 			if (!dbMember) await initializeMember(interaction.user, interaction.guild);
 		} else {
 			// If not in a guild, make sure this User is initialized in the database
-			const dbUser = await this.container.prisma.userSettings.findFirst({ where: { id: interaction.user.id } });
+			const dbUser = await this.container.prisma.userSettings.fetch(interaction.user.id);
 			if (!dbUser) await initializeUser(interaction.user);
 		}
 	}

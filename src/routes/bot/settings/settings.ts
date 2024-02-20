@@ -24,7 +24,7 @@ export class UserRoute extends Route {
 		if (request.params.id !== client.id) response.error(HttpCodes.BadRequest);
 
 		// Get botGlobalSettings... Not Found if no botGlobalSettings returned from database
-		const botGlobalSettings = await prisma.botGlobalSettings.findFirst({ where: { id: request.params.id as string } });
+		const botGlobalSettings = await prisma.botGlobalSettings.fetch(request.params.id);
 		if (!botGlobalSettings) response.error(HttpCodes.NotFound);
 
 		// Forbidden if requester is not a botOwner
@@ -42,7 +42,7 @@ export class UserRoute extends Route {
 		if (request.params.id !== client.id) response.error(HttpCodes.BadRequest);
 
 		// Get botGlobalSettings... Not Found if no botGlobalSettings returned from database
-		const botGlobalSettings = await prisma.botGlobalSettings.findFirst({ where: { id: request.params.id as string } });
+		const botGlobalSettings = await prisma.botGlobalSettings.fetch(request.params.id);
 		if (!botGlobalSettings) response.error(HttpCodes.NotFound);
 
 		// Forbidden if requester is not a botOwner
@@ -59,7 +59,7 @@ export class UserRoute extends Route {
 		}
 
 		// Update local settings in database
-		const updatedSettings = await prisma.botGlobalSettings.update({ where: { id: submittedSettings.id }, data: updateSettings });
+		const updatedSettings = await prisma.botGlobalSettings.update({ where: { id: client.id }, data: updateSettings });
 
 		// Send newly-updated settings back to client
 		response.json({ data: { botGlobalSettings: updatedSettings } });

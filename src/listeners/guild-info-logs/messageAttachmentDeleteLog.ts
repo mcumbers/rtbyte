@@ -20,8 +20,8 @@ export class UserEvent extends Listener {
 		const logChannel = message.guild.channels.resolve(guildSettingsInfoLogs.infoLogChannel) as BaseGuildTextChannel;
 
 		// See if this message was deleted as part of an ongoing purge--don't log it if it is
-		const interactionProgress = await this.container.prisma.interactionProgress.findFirst({ where: { entities: { has: message.id } } });
-		if (interactionProgress) return;
+		const liveInteraction = this.container.liveCache.liveInteractions.find((entry) => entry.entities.includes(message.id));
+		if (liveInteraction) return;
 
 		let authorOverrideID = '';
 		let authorOverride: GuildMember | null = null;

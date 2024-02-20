@@ -13,16 +13,18 @@ export class UserEvent extends Listener {
 		const { prisma } = this.container;
 
 		// Stop if Guild hasn't configured or enabled XP settings
-		const guildSettingsXP = await prisma.guildSettingsXP.findFirst({ where: { id: message.guild.id } });
+		const guildSettingsXP = await prisma.guildSettingsXP.fetch(message.guild.id);
 		if (!guildSettingsXP || !guildSettingsXP.enabled) return;
 
-		const memberData = await prisma.member.findFirst({ where: { userID: message.author.id, guildID: message.guild.id }, include: { user: { include: { settings: true } }, xpData: true } });
+		const memberData = await prisma.member.fetchTuple([message.author.id, message.guild.id], ['userID', 'guildID']);
+		const userSettings = await prisma.userSettings.fetch(message.author.id);
+		const memberDataXP = await prisma.memberDataXP.fetchTuple([message.author.id, message.guild.id], ['userID', 'guildID']);
 
 		// Stop if User has opted-out of using the bot
-		if (memberData?.user.settings && memberData.user.settings.disableBot) return;
+		if (userSettings && userSettings.disableBot) return;
 
 		// End by creating new memberDataXP object in the database if one doesn't yet exist
-		if (!memberData?.xpData) {
+		if (!memberDataXP) {
 			return prisma.memberDataXP.create({
 				data: {
 					id: memberData?.id,
@@ -36,20 +38,20 @@ export class UserEvent extends Listener {
 		}
 
 		// End if member isn't eligible to earn XP again yet
-		if (memberData?.xpData.lastEarned && (memberData?.xpData.lastEarned.getTime() + XP_COOLDOWN) > Date.now()) return;
+		if (memberDataXP.lastEarned && (memberDataXP.lastEarned.getTime() + XP_COOLDOWN) > Date.now()) return;
 
 		// Roll for XP earned with this message
 		// Per-channel and/or per-role multipliers?
-		const earnedXP = messageXPRoll(0, memberData?.xpData.multiplier);
+		const earnedXP = messageXPRoll(0, memberDataXP.multiplier);
 		// Calculate old and new levels
-		const oldLevel = getLevel(memberData?.xpData.currentXP);
-		const newLevel = getLevel(memberData?.xpData.currentXP + earnedXP);
+		const oldLevel = getLevel(memberDataXP.currentXP);
+		const newLevel = getLevel(memberDataXP.currentXP + earnedXP);
 		// Emit guildXPLevelUp event if member levelled up with this message
 		if (oldLevel.level > newLevel.level) this.container.client.emit('guildXPLevelUp', message.member, newLevel, message);
 
 		// Update memberXP object in the database
 		return prisma.memberDataXP.update({
-			where: { id: memberData?.xpData.id }, data: {
+			where: { id: memberDataXP.id }, data: {
 				currentXP: newLevel.totalXP,
 				lastEarned: message.createdAt
 			}

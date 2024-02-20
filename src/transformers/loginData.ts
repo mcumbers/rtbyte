@@ -21,7 +21,7 @@ export async function transformLoginData(loginData: LoginData): Promise<Transfor
 		};
 	});
 
-	const botGlobalSettings = await prisma.botGlobalSettings.findFirst({ where: { id: client.id as string } });
+	const botGlobalSettings = await prisma.botGlobalSettings.fetch(client.id as string);
 
 	const transformedUser = {
 		...loginData.user as APIUser,

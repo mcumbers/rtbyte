@@ -10,13 +10,15 @@ export class UserEvent extends Listener {
 		if (isNullish(member.id)) return;
 		if (member.user.bot) return;
 
-		let memberData = await this.container.prisma.member.findFirst({ where: { userID: member.id, guildID: member.guild.id }, include: { user: { include: { settings: true } } } });
+		let memberData = await this.container.prisma.member.fetchTuple([member.id, member.guild.id], ['userID', 'guildID']);
 		if (!memberData) {
 			await initializeMember(member.user, member.guild);
-			memberData = await this.container.prisma.member.findFirst({ where: { userID: member.id, guildID: member.guild.id }, include: { user: { include: { settings: true } } } });
+			memberData = await this.container.prisma.member.fetchTuple([member.id, member.guild.id], ['userID', 'guildID']);
 		}
 
-		if (memberData?.user.settings?.disableBot) return;
+		const userSettings = await this.container.prisma.userSettings.fetch(member.id);
+
+		if (userSettings?.disableBot) return;
 
 		const usernameHistory = memberData?.usernameHistory;
 		const displayNameHistory = memberData?.displayNameHistory;

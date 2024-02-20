@@ -4,7 +4,7 @@ import { Guild, GuildMember, User } from "discord.js";
 
 export async function initializeGuild(guild: Guild) {
 	const { logger, prisma, client } = container;
-	const botGlobalSettings = await prisma.botGlobalSettings.findFirst();
+	const botGlobalSettings = await prisma.botGlobalSettings.findUnique({ where: { id: client.id as string } });
 
 	// Fetch Owner's User so it's in cache
 	const owner = await client.users.fetch(guild.ownerId);
@@ -109,13 +109,13 @@ export async function initializeGuild(guild: Guild) {
 }
 
 export async function initializeUser(user?: User, userID?: string) {
-	const { logger, prisma } = container;
+	const { logger, prisma, client } = container;
 	if (!user && !userID) {
 		logger.error(`Failed to initialize user info. No user identifier specified.`);
 		return null;
 	}
 
-	const botGlobalSettings = await prisma.botGlobalSettings.findFirst();
+	const botGlobalSettings = await prisma.botGlobalSettings.findUnique({ where: { id: client.id as string } });
 
 	if (user || !userID) userID = user?.id;
 
@@ -155,16 +155,16 @@ export async function initializeUser(user?: User, userID?: string) {
 }
 
 export async function initializeMember(user: User, guild: Guild, member?: GuildMember) {
-	const { logger, prisma } = container;
+	const { logger, prisma, client } = container;
 	await initializeUser(user);
-	const botGlobalSettings = await prisma.botGlobalSettings.findFirst({ where: { id: container.client.id as string } });
+	const botGlobalSettings = await prisma.botGlobalSettings.findUnique({ where: { id: client.id as string } });
 
 	logger.debug(`Initializing member ${bold(user.username)} (${gray(user.id)}) in guild ${bold(guild.name)} (${gray(guild.id)})...`);
 
 	if (botGlobalSettings?.userBlocklist.includes(user.id)) logger.debug(`User ${bold(user.username)} (${gray(user.id)}) is on the user blocklist...`);
 
 	if (!member) member = await guild.members.fetch(user.id);
-	let memberInfo = await prisma.member.findFirst({ where: { userID: user.id, guildID: guild.id } });
+	let memberInfo = await prisma.member.findUnique({ where: { userID_guildID: { userID: user.id, guildID: guild.id } } });
 
 	if (!memberInfo) {
 		const joinTimes: Date[] = [];

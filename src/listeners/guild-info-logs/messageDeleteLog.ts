@@ -29,8 +29,8 @@ export class UserEvent extends Listener {
 		if (!guildSettingsInfoLogs.messageDeleteLog) return;
 
 		// See if this message was deleted as part of an ongoing purge--don't log it if it is
-		const interactionProgress = await this.container.prisma.interactionProgress.findFirst({ where: { entities: { has: message.id } } });
-		if (interactionProgress) return;
+		const liveInteraction = this.container.liveCache.liveInteractions.find((entry) => entry.entities.includes(message.id));
+		if (liveInteraction) return;
 
 		// If the message appears to be a PluralKit command, ignore the message delete
 		if (guildSettingsInfoLogs.pluralkitFilterCommands) {

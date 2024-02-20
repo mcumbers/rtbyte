@@ -134,14 +134,9 @@ export class UserCommand extends Command {
 
 			await interaction.followUp({ content: `Purge Running...\nDeleted ${bulkDeletable.size}/${bulkDeletable.size} Recent Messages...\nDeleted 0/${nonBulkDeletable.size} Old Messages...` });
 
-			// Store a list of messages being deleted in the database
-			const interactionProgress = await this.container.prisma.interactionProgress.create({
-				data: {
-					id: interaction.id,
-					executorID: interaction.user.id,
-					entities: [...nonBulkDeletable.keys()]
-				}
-			})
+			// Add an entry to the liveCache about this interaction so individual message deletes aren't logged
+			const liveInteraction = { id: interaction.id, executorID: interaction.user.id, entities: [...nonBulkDeletable.keys()] };
+			this.container.liveCache.liveInteractions.set(liveInteraction.id, liveInteraction);
 
 			// Update interaction every 5% of progress
 			const updateInterval = Math.round(nonBulkDeletable.size / 20);
@@ -157,8 +152,8 @@ export class UserCommand extends Command {
 			}
 
 			// Wait 1 second, then remove the information about this purge from the database
-			// TODO: Change interactionProgress Schema to have a start time, then regularly just clean up the database?
-			await setTimeout(1000, await this.container.prisma.interactionProgress.delete({ where: { id: interactionProgress.id } }));
+			// TODO: Change liveInteraction to have a start time, then regularly just clean up the database?
+			await setTimeout(1000, this.container.liveCache.liveInteractions.delete(liveInteraction.id));
 
 			await interaction.editReply({ content: `Deleted ${targetMessages.size} Messages ${targetUser ? `from ${targetUser.toString()} ` : ''}in this Channel.` });
 			return this.sendLogEvent(purgeEvent);

@@ -24,11 +24,11 @@ export class UserRoute extends Route {
 
 		// Fetch current user settings
 		const { prisma, client } = this.container;
-		let userSettings = await prisma.userSettings.findFirst({ where: { id: request.params.id } });
+		let userSettings = await prisma.userSettings.fetch(request.params.id);
 
 		if (!userSettings) {
 			await initializeUser(await client.users.fetch(requestAuth.id), requestAuth.id);
-			userSettings = await prisma.userSettings.findFirst({ where: { id: request.params.id } });
+			userSettings = await prisma.userSettings.fetch(request.params.id);
 		}
 
 		return response.json({ data: { userSettings } });
@@ -49,11 +49,11 @@ export class UserRoute extends Route {
 
 		// Fetch current user settings
 		const { prisma, client } = this.container;
-		let userSettings = await prisma.userSettings.findFirst({ where: { id: submittedSettings.id } });
+		let userSettings = await prisma.userSettings.fetch(submittedSettings.id);
 
 		if (!userSettings) {
 			await initializeUser(await client.users.fetch(requestAuth.id), requestAuth.id);
-			userSettings = await prisma.userSettings.findFirst({ where: { id: submittedSettings.id } });
+			userSettings = await prisma.userSettings.fetch(submittedSettings.id);
 		}
 
 		const updateSettings: any = {};
@@ -63,7 +63,7 @@ export class UserRoute extends Route {
 
 		const updatedSettings = await prisma.userSettings.update({ where: { id: submittedSettings.id }, data: updateSettings });
 
-		if (updatedSettings.disableBot) {
+		if (updatedSettings?.disableBot) {
 			const user = await client.users.fetch(requestAuth.id);
 			client.emit('userDisableBot', user);
 		}

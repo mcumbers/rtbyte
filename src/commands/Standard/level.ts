@@ -23,15 +23,15 @@ export class UserCommand extends Command {
 
 		// See if guild has XP disabled
 		if (!interaction.guild) return;
-		const guildSettingsXP = await prisma.guildSettingsXP.findFirst({ where: { id: interaction.guild.id } });
+		const guildSettingsXP = await prisma.guildSettingsXP.fetch(interaction.guild.id);
 		if (!guildSettingsXP || !guildSettingsXP.enabled) return;
 
 		// Create a memberDataXP record for the member if one doesn't exist
-		let memberDataXP = await prisma.memberDataXP.findFirst({ where: { userID: interaction.user.id, guildID: interaction.guild.id } });
+		let memberDataXP = await prisma.memberDataXP.fetchTuple([interaction.user.id, interaction.guild.id], ['userID', 'guildID']);
 		if (!memberDataXP) memberDataXP = await prisma.memberDataXP.create({ data: { userID: interaction.user.id, guildID: interaction.guild.id } });
 
 		// Calculate the level info
-		const xpLevel = getLevel(memberDataXP.currentXP);
+		const xpLevel = getLevel(memberDataXP!.currentXP);
 		// Send message
 		return interaction.followUp({ content: `Level ${xpLevel.level} | ${xpLevel.levelXP}/${xpLevel.levelThreshhold}xp`, ephemeral: true });
 	}

@@ -21,7 +21,7 @@ export class HasAdminRolePrecondition extends Precondition {
 		const { prisma, client } = this.container;
 		const guild = await client.guilds.fetch(guildID as string);
 		const guildMember = await guild.members.fetch(memberID);
-		const guildSettings = await prisma.guildSettings.findFirst({ where: { id: guild.id as string } });
+		const guildSettings = await prisma.guildSettings.fetch(guild.id);
 
 		let hasAdminRole = false;
 		if (guildSettings?.adminRoles) {

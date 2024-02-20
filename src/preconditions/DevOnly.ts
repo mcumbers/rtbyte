@@ -16,7 +16,7 @@ export class DevOnlyPrecondition extends Precondition {
 
 	private async checkOwner(userId: string) {
 		const { client, prisma } = this.container;
-		const botGlobalSettings = await prisma.botGlobalSettings.findFirst({ where: { id: client.id as string } });
+		const botGlobalSettings = await prisma.botGlobalSettings.fetch(client.id as string);
 		return botGlobalSettings?.botOwners.includes(userId)
 			? this.ok()
 			: this.error({ message: 'Only the bot developers can use this command!' });

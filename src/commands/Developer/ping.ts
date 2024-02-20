@@ -27,7 +27,7 @@ export class UserCommand extends BotCommand {
 	}
 
 	private async getDBPing(startTime = Date.now()) {
-		const result = await this.container.prisma.$queryRaw(Prisma.sql`SELECT 1`);
+		const result = await this.container.prisma._prisma.$queryRaw(Prisma.sql`SELECT 1`);
 		return result ? Date.now() - startTime : null;
 	}
 }

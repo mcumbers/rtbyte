@@ -43,7 +43,7 @@ export class UserEvent extends Listener {
 
 		// Update stats if client model exists, create db entry if not
 		if (client.id) {
-			let globalBotSettings = await prisma.botGlobalSettings.findFirst({ where: { id: client.id } });
+			let globalBotSettings = await prisma.botGlobalSettings.fetch(client.id);
 			if (!globalBotSettings) {
 				logger.warn('Is this the first run? Creating Global Bot Settings in the Database...');
 				const newSettingsObj: BotGlobalSettings = {
@@ -61,7 +61,7 @@ export class UserEvent extends Listener {
 				globalBotSettings = await prisma.botGlobalSettings.create({ data: newSettingsObj });
 			}
 
-			if (!globalBotSettings.id) {
+			if (!globalBotSettings || !globalBotSettings.id) {
 				logger.error('Failed to create Global Bot Settings in the Database');
 				await client.destroy();
 				process.exit(1);

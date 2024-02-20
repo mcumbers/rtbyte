@@ -8,7 +8,7 @@ export class UserEvent extends Listener {
 	public async run(guild: Guild) {
 		const { client, prisma } = this.container;
 
-		const botGlobalSettings = await prisma.botGlobalSettings.findUnique({ where: { id: client.id as string } });
+		const botGlobalSettings = await prisma.botGlobalSettings.fetch(client.id as string);
 		const controlGuild = await client.guilds.fetch(botGlobalSettings?.controlGuildID as string);
 		const privateGlobalLogChannel = await controlGuild.channels.fetch(botGlobalSettings?.globalLogChannelPrivate as string) as BaseGuildTextChannel;
 
@@ -21,14 +21,19 @@ export class UserEvent extends Listener {
 		// Get Owner's User from cache
 		const owner = this.container.client.users.resolve(guild.ownerId) as User;
 		// Get count of Member entries in database from this guild
-		const registeredMembers = await this.container.prisma.member.count({ where: { guildID: guild.id } });
+		const registeredMembers = await this.container.prisma._prisma.member.count({ where: { guildID: guild.id } });
 
-		let botMemberInfo = await this.container.prisma.member.findFirst({ where: { userID: this.container.client.id as string, guildID: guild.id } });
+		let botMemberInfo = await this.container.prisma.member.fetchTuple([this.container.client.id as string, guild.id], ['userID', 'guildID']);
+
+		// TODO: Error?
+		if (!botMemberInfo) return;
 
 		const leaveTimes = [...botMemberInfo!.leaveTimes];
 		leaveTimes.push(new Date(Date.now()));
 
 		botMemberInfo = await this.container.prisma.member.update({ where: { id: botMemberInfo!.id }, data: { leaveTimes } });
+		// TODO: Error?
+		if (!botMemberInfo) return;
 		const lastJoin = botMemberInfo.joinTimes[botMemberInfo.joinTimes.length - 1];
 
 		const embed = new GuildLogEmbed()

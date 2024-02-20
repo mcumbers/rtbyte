@@ -33,20 +33,20 @@ export class UserRoute extends Route {
 		const canManageServer: boolean = guild.ownerId === member.id || member.permissions.has(PermissionsBitField.Flags.ManageGuild) || member.permissions.has(PermissionsBitField.Flags.Administrator);
 		if (!canManageServer) return response.error(HttpCodes.Forbidden);
 
-		let guildSettingsXP = await prisma.guildSettingsXP.findFirst({ where: { id: guild.id } });
+		let guildSettingsXP = await prisma.guildSettingsXP.fetch(guild.id);
 		if (!guildSettingsXP) guildSettingsXP = await prisma.guildSettingsXP.create({ data: { id: guild.id } });
 
 		// 24-hour cooldown for mee6 XP Imports
-		if (guildSettingsXP.mee6ImportedTime && new Date(Date.now() + MEE6_IMPORT_COOLDOWN) > guildSettingsXP.mee6ImportedTime) {
+		if (guildSettingsXP?.mee6ImportedTime && new Date(Date.now() + MEE6_IMPORT_COOLDOWN) > guildSettingsXP.mee6ImportedTime) {
 			// Get botGlobalSettings...
-			const botGlobalSettings = await prisma.botGlobalSettings.findFirst({ where: { id: client.id as string } });
+			const botGlobalSettings = await prisma.botGlobalSettings.fetch(client.id as string);
 
 			// Enforce cooldown if request wasn't made by a bot owner
 			if (!botGlobalSettings || !botGlobalSettings.botOwners.includes(requestAuth.id)) return response.error(HttpCodes.TooManyRequests)
 		};
 
 		// Set import time on guildSettingsXP before fetching mee6 data so we don't spam the API if the request fails
-		guildSettingsXP = await prisma.guildSettingsXP.update({ where: { id: guildSettingsXP.id }, data: { mee6ImportedTime: new Date(Date.now()), mee6ImportTimeNext: new Date(Date.now() + MEE6_IMPORT_COOLDOWN) } });
+		guildSettingsXP = await prisma.guildSettingsXP.update({ where: { id: guildSettingsXP?.id }, data: { mee6ImportedTime: new Date(Date.now()), mee6ImportTimeNext: new Date(Date.now() + MEE6_IMPORT_COOLDOWN) } });
 
 		try {
 			// Grab all leaderboard entries from mee6 API
@@ -54,7 +54,7 @@ export class UserRoute extends Route {
 
 			for await (const entry of mee6XPData) {
 				// See if member already has XP Data
-				const memberDataXP = await prisma.memberDataXP.findFirst({ where: { userID: entry.id, guildID: entry.guild_id } });
+				const memberDataXP = await prisma.memberDataXP.fetchTuple([entry.id, entry.guild_id], ['userID', 'guildID']);
 
 				// Create XP Data for member if none exists
 				if (!memberDataXP) {

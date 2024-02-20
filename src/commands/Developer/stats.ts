@@ -51,7 +51,7 @@ export class UserCommand extends Command {
 		const { heapTotal } = memoryUsage();
 		const megabytesUsed = (heapTotal / 1000000).toFixed(2);
 
-		const botGlobalSettings = await this.container.prisma.botGlobalSettings.findFirst({ where: { id: this.container.client.id as string } });
+		const botGlobalSettings = await this.container.prisma.botGlobalSettings.findUnique({ where: { id: this.container.client.id as string } });
 		const lastRestart: Date = botGlobalSettings?.restarts[botGlobalSettings.restarts.length - 1] ?? new Date();
 
 		// Build reply embed

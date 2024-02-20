@@ -9,8 +9,8 @@ export class UserEvent extends Listener {
 	public async run(member: GuildMember) {
 		if (isNullish(member.id)) return;
 
-		const guildSettingsInfoLogs = await this.container.prisma.guildSettingsInfoLogs.findUnique({ where: { id: member.guild.id } });
-		if (!guildSettingsInfoLogs?.guildMemberAddLog || !guildSettingsInfoLogs.infoLogChannel) return;
+		const guildSettingsInfoLogs = await this.container.prisma.guildSettingsInfoLogs.fetch(member.guild.id);
+		if (!guildSettingsInfoLogs || !guildSettingsInfoLogs.guildMemberAddLog || !guildSettingsInfoLogs.infoLogChannel) return;
 
 		const logChannel = member.guild.channels.resolve(guildSettingsInfoLogs.infoLogChannel) as BaseGuildTextChannel;
 
@@ -32,7 +32,7 @@ export class UserEvent extends Listener {
 		if (member.flags.has("DidRejoin")) {
 			embed.setTitle(`${member.user.bot ? 'Bot Added Back to' : 'User re-Joined'} Server`);
 
-			const memberData = await this.container.prisma.member.findFirst({ where: { userID: member.id, guildID: member.guild.id } });
+			const memberData = await this.container.prisma.member.fetchTuple([member.id, member.guild.id], ['userID', 'guildID']);
 
 			if (memberData && memberData.leaveTimes.length) {
 				const lastLeave: Date = memberData?.leaveTimes[memberData.leaveTimes.length - 1];
