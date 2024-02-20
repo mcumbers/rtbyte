@@ -102,7 +102,7 @@ export class PrismaCache<PrismaModel> {
 				}
 			}
 
-			if (unCached.length) await this.findMany({ where: { OR: unCached } } as Args<PrismaModel, 'findMany'>);
+			if (unCached.length) await this.findMany({ where: { [`${firstKey as string}_${secondKey as string}`]: { OR: unCached } } } as Args<PrismaModel, 'findMany'>);
 
 			return Array.from(this.cache.filter((cached) => idsArr.includes([cached[firstKey], cached[secondKey]] as PrismaCacheIDTuple)).values());
 		}
@@ -111,6 +111,6 @@ export class PrismaCache<PrismaModel> {
 
 		if (!force && cached) return cached;
 
-		return this.findUnique({ where: { [`${firstKey as string}`]: ids[0], [`${secondKey as string}`]: ids[1] } } as Args<PrismaModel, 'findUnique'>);
+		return this.findUnique({ where: { [`${firstKey as string}_${secondKey as string}`]: { [`${firstKey as string}`]: ids[0], [`${secondKey as string}`]: ids[1] } } } as Args<PrismaModel, 'findUnique'>);
 	}
 }
