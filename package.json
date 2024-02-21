@@ -1,7 +1,7 @@
 {
 	"name": "stickbot",
 	"description": "A personal fork of RTByte--An open source, multipurpose Discord Bot",
-	"version": "0.1.0",
+	"version": "0.2.0",
 	"main": "./dist/index.js",
 	"type": "module",
 	"author": "Michael Cumbers",
@@ -17,11 +17,10 @@
 	"scripts": {
 		"dev": "run-p watch start",
 		"build": "npm run prisma-build && cd src && tsc",
-		"postinstall": "npm run build",
 		"watch": "cd src && tsc -w",
 		"start": "node dist/index.js",
 		"prisma-build": "npx prisma generate",
-		"prisma-migrate": "npx prisma migrate dev --name init",
+		"prisma-migrate": "npx prisma migrate dev",
 		"docker-build": "docker build -t mcumbers/stickbot ."
 	},
 	"imports": {
@@ -30,21 +29,21 @@
 		"#utils/*": "./dist/lib/util/*.js"
 	},
 	"dependencies": {
-		"@prisma/client": "^5.7.1",
-		"@sapphire/decorators": "^6.0.3",
+		"@prisma/client": "^5.10.2",
+		"@sapphire/decorators": "^6.0.4",
 		"@sapphire/fetch": "^3.0.2",
-		"@sapphire/framework": "^5.0.5",
-		"@sapphire/plugin-api": "^6.1.0",
-		"@sapphire/plugin-hmr": "^3.0.0",
-		"@sapphire/plugin-logger": "^4.0.1",
-		"@sapphire/plugin-subcommands": "^6.0.2",
-		"@sapphire/time-utilities": "^1.7.11",
-		"@sapphire/utilities": "^3.15.2",
+		"@sapphire/framework": "^5.0.7",
+		"@sapphire/plugin-api": "^6.1.1",
+		"@sapphire/plugin-hmr": "^3.0.1",
+		"@sapphire/plugin-logger": "^4.0.2",
+		"@sapphire/plugin-subcommands": "^6.0.3",
+		"@sapphire/time-utilities": "^1.7.12",
+		"@sapphire/utilities": "^3.15.3",
 		"colorette": "^2.0.20",
 		"diff": "^5.1.0",
 		"discord-api-types": "^0.37.67",
 		"discord.js": "^14.14.1",
-		"dotenv": "^16.3.1",
+		"dotenv": "^16.4.5",
 		"prisma-field-encryption": "^1.5.0",
 		"reflect-metadata": "^0.1.13"
 	},
@@ -55,7 +54,7 @@
 		"@types/node": "^20.5.3",
 		"eslint": "^8.47.0",
 		"npm-run-all": "^4.1.5",
-		"prisma": "^5.7.1",
+		"prisma": "^5.10.2",
 		"ts-node": "^10.9.1",
 		"typescript": "^5.1.6"
 	}
