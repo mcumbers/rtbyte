@@ -29,7 +29,8 @@ export class UserCommand extends BotCommand {
 			.setDescription(message.content)
 			.addBlankFields({ value: `Original Message: ${message.url}`, inline: false })
 			.setColor(message.member?.displayColor ?? Colors.White)
-			.setTimestamp(message.createdTimestamp);
+			.setTimestamp(message.createdTimestamp)
+			.setFooter({ text: `Quoted by ${interaction.user.toString()}` });
 
 		// Build the Channel Select
 		const channelInput = new ChannelSelectMenuBuilder()
