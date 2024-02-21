@@ -31,7 +31,7 @@ export class PluralKitMessage {
 			if (error.code === 404) {
 				return null;
 			}
+			return null;
 		};
-		return null;
 	}
 };
