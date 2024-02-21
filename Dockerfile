@@ -11,7 +11,7 @@ COPY src ./src
 COPY prisma ./prisma
 
 # Install Deps & Build
-RUN npm install --omit-dev
+RUN npm install --omit=dev
 RUN npm run build
 
 # Run
