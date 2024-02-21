@@ -6,7 +6,7 @@ import { UpdateLogStyle } from '@prisma/client';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Events, Listener, type ListenerOptions } from '@sapphire/framework';
 import { isNullish } from '@sapphire/utilities';
-import { BaseGuildTextChannel, GuildMember, Message } from 'discord.js';
+import { AuditLogEvent, BaseGuildTextChannel, GuildMember, Message } from 'discord.js';
 
 @ApplyOptions<ListenerOptions>({ event: Events.MessageUpdate })
 export class UserEvent extends Listener {
@@ -50,10 +50,10 @@ export class UserEvent extends Listener {
 		// Check if this log is enabled in this server after letting the messageAttachmentDeleteLog events fire
 		if (!guildSettingsInfoLogs.messageUpdateLog) return;
 
-		return this.container.client.emit('guildLogCreate', logChannel, this.generateGuildLog(oldMessage, message, guildSettingsInfoLogs.messageUpdateLogStyle, authorOverride));
+		return this.container.client.emit('guildLogCreate', logChannel, await this.generateGuildLog(oldMessage, message, guildSettingsInfoLogs.messageUpdateLogStyle, authorOverride));
 	}
 
-	private generateGuildLog(oldMessage: Message, message: Message, style: UpdateLogStyle, authorOverride: GuildMember | null) {
+	private async generateGuildLog(oldMessage: Message, message: Message, style: UpdateLogStyle, authorOverride: GuildMember | null) {
 		const author = authorOverride || message.member;
 		const embed = new GuildLogEmbed()
 			.setTitle('Message Edited')
@@ -66,6 +66,26 @@ export class UserEvent extends Listener {
 		const messageContent = getContent(message);
 
 		if (oldMessageContent !== messageContent) embed.addDiffFields(oldMessageContent as string, messageContent as string, 'Message', style);
+
+		// Message Pinning/Un-Pinning is weird. It's got its own AuditLogEvent type, but when it happens it fires the MessageUpdate Event
+		// Also, the target property of a MessagePin/UnPin Audit Log Event is the Executor--not the Message or the Message Author
+		// So we use a specific strategy for this one to find the Audit Log Entry
+		if (oldMessage.pinned !== message.pinned) {
+			if (message.pinned) {
+				const logs = await message.guild?.fetchAuditLogs({ type: AuditLogEvent.MessagePin, limit: 25 });
+				if (logs) {
+					const targetEntry = logs.entries.filter((entry) => entry.extra.messageId === message.id).sort((entryA, entryB) => entryB.createdTimestamp - entryA.createdTimestamp).first();
+					if (targetEntry) embed.addBlankFields({ name: 'Message Pinned', value: `Pinned By ${targetEntry.executor?.toString()}`, inline: false });
+				}
+			}
+			if (oldMessage.pinned) {
+				const logs = await message.guild?.fetchAuditLogs({ type: AuditLogEvent.MessageUnpin, limit: 25 });
+				if (logs) {
+					const targetEntry = logs.entries.filter((entry) => entry.extra.messageId === message.id).sort((entryA, entryB) => entryB.createdTimestamp - entryA.createdTimestamp).first();
+					if (targetEntry) embed.addBlankFields({ name: 'Message Un-Pinned', value: `Un-Pinned By ${targetEntry.executor?.toString()}`, inline: false });
+				}
+			}
+		}
 
 		return embed.data.fields?.length ? [embed] : [];
 	}
