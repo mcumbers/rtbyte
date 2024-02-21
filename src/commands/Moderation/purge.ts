@@ -1,6 +1,6 @@
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command } from '@sapphire/framework';
-import { Collection, Message, TextChannel, type Channel, type FetchMessagesOptions, type Guild, type User } from 'discord.js';
+import { Collection, Message, PermissionFlagsBits, TextChannel, type Channel, type FetchMessagesOptions, type Guild, type GuildMember, type User } from 'discord.js';
 import { setTimeout } from 'timers/promises';
 
 export interface ModActionPurgeEvent {
@@ -66,6 +66,11 @@ export class UserCommand extends Command {
 
 		const targetChannel = interaction.channel as TextChannel;
 		if (!targetChannel) return interaction.followUp({ content: 'This Command can only be used in Text Channels.', embeds: [], ephemeral: true });
+
+		if (!targetChannel.permissionsFor(interaction.member as GuildMember).has(PermissionFlagsBits.ManageMessages)) {
+			await interaction.followUp({ content: `You don't have permission to delete messages in ${targetChannel.url}`, components: [], embeds: [] });
+			return;
+		}
 
 		let messagesColl: null | Collection<string, Message<boolean>> = null;
 
