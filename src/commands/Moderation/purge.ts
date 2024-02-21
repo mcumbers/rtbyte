@@ -48,11 +48,17 @@ export class UserCommand extends Command {
 						.setName('purge-old')
 						.setDescription('Purge Messages Older than 14 Days')
 				)
+				.addBooleanOption((option) =>
+					option
+						.setName('private')
+						.setDescription('Whether or not the message should be shown only to you (default false)')
+				)
 		);
 	}
 
 	public override async chatInputRun(interaction: Command.ChatInputCommandInteraction) {
-		await interaction.deferReply({ ephemeral: true, fetchReply: true });
+		const ephemeral = interaction.options.getBoolean('private') ?? false;
+		await interaction.deferReply({ ephemeral, fetchReply: true });
 		if (!interaction.guild) return interaction.followUp({ content: 'This Command can only be used in Servers.', embeds: [], ephemeral: true });
 
 		const numMessagesToDelete = interaction.options.getNumber('messages') || 1;

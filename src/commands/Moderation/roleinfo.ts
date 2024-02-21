@@ -27,14 +27,14 @@ export class UserCommand extends BotCommand {
 				)
 				.addBooleanOption((option) =>
 					option
-						.setName('ephemeral')
+						.setName('private')
 						.setDescription('Whether or not the message should be shown only to you (default false)')
 				));
 	}
 
 	public async chatInputRun(interaction: ChatInputCommand.Interaction) {
 		// Check to see if response should be ephemeral
-		const ephemeral = interaction.options.getBoolean('ephemeral') ?? false;
+		const ephemeral = interaction.options.getBoolean('private') ?? false;
 		await interaction.deferReply({ ephemeral, fetchReply: true });
 
 		// Fetch targetRole from Discord

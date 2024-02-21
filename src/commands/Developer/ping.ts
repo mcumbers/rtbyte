@@ -11,11 +11,21 @@ import { type ChatInputCommand } from '@sapphire/framework';
 
 export class UserCommand extends BotCommand {
 	public override registerApplicationCommands(registry: ChatInputCommand.Registry) {
-		registry.registerChatInputCommand((builder) => builder.setName(this.name).setDescription(this.description));
+		registry.registerChatInputCommand((builder) =>
+			builder
+				.setName(this.name)
+				.setDescription(this.description)
+				.addBooleanOption((option) =>
+					option
+						.setName('private')
+						.setDescription('Whether or not the message should be shown only to you (default false)')
+				)
+		);
 	}
 
 	public async chatInputRun(interaction: ChatInputCommand.Interaction) {
-		const msg = await interaction.deferReply({ ephemeral: true, fetchReply: true });
+		const ephemeral = interaction.options.getBoolean('private') ?? false;
+		const msg = await interaction.deferReply({ ephemeral, fetchReply: true });
 
 		if (isMessageInstance(msg)) {
 			const ping = msg.createdTimestamp - interaction.createdTimestamp;

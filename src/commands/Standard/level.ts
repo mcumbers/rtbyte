@@ -14,11 +14,17 @@ export class UserCommand extends Command {
 			builder
 				.setName(this.name)
 				.setDescription(this.description)
+				.addBooleanOption((option) =>
+					option
+						.setName('private')
+						.setDescription('Whether or not the message should be shown only to you (default false)')
+				)
 		);
 	}
 
 	public override async chatInputRun(interaction: Command.ChatInputCommandInteraction) {
-		await interaction.deferReply({ fetchReply: true, ephemeral: true });
+		const ephemeral = interaction.options.getBoolean('private') ?? false;
+		await interaction.deferReply({ fetchReply: true, ephemeral });
 		const { prisma } = this.container;
 
 		// See if guild has XP disabled
@@ -33,6 +39,6 @@ export class UserCommand extends Command {
 		// Calculate the level info
 		const xpLevel = getLevel(memberDataXP!.currentXP);
 		// Send message
-		return interaction.followUp({ content: `Level ${xpLevel.level} | ${xpLevel.levelXP}/${xpLevel.levelThreshhold}xp`, ephemeral: true });
+		return interaction.followUp({ content: `Level ${xpLevel.level} | ${xpLevel.levelXP}/${xpLevel.levelThreshhold}xp` });
 	}
 }

@@ -1,5 +1,6 @@
 import { BotCommand } from '#lib/extensions/BotCommand';
 import { BotEmbed } from '#lib/extensions/BotEmbed';
+import { initializeMember } from '#root/lib/util/functions/initialize';
 import { Colors, Emojis } from '#utils/constants';
 import { ApplyOptions } from '@sapphire/decorators';
 import { type ChatInputCommand } from '@sapphire/framework';
@@ -27,23 +28,29 @@ export class UserCommand extends BotCommand {
 				)
 				.addBooleanOption((option) =>
 					option
-						.setName('ephemeral')
+						.setName('private')
 						.setDescription('Whether or not the message should be shown only to you (default false)')
 				));
 	}
 
 	public async chatInputRun(interaction: ChatInputCommand.Interaction) {
-		const ephemeral = interaction.options.getBoolean('ephemeral') ?? false;
+		const ephemeral = interaction.options.getBoolean('private') ?? false;
 		await interaction.deferReply({ ephemeral, fetchReply: true });
 
 		const member = interaction.guild?.members.resolve(interaction.options.getUser('member')?.id as string);
-		if (!member) return interaction.followUp({ content: `${Emojis.X} Unable to fetch information for the specified member, please try again later.`, ephemeral });
+		if (!member) return interaction.followUp({ content: `Unable to fetch information for the specified member, please try again later.` });
 
 		const roles = member?.roles.cache.filter(role => role.name !== '@everyone');
 		const joinPosition = interaction.guild?.members.cache.sort((memberA, memberB) => Number(memberA.joinedTimestamp) - Number(memberB.joinedTimestamp)).map(mbr => mbr).indexOf(member as GuildMember);
-		// TODO: Disabling previous usernames for now... We need to encrypt them at rest, and provide options for users and guilds to opt-out of having them tracked.
-		// const dbUser = await this.container.prisma.user.findUnique({ where: { id: member.user.id }, select: { previousUsernames: true }});
-		// const previousUsernames = dbUser?.previousUsernames.filter(name => name !== member.user.username).map(name => inlineCodeBlock(name)).join(' ');
+
+		let memberData = await this.container.prisma.member.fetch(member.id);
+
+		if (!memberData) {
+			await initializeMember(member.user, member.guild, member);
+			memberData = await this.container.prisma.member.fetch(member.id);
+		}
+
+		if (!memberData) return interaction.followUp({ content: 'Whoops! Something went wrong... ' });
 
 		const embed = new BotEmbed()
 			.setDescription(`${member} ${inlineCodeBlock(`${member?.id}`)}`)
@@ -56,7 +63,8 @@ export class UserCommand extends BotCommand {
 			);
 
 		if (roles?.map(role => role).length) embed.addFields({ name: `Roles (${roles?.size})`, value: roles!.map(role => role).join(' ') });
-		// if (dbUser && dbUser?.previousUsernames.length > 1) embed.addFields({ name: 'Previous usernames', value: previousUsernames! });
+		if (memberData.usernameHistory.length > 1) embed.addFields({ name: 'Previous usernames', value: inlineCodeBlock(memberData.usernameHistory.join(', ')) });
+		if (memberData.displayNameHistory.length > 1) embed.addFields({ name: 'Previous nicknames', value: inlineCodeBlock(memberData.displayNameHistory.join(', ')) });
 
 		const userInfo = [];
 		if (member.isCommunicationDisabled()) userInfo.push(`${Emojis.Bullet}Currently timed out, will be removed <t:${Math.round(member?.communicationDisabledUntilTimestamp as number / 1000)}:R>`);
@@ -68,6 +76,6 @@ export class UserCommand extends BotCommand {
 		if (member?.flags.has(GuildMemberFlags.DidRejoin)) userInfo.push(`${Emojis.Bullet}Has rejoined`);
 		if (userInfo.length) embed.addFields({ name: 'Details', value: userInfo.join('\n') });
 
-		return interaction.followUp({ content: '', embeds: [embed], ephemeral });
+		return interaction.followUp({ content: '', embeds: [embed] });
 	}
 }

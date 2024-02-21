@@ -17,7 +17,7 @@ export class UserCommand extends Command {
 				.setDescription(this.description)
 				.addBooleanOption((option) =>
 					option
-						.setName('ephemeral')
+						.setName('private')
 						.setDescription('Whether or not the message should be shown only to you (default false)')
 				)
 		}, { guildIds: [CONTROL_GUILD] }
@@ -26,7 +26,7 @@ export class UserCommand extends Command {
 
 	public override async chatInputRun(interaction: Command.ChatInputCommandInteraction) {
 		// Check to see if response should be ephemeral
-		const ephemeral = interaction.options.getBoolean('ephemeral') ?? false;
+		const ephemeral = interaction.options.getBoolean('private') ?? false;
 		await interaction.deferReply({ ephemeral, fetchReply: true });
 
 		// How many Guilds the bot is in
