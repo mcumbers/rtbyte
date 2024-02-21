@@ -1,9 +1,7 @@
 import { BotCommand } from '#lib/extensions/BotCommand';
-import { Emojis } from '#utils/constants';
 import { ApplyOptions } from '@sapphire/decorators';
 import { type ChatInputCommand } from '@sapphire/framework';
-import { inlineCodeBlock } from '@sapphire/utilities';
-import { ChannelType, PermissionFlagsBits } from 'discord.js';
+import { ChannelType, PermissionFlagsBits, type GuildMember } from 'discord.js';
 
 @ApplyOptions<ChatInputCommand.Options>({
 	description: 'Sends a message to the specified channel as the bot',
@@ -35,11 +33,17 @@ export class UserCommand extends BotCommand {
 	public async chatInputRun(interaction: ChatInputCommand.Interaction) {
 		await interaction.deferReply({ ephemeral: true });
 
-		const channel = interaction.guild?.channels.resolve(interaction.options.getChannel('channel')?.id as string);
+		const targetChannel = interaction.guild?.channels.resolve(interaction.options.getChannel('channel')?.id as string);
 		const messageInput = interaction.options.getString('message') as string;
-		if (channel?.type !== ChannelType.GuildText) return interaction.followUp({ content: `${Emojis.X} Messages cannot be sent to ${channel}.` });
 
-		await channel.send({ content: messageInput });
-		return interaction.followUp({ content: `${Emojis.Check} Sent ${inlineCodeBlock(messageInput)} to <#${channel.id}>!` });
+		if (targetChannel?.type !== ChannelType.GuildText) return interaction.followUp({ content: `Messages cannot be sent to ${targetChannel?.url}` });
+
+		if (!targetChannel.permissionsFor(interaction.member as GuildMember).has(PermissionFlagsBits.SendMessages)) {
+			await interaction.followUp({ content: `You don't have permission to send messages in ${targetChannel.url}`, components: [], embeds: [] });
+			return;
+		}
+
+		const sentMessage = await targetChannel.send({ content: messageInput });
+		return interaction.followUp({ content: `Sent Message: ${sentMessage.url}` });
 	}
 }
