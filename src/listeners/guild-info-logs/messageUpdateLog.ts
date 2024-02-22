@@ -14,6 +14,7 @@ export class UserEvent extends Listener {
 		if (isNullish(message.id)) return;
 		if (isNullish(message.guild)) return;
 		if (message.author.system) return;
+		if (message.author.id === this.container.client.id) return;
 
 		const guildSettingsInfoLogs = await this.container.prisma.guildSettingsInfoLogs.fetch(message.guild.id);
 		if (!guildSettingsInfoLogs || !guildSettingsInfoLogs.infoLogChannel) return;
