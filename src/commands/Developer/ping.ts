@@ -1,7 +1,6 @@
 import { BotCommand } from '#lib/extensions/BotCommand';
 import { Prisma } from '@prisma/client';
 import { ApplyOptions } from '@sapphire/decorators';
-import { isMessageInstance } from '@sapphire/discord.js-utilities';
 import { type ChatInputCommand } from '@sapphire/framework';
 
 @ApplyOptions<ChatInputCommand.Options>({
@@ -24,16 +23,19 @@ export class UserCommand extends BotCommand {
 	}
 
 	public async chatInputRun(interaction: ChatInputCommand.Interaction) {
+		const startTime = Date.now();
 		const ephemeral = interaction.options.getBoolean('private') ?? false;
-		const msg = await interaction.deferReply({ ephemeral, fetchReply: true });
+		let message = await interaction.deferReply({ ephemeral, fetchReply: true });
 
-		if (isMessageInstance(msg)) {
-			const ping = msg.createdTimestamp - interaction.createdTimestamp;
+		if (message) {
+			const ping = message.createdTimestamp - interaction.createdTimestamp;
 			const dbPing = await this.getDBPing(Date.now());
-			return interaction.editReply(`🏓 Pong! \`Bot: ${ping}ms\` \`Database: ${dbPing}ms\``);
+			message = await interaction.editReply(`🏓 Pong! \`Bot: ${ping}ms\` \`Database: ${dbPing}ms\``);
+			return this.container.client.emit('commandRun', { interaction, message, runtime: Date.now() - startTime });
 		}
 
-		return interaction.editReply(`Failed to retrieve ping.`);
+		message = await interaction.editReply(`Failed to retrieve ping.`);
+		return this.container.client.emit('commandRun', { interaction, failed: true, message, runtime: Date.now() - startTime });
 	}
 
 	private async getDBPing(startTime = Date.now()) {
