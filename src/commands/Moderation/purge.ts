@@ -159,7 +159,7 @@ export class UserCommand extends Command {
 			message = await interaction.followUp({ content: `Purge Running...\nDeleted ${bulkDeletable.size}/${bulkDeletable.size} Recent Messages...\nDeleted 0/${nonBulkDeletable.size} Old Messages...` });
 
 			// Add an entry to the liveCache about this interaction so individual message deletes aren't logged
-			const liveInteraction = { id: interaction.id, executorID: interaction.user.id, entities: [...nonBulkDeletable.keys()] };
+			const liveInteraction = { id: interaction.id, executorID: interaction.user.id, entities: [...targetMessages.keys()] };
 			this.container.liveCache.liveInteractions.set(liveInteraction.id, liveInteraction);
 
 			// Update interaction every 5% of progress
