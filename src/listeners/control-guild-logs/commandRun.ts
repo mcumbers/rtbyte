@@ -16,14 +16,18 @@ export class UserEvent extends Listener {
 		const { client, prisma } = this.container;
 
 		const botGlobalSettings = await prisma.botGlobalSettings.fetch(client.id as string);
+		if (!botGlobalSettings) return;
+
 		const controlGuild = await client.guilds.fetch(botGlobalSettings?.controlGuildID as string);
 		const privateGlobalLogChannel = await controlGuild.channels.fetch(botGlobalSettings?.globalLogChannelPrivate as string) as BaseGuildTextChannel;
-
 		if (!privateGlobalLogChannel) return;
-		// Command didn't fail--should we log it?
-		if (!event.failed && botGlobalSettings?.globalLogCommandExecution) return;
-		// Command did fail--should we log it?
-		if (event.failed && !botGlobalSettings?.globalLogCommandExecutionFailure) return;
+
+		// If Command Succeeded, and we're not logging successful commands, return
+		if (!event.failed && !botGlobalSettings.globalLogCommandExecution) return;
+
+		// If Command Failed, and we're not logging failed commands, return
+		if (event.failed && !botGlobalSettings.globalLogCommandExecutionFailure) return;
+
 
 		return this.container.client.emit('guildLogCreate', privateGlobalLogChannel, await this.generateGuildLog(event));
 	}
