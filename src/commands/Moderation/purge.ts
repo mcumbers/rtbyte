@@ -138,7 +138,7 @@ export class UserCommand extends Command {
 			try {
 				await targetChannel.bulkDelete(targetMessages, true);
 
-				message = await interaction.followUp({ content: `Deleted ${targetMessages.size} Messages ${targetUser ? `from ${targetUser.toString()} ` : ''}in this Channel.`, components: [], embeds: [] });
+				message = await interaction.followUp({ content: `Deleted ${targetMessages.size} Message${targetMessages.size > 1 ? 's' : ''} ${targetUser ? `from ${targetUser.toString()} ` : ''}in this Channel.`, components: [], embeds: [] });
 				this.sendLogEvent(purgeEvent);
 				return this.container.client.emit('commandRun', { interaction, message, runtime: Date.now() - startTime } as CommandRunEvent);
 			} catch (error) {
