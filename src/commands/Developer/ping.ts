@@ -1,7 +1,8 @@
 import { BotCommand } from '#lib/extensions/BotCommand';
+import type { CommandRunEvent } from '#root/listeners/control-guild-logs/commandRun';
 import { Prisma } from '@prisma/client';
 import { ApplyOptions } from '@sapphire/decorators';
-import { type ChatInputCommand } from '@sapphire/framework';
+import type { ChatInputCommand } from '@sapphire/framework';
 
 @ApplyOptions<ChatInputCommand.Options>({
 	description: 'Check Bot\'s Ping',
@@ -31,11 +32,11 @@ export class UserCommand extends BotCommand {
 			const ping = message.createdTimestamp - interaction.createdTimestamp;
 			const dbPing = await this.getDBPing(Date.now());
 			message = await interaction.editReply(`🏓 Pong! \`Bot: ${ping}ms\` \`Database: ${dbPing}ms\``);
-			return this.container.client.emit('commandRun', { interaction, message, runtime: Date.now() - startTime });
+			return this.container.client.emit('commandRun', { interaction, message, runtime: Date.now() - startTime } as CommandRunEvent);
 		}
 
 		message = await interaction.editReply(`Failed to retrieve ping.`);
-		return this.container.client.emit('commandRun', { interaction, failed: true, message, runtime: Date.now() - startTime });
+		return this.container.client.emit('commandRun', { interaction, failed: true, message, runtime: Date.now() - startTime } as CommandRunEvent);
 	}
 
 	private async getDBPing(startTime = Date.now()) {

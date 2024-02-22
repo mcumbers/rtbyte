@@ -1,4 +1,5 @@
 import { BotCommand } from '#lib/extensions/BotCommand';
+import type { CommandRunEvent } from '#root/listeners/control-guild-logs/commandRun';
 import { ApplyOptions } from '@sapphire/decorators';
 import { type ChatInputCommand } from '@sapphire/framework';
 import { ChannelType, PermissionFlagsBits, type GuildMember } from 'discord.js';
@@ -31,7 +32,8 @@ export class UserCommand extends BotCommand {
 	}
 
 	public async chatInputRun(interaction: ChatInputCommand.Interaction) {
-		await interaction.deferReply({ ephemeral: true });
+		const startTime = Date.now();
+		let message = await interaction.deferReply({ ephemeral: true, fetchReply: true });
 
 		const targetChannel = interaction.guild?.channels.resolve(interaction.options.getChannel('channel')?.id as string);
 		const messageInput = interaction.options.getString('message') as string;
@@ -39,11 +41,12 @@ export class UserCommand extends BotCommand {
 		if (targetChannel?.type !== ChannelType.GuildText) return interaction.followUp({ content: `Messages cannot be sent to ${targetChannel?.url}` });
 
 		if (!targetChannel.permissionsFor(interaction.member as GuildMember).has(PermissionFlagsBits.SendMessages)) {
-			await interaction.followUp({ content: `You don't have permission to send messages in ${targetChannel.url}`, components: [], embeds: [] });
-			return;
+			message = await interaction.followUp({ content: `You don't have permission to send messages in ${targetChannel.url}`, components: [], embeds: [] });
+			return this.container.client.emit('commandRun', { interaction, message, runtime: Date.now() - startTime } as CommandRunEvent);
 		}
 
 		const sentMessage = await targetChannel.send({ content: messageInput });
-		return interaction.followUp({ content: `Sent Message: ${sentMessage.url}` });
+		message = await interaction.followUp({ content: `Sent Message: ${sentMessage.url}` });
+		return this.container.client.emit('commandRun', { interaction, message, runtime: Date.now() - startTime } as CommandRunEvent);
 	}
 }

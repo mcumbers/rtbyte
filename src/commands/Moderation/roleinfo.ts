@@ -1,5 +1,6 @@
 import { BotCommand } from '#lib/extensions/BotCommand';
 import { BotEmbed } from '#lib/extensions/BotEmbed';
+import type { CommandRunEvent } from '#root/listeners/control-guild-logs/commandRun';
 import { Emojis } from '#utils/constants';
 import { ApplyOptions } from '@sapphire/decorators';
 import { type ChatInputCommand } from '@sapphire/framework';
@@ -33,13 +34,17 @@ export class UserCommand extends BotCommand {
 	}
 
 	public async chatInputRun(interaction: ChatInputCommand.Interaction) {
+		const startTime = Date.now();
 		// Check to see if response should be ephemeral
 		const ephemeral = interaction.options.getBoolean('private') ?? false;
-		await interaction.deferReply({ ephemeral, fetchReply: true });
+		let message = await interaction.deferReply({ ephemeral, fetchReply: true });
 
 		// Fetch targetRole from Discord
 		const targetRole = interaction.guild?.roles.resolve(interaction.options.getRole('role')?.id as string);
-		if (!targetRole) return interaction.followUp({ content: `${Emojis.X} Unable to fetch information for ${targetRole}, please try again later.`, ephemeral });
+		if (!targetRole) {
+			message = await interaction.followUp({ content: `${Emojis.X} Unable to fetch information for ${targetRole}, please try again later.` });
+			return this.container.client.emit('commandRun', { interaction, message, runtime: Date.now() - startTime } as CommandRunEvent);
+		}
 
 		// Find targetRole's position in Guild Roles
 		const rolesSorted = interaction.guild?.roles.cache.sort((roleA, roleB) => roleA.position - roleB.position).reverse();
@@ -67,6 +72,7 @@ export class UserCommand extends BotCommand {
 		if (roleInfo.length) embed.addFields({ name: 'Details', value: roleInfo.join('\n') });
 
 		// Send Response Embed
-		return interaction.followUp({ content: '', embeds: [embed], ephemeral });
+		message = await interaction.followUp({ content: '', embeds: [embed] });
+		return this.container.client.emit('commandRun', { interaction, message, runtime: Date.now() - startTime } as CommandRunEvent);
 	}
 }

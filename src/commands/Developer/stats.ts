@@ -1,5 +1,6 @@
 import { BotEmbed } from '#lib/extensions/BotEmbed';
 import { CONTROL_GUILD } from '#root/config';
+import type { CommandRunEvent } from '#root/listeners/control-guild-logs/commandRun';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command } from '@sapphire/framework';
 import { memoryUsage } from 'node:process';
@@ -25,9 +26,10 @@ export class UserCommand extends Command {
 	}
 
 	public override async chatInputRun(interaction: Command.ChatInputCommandInteraction) {
+		const startTime = Date.now();
 		// Check to see if response should be ephemeral
 		const ephemeral = interaction.options.getBoolean('private') ?? false;
-		await interaction.deferReply({ ephemeral, fetchReply: true });
+		let message = await interaction.deferReply({ ephemeral, fetchReply: true });
 
 		// How many Guilds the bot is in
 		const guildCount = this.container.client.guilds.cache.size;
@@ -67,6 +69,7 @@ export class UserCommand extends Command {
 			.addFields({ name: 'Global Commands', value: `${globalAppCommandCount}`, inline: true })
 			.addFields({ name: 'Guild Commands', value: `${guildAppCommandCount}`, inline: true });
 
-		return interaction.followUp({ content: '', embeds: [embed], ephemeral });
+		message = await interaction.followUp({ content: '', embeds: [embed], ephemeral });
+		return this.container.client.emit('commandRun', { interaction, message, runtime: Date.now() - startTime } as CommandRunEvent);
 	}
 }

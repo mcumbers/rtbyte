@@ -54,6 +54,8 @@ export class UserEvent extends Listener {
 					controlGuildID: '',
 					globalLogChannelPublic: '',
 					globalLogChannelPrivate: '',
+					globalLogCommandExecution: true,
+					globalLogCommandExecutionFailure: true,
 					restarts: []
 				};
 				if (CONTROL_GUILD) newSettingsObj.controlGuildID = CONTROL_GUILD;

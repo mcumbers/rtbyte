@@ -8,13 +8,15 @@ generator client {
 }
 
 model BotGlobalSettings {
-    id                      String   @id @map("client_id")
-    userBlocklist           String[] @map("user_blocklist")
-    guildBlocklist          String[] @map("guild_blocklist")
-    botOwners               String[] @map("bot_owners")
-    controlGuildID          String?  @map("control_guild_id")
-    globalLogChannelPublic  String?  @map("global_log_channel_public")
-    globalLogChannelPrivate String?  @map("global_log_channel_private")
+    id                               String   @id @map("client_id")
+    userBlocklist                    String[] @map("user_blocklist")
+    guildBlocklist                   String[] @map("guild_blocklist")
+    botOwners                        String[] @map("bot_owners")
+    controlGuildID                   String?  @map("control_guild_id")
+    globalLogChannelPublic           String?  @map("global_log_channel_public")
+    globalLogChannelPrivate          String?  @map("global_log_channel_private")
+    globalLogCommandExecution        Boolean  @default(true) @map("global_log_command_execution")
+    globalLogCommandExecutionFailure Boolean  @default(true) @map("global_log_command_execution_failure")
 
     restarts DateTime[] @map("bot_restarts")
 

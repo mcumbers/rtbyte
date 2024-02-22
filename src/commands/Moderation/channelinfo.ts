@@ -1,7 +1,6 @@
 import { BotCommand } from '#lib/extensions/BotCommand';
 import { BotEmbed } from '#lib/extensions/BotEmbed';
 import { minutes, seconds } from '#utils/common/times';
-import { Emojis } from '#utils/constants';
 import { ApplyOptions } from '@sapphire/decorators';
 import { type ChatInputCommand } from '@sapphire/framework';
 import { DurationFormatter } from '@sapphire/time-utilities';
@@ -41,7 +40,7 @@ export class UserCommand extends BotCommand {
 
 		// Fetch targetChannel from Discord
 		const targetChannel = interaction.guild?.channels.resolve(interaction.options.getChannel('channel')?.id as string);
-		if (!targetChannel) return interaction.followUp({ content: `${Emojis.X} Unable to fetch information for ${targetChannel}, please try again later.`, ephemeral });
+		if (!targetChannel) return interaction.followUp({ content: `Unable to fetch information for ${targetChannel}, please try again later.`, ephemeral });
 
 		// Fetch this Guild's log settings
 		const guildLogSettings = await this.container.prisma.guildSettingsInfoLogs.fetch(interaction.guild?.id as string);
@@ -49,22 +48,22 @@ export class UserCommand extends BotCommand {
 		// Gather Info for Response Embed
 		const channelInfo = [];
 		if (targetChannel.type === ChannelType.GuildForum) {
-			if (targetChannel.defaultReactionEmoji) channelInfo.push(`${Emojis.Bullet}Default reaction: ${targetChannel.guild.emojis.resolve(targetChannel.defaultReactionEmoji.id as string) ?? targetChannel.defaultReactionEmoji.name}`);
-			if (targetChannel.rateLimitPerUser) channelInfo.push(`${Emojis.Bullet}Posts slowmode: ${inlineCodeBlock(new DurationFormatter().format(seconds(targetChannel.rateLimitPerUser)))}`);
-			if (targetChannel.defaultThreadRateLimitPerUser) channelInfo.push(`${Emojis.Bullet}Messages slowmode: ${inlineCodeBlock(new DurationFormatter().format(seconds(targetChannel.defaultThreadRateLimitPerUser)))}`);
+			if (targetChannel.defaultReactionEmoji) channelInfo.push(`Default reaction: ${targetChannel.guild.emojis.resolve(targetChannel.defaultReactionEmoji.id as string) ?? targetChannel.defaultReactionEmoji.name}`);
+			if (targetChannel.rateLimitPerUser) channelInfo.push(`Posts slowmode: ${inlineCodeBlock(new DurationFormatter().format(seconds(targetChannel.rateLimitPerUser)))}`);
+			if (targetChannel.defaultThreadRateLimitPerUser) channelInfo.push(`Messages slowmode: ${inlineCodeBlock(new DurationFormatter().format(seconds(targetChannel.defaultThreadRateLimitPerUser)))}`);
 			if (targetChannel.defaultForumLayout) {
 				const forumLayout = ['Not set', 'List view', 'Gallery view'];
-				channelInfo.push(`${Emojis.Bullet}Default layout: ${inlineCodeBlock(`${forumLayout[targetChannel.defaultForumLayout]}`)}`);
+				channelInfo.push(`Default layout: ${inlineCodeBlock(`${forumLayout[targetChannel.defaultForumLayout]}`)}`);
 			}
 			if (targetChannel.defaultSortOrder) {
 				const sortOrder = ['Recent activity', 'Creation time'];
-				channelInfo.push(`${Emojis.Bullet}Sort order: ${inlineCodeBlock(`${sortOrder[targetChannel.defaultSortOrder!]}`)}`)
+				channelInfo.push(`Sort order: ${inlineCodeBlock(`${sortOrder[targetChannel.defaultSortOrder!]}`)}`)
 			}
-			if (targetChannel.nsfw) channelInfo.push(`${Emojis.Bullet}Age-restricted: ${Emojis.ToggleOn}`);
-			if (targetChannel.defaultAutoArchiveDuration) channelInfo.push(`${Emojis.Bullet}Hide after inactivity: ${inlineCodeBlock(`${new DurationFormatter().format(minutes(targetChannel.defaultAutoArchiveDuration ?? 4320))}`)}`);
+			if (targetChannel.nsfw) channelInfo.push(`Age-restricted`);
+			if (targetChannel.defaultAutoArchiveDuration) channelInfo.push(`Hide after inactivity: ${inlineCodeBlock(`${new DurationFormatter().format(minutes(targetChannel.defaultAutoArchiveDuration ?? 4320))}`)}`);
 		}
 		// Show whether the targetChannel is designated as the Info Log Channel for the Guild
-		if (guildLogSettings?.infoLogChannel === targetChannel.id) channelInfo.push(`${Emojis.Bullet}Bot log channel`);
+		if (guildLogSettings?.infoLogChannel === targetChannel.id) channelInfo.push(`Bot log channel`);
 
 		// Create Response Embed
 		const embed = new BotEmbed()

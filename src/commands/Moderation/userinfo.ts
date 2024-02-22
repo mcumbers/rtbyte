@@ -1,6 +1,7 @@
 import { BotCommand } from '#lib/extensions/BotCommand';
 import { BotEmbed } from '#lib/extensions/BotEmbed';
 import { initializeMember } from '#root/lib/util/functions/initialize';
+import type { CommandRunEvent } from '#root/listeners/control-guild-logs/commandRun';
 import { Colors, Emojis } from '#utils/constants';
 import { ApplyOptions } from '@sapphire/decorators';
 import { type ChatInputCommand } from '@sapphire/framework';
@@ -34,11 +35,15 @@ export class UserCommand extends BotCommand {
 	}
 
 	public async chatInputRun(interaction: ChatInputCommand.Interaction) {
+		const startTime = Date.now();
 		const ephemeral = interaction.options.getBoolean('private') ?? false;
-		await interaction.deferReply({ ephemeral, fetchReply: true });
+		let message = await interaction.deferReply({ ephemeral, fetchReply: true });
 
 		const member = interaction.guild?.members.resolve(interaction.options.getUser('member')?.id as string);
-		if (!member) return interaction.followUp({ content: `Unable to fetch information for the specified member, please try again later.` });
+		if (!member) {
+			message = await interaction.followUp({ content: `Unable to fetch information for the specified member, please try again later.` });
+			return this.container.client.emit('commandRun', { interaction, message, runtime: Date.now() - startTime } as CommandRunEvent);
+		}
 
 		const roles = member?.roles.cache.filter(role => role.name !== '@everyone');
 		const joinPosition = interaction.guild?.members.cache.sort((memberA, memberB) => Number(memberA.joinedTimestamp) - Number(memberB.joinedTimestamp)).map(mbr => mbr).indexOf(member as GuildMember);
@@ -50,7 +55,10 @@ export class UserCommand extends BotCommand {
 			memberData = await this.container.prisma.member.fetch(member.id);
 		}
 
-		if (!memberData) return interaction.followUp({ content: 'Whoops! Something went wrong... ' });
+		if (!memberData) {
+			message = await interaction.followUp({ content: 'Whoops! Something went wrong... ' });
+			return this.container.client.emit('commandRun', { interaction, message, runtime: Date.now() - startTime } as CommandRunEvent);
+		}
 
 		const embed = new BotEmbed()
 			.setDescription(`${member} ${inlineCodeBlock(`${member?.id}`)}`)
@@ -76,6 +84,7 @@ export class UserCommand extends BotCommand {
 		if (member?.flags.has(GuildMemberFlags.DidRejoin)) userInfo.push(`${Emojis.Bullet}Has rejoined`);
 		if (userInfo.length) embed.addFields({ name: 'Details', value: userInfo.join('\n') });
 
-		return interaction.followUp({ content: '', embeds: [embed] });
+		message = await interaction.followUp({ content: '', embeds: [embed] });
+		return this.container.client.emit('commandRun', { interaction, message, runtime: Date.now() - startTime } as CommandRunEvent);
 	}
 }

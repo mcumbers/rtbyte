@@ -1,3 +1,4 @@
+import type { CommandRunEvent } from '#root/listeners/control-guild-logs/commandRun';
 import { getLevel } from '#utils/functions/xp';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command } from '@sapphire/framework';
@@ -23,8 +24,9 @@ export class UserCommand extends Command {
 	}
 
 	public override async chatInputRun(interaction: Command.ChatInputCommandInteraction) {
+		const startTime = Date.now();
 		const ephemeral = interaction.options.getBoolean('private') ?? false;
-		await interaction.deferReply({ fetchReply: true, ephemeral });
+		let message = await interaction.deferReply({ fetchReply: true, ephemeral });
 		const { prisma } = this.container;
 
 		// See if guild has XP disabled
@@ -41,7 +43,10 @@ export class UserCommand extends Command {
 
 		// Get an array of all memberDataXP entries ordered by XP amount
 		let rankedMemberDataXPEntries = await prisma.memberDataXP.findMany({ where: { guildID: interaction.guild.id }, orderBy: { currentXP: 'desc' } });
-		if (!rankedMemberDataXPEntries) return interaction.followUp({ content: 'Whoops! Something went wrong...' });
+		if (!rankedMemberDataXPEntries) {
+			message = await interaction.followUp({ content: 'Whoops! Something went wrong...' });
+			return this.container.client.emit('commandRun', { interaction, message, runtime: Date.now() - startTime, failed: true } as CommandRunEvent);
+		}
 
 		// Filter out entries of members who've left the guild
 		if (guildSettingsXP.hideOnMemberLeave) {
@@ -57,6 +62,7 @@ export class UserCommand extends Command {
 		}
 
 		// Send message
-		return interaction.followUp({ content: `Rank: #${rank} | Level ${xpLevel.level} | ${xpLevel.levelXP}/${xpLevel.levelThreshhold}xp` });
+		message = await interaction.followUp({ content: `Rank: #${rank} | Level ${xpLevel.level} | ${xpLevel.levelXP}/${xpLevel.levelThreshhold}xp` });
+		return this.container.client.emit('commandRun', { interaction, message, runtime: Date.now() - startTime } as CommandRunEvent);
 	}
 }

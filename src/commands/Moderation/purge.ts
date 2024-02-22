@@ -1,3 +1,4 @@
+import type { CommandRunEvent } from '#root/listeners/control-guild-logs/commandRun';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command } from '@sapphire/framework';
 import { Collection, Message, PermissionFlagsBits, TextChannel, type Channel, type FetchMessagesOptions, type Guild, type GuildMember, type User } from 'discord.js';
@@ -57,19 +58,26 @@ export class UserCommand extends Command {
 	}
 
 	public override async chatInputRun(interaction: Command.ChatInputCommandInteraction) {
+		const startTime = Date.now();
 		const ephemeral = interaction.options.getBoolean('private') ?? false;
-		await interaction.deferReply({ ephemeral, fetchReply: true });
-		if (!interaction.guild) return interaction.followUp({ content: 'This Command can only be used in Servers.', embeds: [], ephemeral: true });
+		let message = await interaction.deferReply({ ephemeral, fetchReply: true });
+		if (!interaction.guild) {
+			message = await interaction.followUp({ content: 'This Command can only be used in Servers.', components: [], embeds: [] });
+			return this.container.client.emit('commandRun', { interaction, message, runtime: Date.now() - startTime } as CommandRunEvent);
+		}
 
 		const numMessagesToDelete = interaction.options.getNumber('messages') || 1;
 		const targetUser = interaction.options.getUser('user');
 
 		const targetChannel = interaction.channel as TextChannel;
-		if (!targetChannel) return interaction.followUp({ content: 'This Command can only be used in Text Channels.', embeds: [], ephemeral: true });
+		if (!targetChannel) {
+			message = await interaction.followUp({ content: 'This Command can only be used in Text Channels.', components: [], embeds: [] });
+			return this.container.client.emit('commandRun', { interaction, message, runtime: Date.now() - startTime } as CommandRunEvent);
+		}
 
 		if (!targetChannel.permissionsFor(interaction.member as GuildMember).has(PermissionFlagsBits.ManageMessages)) {
-			await interaction.followUp({ content: `You don't have permission to delete messages in ${targetChannel.url}`, components: [], embeds: [] });
-			return;
+			message = await interaction.followUp({ content: `You don't have permission to delete messages in ${targetChannel.url}`, components: [], embeds: [] });
+			return this.container.client.emit('commandRun', { interaction, message, runtime: Date.now() - startTime } as CommandRunEvent);
 		}
 
 		let messagesColl: null | Collection<string, Message<boolean>> = null;
@@ -106,7 +114,10 @@ export class UserCommand extends Command {
 		const targetMessages = messagesColl.filter((val, key) => val && targetKeys.includes(key));
 
 		// Fail if no messages to delete
-		if (!targetMessages.size) return interaction.followUp({ content: 'Could not find any messages that fit the criteria in this Channel.', embeds: [], ephemeral: true });
+		if (!targetMessages.size) {
+			message = await interaction.followUp({ content: 'Could not find any messages that fit the criteria in this Channel.', components: [], embeds: [] });
+			return this.container.client.emit('commandRun', { interaction, message, runtime: Date.now() - startTime } as CommandRunEvent);
+		}
 
 		// Prep ModActionPurgeEvent
 		const purgeEvent: ModActionPurgeEvent = {
@@ -127,10 +138,12 @@ export class UserCommand extends Command {
 			try {
 				await targetChannel.bulkDelete(targetMessages, true);
 
-				await interaction.followUp({ content: `Deleted ${targetMessages.size} Messages ${targetUser ? `from ${targetUser.toString()} ` : ''}in this Channel.`, embeds: [], ephemeral: true });
-				return this.sendLogEvent(purgeEvent);
+				message = await interaction.followUp({ content: `Deleted ${targetMessages.size} Messages ${targetUser ? `from ${targetUser.toString()} ` : ''}in this Channel.`, components: [], embeds: [] });
+				this.sendLogEvent(purgeEvent);
+				return this.container.client.emit('commandRun', { interaction, message, runtime: Date.now() - startTime } as CommandRunEvent);
 			} catch (error) {
-				return interaction.followUp({ content: 'Whoops... Something went wrong...' });
+				message = await interaction.followUp({ content: 'Whoops... Something went wrong...' });
+				return this.container.client.emit('commandRun', { interaction, message, runtime: Date.now() - startTime, failed: true } as CommandRunEvent);
 			}
 		}
 
@@ -143,7 +156,7 @@ export class UserCommand extends Command {
 			// Bulk Delete any messages we can
 			await targetChannel.bulkDelete(bulkDeletable, true);
 
-			await interaction.followUp({ content: `Purge Running...\nDeleted ${bulkDeletable.size}/${bulkDeletable.size} Recent Messages...\nDeleted 0/${nonBulkDeletable.size} Old Messages...` });
+			message = await interaction.followUp({ content: `Purge Running...\nDeleted ${bulkDeletable.size}/${bulkDeletable.size} Recent Messages...\nDeleted 0/${nonBulkDeletable.size} Old Messages...` });
 
 			// Add an entry to the liveCache about this interaction so individual message deletes aren't logged
 			const liveInteraction = { id: interaction.id, executorID: interaction.user.id, entities: [...nonBulkDeletable.keys()] };
@@ -155,21 +168,23 @@ export class UserCommand extends Command {
 
 			// Manually Delete every other message
 			for await (const pair of nonBulkDeletable) {
-				const message = pair[1];
-				await message.delete();
+				const targetMessage = pair[1];
+				await targetMessage.delete();
 
 				manualDeletedNum++;
-				if (manualDeletedNum % updateInterval === 0) await interaction.editReply({ content: `Purge Running...\nDeleted ${bulkDeletable.size}/${bulkDeletable.size} Recent Messages...\nDeleted ${manualDeletedNum}/${nonBulkDeletable.size} Old Messages...` });
+				if (manualDeletedNum % updateInterval === 0) message = await interaction.editReply({ content: `Purge Running...\nDeleted ${bulkDeletable.size}/${bulkDeletable.size} Recent Messages...\nDeleted ${manualDeletedNum}/${nonBulkDeletable.size} Old Messages...` });
 			}
 
 			// Wait 1 second, then remove the information about this purge from the database
 			// TODO: Change liveInteraction to have a start time, then regularly just clean up the database?
 			await setTimeout(1000, this.container.liveCache.liveInteractions.delete(liveInteraction.id));
 
-			await interaction.editReply({ content: `Deleted ${targetMessages.size} Messages ${targetUser ? `from ${targetUser.toString()} ` : ''}in this Channel.` });
-			return this.sendLogEvent(purgeEvent);
+			message = await interaction.editReply({ content: `Deleted ${targetMessages.size} Messages ${targetUser ? `from ${targetUser.toString()} ` : ''}in this Channel.` });
+			this.sendLogEvent(purgeEvent);
+			return this.container.client.emit('commandRun', { interaction, message, runtime: Date.now() - startTime } as CommandRunEvent);
 		} catch (error) {
-			return interaction.followUp({ content: 'Whoops... Something went wrong...' });
+			message = await interaction.followUp({ content: 'Whoops... Something went wrong...' });
+			return this.container.client.emit('commandRun', { interaction, message, runtime: Date.now() - startTime, failed: true } as CommandRunEvent);
 		}
 
 	}

@@ -20,6 +20,10 @@ export class UserEvent extends Listener {
 		const privateGlobalLogChannel = await controlGuild.channels.fetch(botGlobalSettings?.globalLogChannelPrivate as string) as BaseGuildTextChannel;
 
 		if (!privateGlobalLogChannel) return;
+		// Command didn't fail--should we log it?
+		if (!event.failed && botGlobalSettings?.globalLogCommandExecution) return;
+		// Command did fail--should we log it?
+		if (event.failed && !botGlobalSettings?.globalLogCommandExecutionFailure) return;
 
 		return this.container.client.emit('guildLogCreate', privateGlobalLogChannel, await this.generateGuildLog(event));
 	}
@@ -32,7 +36,8 @@ export class UserEvent extends Listener {
 			.setTitle(`Command ${failed ? 'Execution Failed' : 'Executed'}`)
 			.setDescription(`${interaction.user.username} used ${interaction.commandName}`)
 			.setThumbnail(interaction.user?.avatarURL() as string)
-			.setType(failed ? Events.GuildDelete : Events.GuildCreate);
+			.setType(failed ? Events.GuildDelete : Events.GuildCreate)
+			.setFooter({ text: `Interaction ID: ${interaction.id}` });
 
 		if (runtime) embed.addFields({ name: 'Execution Time', value: `${runtime}ms`, inline: true });
 
