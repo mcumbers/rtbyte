@@ -218,9 +218,11 @@ export class UserCommand extends Command {
 				if (!memberDataXP) {
 					// Create MemberDataXP entry for this user
 					memberDataXP = await this.container.prisma.memberDataXP.create({
-						userID: member.id,
-						guildID: interaction.guild.id,
-						currentXP: BigInt(action === XPCommandActions.ADD ? amount : (amount * -1))
+						data: {
+							userID: interaction.user.id,
+							guildID: interaction.guild.id,
+							currentXP: BigInt(action === XPCommandActions.ADD ? amount : (amount * -1))
+						}
 					});
 
 					// See if creation failed
