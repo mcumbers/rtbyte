@@ -232,7 +232,7 @@ export class UserCommand extends Command {
 					}
 
 					message = await interaction.followUp({ content: completedStringUser });
-					return this.container.client.emit('commandRun', { interaction, message, runtime: Date.now() - startTime, failed: true } as CommandRunEvent);
+					return this.container.client.emit('commandRun', { interaction, message, runtime: Date.now() - startTime } as CommandRunEvent);
 				}
 
 				if (action !== XPCommandActions.MULTIPLIER) {
@@ -245,7 +245,7 @@ export class UserCommand extends Command {
 					}
 
 					message = await interaction.followUp({ content: completedStringUser });
-					return this.container.client.emit('commandRun', { interaction, message, runtime: Date.now() - startTime, failed: true } as CommandRunEvent);
+					return this.container.client.emit('commandRun', { interaction, message, runtime: Date.now() - startTime } as CommandRunEvent);
 				}
 
 				memberDataXP.multiplier = amount;
@@ -257,7 +257,7 @@ export class UserCommand extends Command {
 				}
 
 				message = await interaction.followUp({ content: completedStringUser });
-				return this.container.client.emit('commandRun', { interaction, message, runtime: Date.now() - startTime, failed: true } as CommandRunEvent);
+				return this.container.client.emit('commandRun', { interaction, message, runtime: Date.now() - startTime } as CommandRunEvent);
 			}
 
 			message = await interaction.followUp({ content: 'You must specify a target User, Channel, or Role' });
