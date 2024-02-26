@@ -38,7 +38,9 @@
 		"@sapphire/plugin-logger": "^4.0.2",
 		"@sapphire/plugin-subcommands": "^6.0.3",
 		"@sapphire/time-utilities": "^1.7.12",
+		"@sapphire/ts-config": "^4.0.1",
 		"@sapphire/utilities": "^3.15.3",
+		"@types/diff": "^5.0.5",
 		"colorette": "^2.0.20",
 		"diff": "^5.1.0",
 		"discord-api-types": "^0.37.67",
@@ -46,9 +48,7 @@
 		"dotenv": "^16.4.5",
 		"prisma-field-encryption": "^1.5.0",
 		"reflect-metadata": "^0.1.13",
-		"typescript": "^5.1.6",
-		"@sapphire/ts-config": "^4.0.1",
-		"@types/diff": "^5.0.5"
+		"typescript": "^5.1.6"
 	},
 	"devDependencies": {
 		"@sapphire/eslint-config": "^5.0.1",
