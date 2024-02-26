@@ -430,28 +430,38 @@ model ModAction {
     @@map("modActions")
 }
 
+enum MultiplierBehaviour {
+    HIGHEST
+    STACK
+    COMPOUND
+}
+
 // XP Settings
 model GuildSettingsXP {
-    id                 String        @id @map("guild_id")
-    guildSettings      GuildSettings @relation(fields: [id], references: [id], onUpdate: Cascade)
-    enabled            Boolean       @default(true) @map("xp_enabled")
-    purgeOnMemberLeave Boolean       @default(false) @map("xp_delete_on_member_leave")
-    hideOnMemberLeave  Boolean       @default(true) @map("xp_hide_on_member_leave")
+    id                  String              @id @map("guild_id")
+    guildSettings       GuildSettings       @relation(fields: [id], references: [id], onUpdate: Cascade)
+    enabled             Boolean             @default(true) @map("xp_enabled")
+    multiplierBehaviour MultiplierBehaviour @default(STACK) @map("xp_multiplier_behaviour")
+
+    purgeOnMemberLeave Boolean @default(false) @map("xp_delete_on_member_leave")
+    hideOnMemberLeave  Boolean @default(true) @map("xp_hide_on_member_leave")
 
     channelAllowlistEnabled Boolean  @default(false) @map("channel_allowlist_enabled")
     channelAllowlist        String[] @map("channel_allowlist")
     channelBlocklistEnabled Boolean  @default(false) @map("channel_blocklist_enabled")
     channelBlocklist        String[] @map("channel_blocklist")
-    // Per-channel multipliers?
-    roleAllowlistEnabled    Boolean  @default(false) @map("role_allowlist_enabled")
-    roleAllowlist           String[] @map("role_allowlist")
-    roleBlocklistEnabled    Boolean  @default(false) @map("role_blocklist_enabled")
-    roleBlocklist           String[] @map("role_blocklist")
-    // Per-role multipliers?
-    memberAllowlistEnabled  Boolean  @default(false) @map("member_allowlist_enabled")
-    memberAllowlist         String[] @map("member_allowlist")
-    memberBlocklistEnabled  Boolean  @default(false) @map("member_blocklist_enabled")
-    memberBlocklist         String[] @map("member_blocklist")
+    channelMultipliers      Json?    @map("channel_multipliers")
+
+    roleAllowlistEnabled Boolean  @default(false) @map("role_allowlist_enabled")
+    roleAllowlist        String[] @map("role_allowlist")
+    roleBlocklistEnabled Boolean  @default(false) @map("role_blocklist_enabled")
+    roleBlocklist        String[] @map("role_blocklist")
+    roleMultipliers      Json?    @map("role_multipliers")
+
+    memberAllowlistEnabled Boolean  @default(false) @map("member_allowlist_enabled")
+    memberAllowlist        String[] @map("member_allowlist")
+    memberBlocklistEnabled Boolean  @default(false) @map("member_blocklist_enabled")
+    memberBlocklist        String[] @map("member_blocklist")
 
     // Level Up Notificaiton Settings
     levelUpNotifiy        Boolean @default(false) @map("level_up_notify_enabled")
