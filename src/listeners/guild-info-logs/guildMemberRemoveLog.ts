@@ -1,15 +1,28 @@
 import { GuildLogEmbed } from '#lib/extensions/GuildLogEmbed';
 import { CustomEvents } from '#utils/CustomTypes';
+import { getAuditLogEntry } from '#utils/util';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Events, Listener, type ListenerOptions } from '@sapphire/framework';
-import { isNullish } from '@sapphire/utilities';
-import { BaseGuildTextChannel, GuildMember } from 'discord.js';
+import { AuditLogEvent, BaseGuildTextChannel, GuildMember } from 'discord.js';
 
 @ApplyOptions<ListenerOptions>({ event: Events.GuildMemberRemove })
 export class UserEvent extends Listener {
 	public async run(member: GuildMember) {
-		if (isNullish(member.id)) return;
-		if (member.user.bot) return;
+
+		const kickAuditLogEntry = await getAuditLogEntry(AuditLogEvent.MemberKick, member.guild, member.user);
+		if (kickAuditLogEntry) {
+			this.container.client.emit(CustomEvents.ModActionKick, { member, auditLogEntry: kickAuditLogEntry });
+			// If this is being logged as a Kick, don't log it as a leave
+			const guildSettingsModActions = await this.container.prisma.guildSettingsModActions.fetch(member.guild.id);
+			if (guildSettingsModActions && ((guildSettingsModActions.modLogChannel && guildSettingsModActions.kickLog) || (guildSettingsModActions.modLogChannelPublic && guildSettingsModActions.kickLogPublic))) return;
+		}
+
+		const banAuditLogEntry = await getAuditLogEntry(AuditLogEvent.MemberBanAdd, member.guild, member.user);
+		if (banAuditLogEntry) {
+			// If this is being logged as a Ban, don't log it as a leave
+			const guildSettingsModActions = await this.container.prisma.guildSettingsModActions.fetch(member.guild.id);
+			if (guildSettingsModActions && ((guildSettingsModActions.modLogChannel && guildSettingsModActions.banLog) || (guildSettingsModActions.modLogChannelPublic && guildSettingsModActions.banLogPublic))) return;
+		}
 
 		const guildSettingsInfoLogs = await this.container.prisma.guildSettingsInfoLogs.fetch(member.guild.id);
 		if (!guildSettingsInfoLogs?.guildMemberRemoveLog || !guildSettingsInfoLogs.infoLogChannel) return;
