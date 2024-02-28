@@ -13,18 +13,19 @@ export class UserEvent extends Listener {
 		const bannedMember = guildBan.guild.members.resolve(guildBan.user.id);
 
 		const guildSettingsModActions = await this.container.prisma.guildSettingsModActions.fetch(guildBan.guild.id);
-		if (!guildSettingsModActions || (!guildSettingsModActions.kickLog && !guildSettingsModActions.kickLogPublic)) return;
+		if (!guildSettingsModActions || (!guildSettingsModActions.banLog && !guildSettingsModActions.banLogPublic)) return;
 
 		const auditLogEntry = await getAuditLogEntry(AuditLogEvent.MemberBanAdd, guildBan.guild, guildBan.user);
+		const embed = await this.generateGuildLog(guildBan, auditLogEntry, bannedMember);
 
-		if (guildSettingsModActions.modLogChannel && guildSettingsModActions.kickLog) {
+		if (guildSettingsModActions.modLogChannel && guildSettingsModActions.banLog) {
 			const modLogChannel = guildBan.guild.channels.resolve(guildSettingsModActions.modLogChannel) as BaseGuildTextChannel;
-			this.container.client.emit(CustomEvents.GuildLogCreate, modLogChannel, await this.generateGuildLog(guildBan, auditLogEntry, bannedMember));
+			this.container.client.emit(CustomEvents.GuildLogCreate, modLogChannel, embed);
 		}
 
-		if (guildSettingsModActions.modLogChannelPublic && guildSettingsModActions.kickLogPublic) {
+		if (guildSettingsModActions.modLogChannelPublic && guildSettingsModActions.banLogPublic) {
 			const modLogChannelPublic = guildBan.guild.channels.resolve(guildSettingsModActions.modLogChannelPublic) as BaseGuildTextChannel;
-			this.container.client.emit(CustomEvents.GuildLogCreate, modLogChannelPublic, await this.generateGuildLog(guildBan, auditLogEntry, bannedMember));
+			this.container.client.emit(CustomEvents.GuildLogCreate, modLogChannelPublic, embed);
 		}
 	}
 
