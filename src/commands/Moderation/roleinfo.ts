@@ -47,26 +47,36 @@ export class UserCommand extends BotCommand {
 		}
 
 		// Find targetRole's position in Guild Roles
-		const rolesSorted = interaction.guild?.roles.cache.sort((roleA, roleB) => roleA.position - roleB.position).reverse();
-
-		// Gather Info for Response Embed
-		const roleInfo = [];
-		if (targetRole?.mentionable) roleInfo.push(`Mentionable`);
-		if (targetRole?.hoist) roleInfo.push(`Displayed separately`);
-		if (targetRole.tags?.premiumSubscriberRole) roleInfo.push(`Received when boosting server`);
-		if (targetRole.tags?.botId) roleInfo.push(`Managed by <@${targetRole.tags.botId}>`);
+		const rolesSorted = interaction.guild?.roles.cache.sort((roleA, roleB) => roleB.position - roleA.position);
 
 		// Create Response Embed
 		const embed = new BotEmbed()
-			.setDescription(`${targetRole?.unicodeEmoji ?? ''}${targetRole} ${inlineCodeBlock(`${targetRole?.id}`)}`)
-			.setThumbnail(targetRole?.iconURL() ?? interaction.guild?.iconURL() ?? null)
-			.setColor(targetRole?.color as number)
+			.setDescription(`${targetRole.unicodeEmoji ?? ''}${targetRole.toString()} ${inlineCodeBlock(`${targetRole.id}`)}`)
+			.setThumbnail(targetRole.iconURL() ?? interaction.guild?.iconURL() ?? null)
+			.setColor(targetRole.color as number)
 			.addFields(
-				{ name: 'Members', value: inlineCodeBlock(`${targetRole?.members.size}`), inline: true },
-				{ name: 'Color', value: inlineCodeBlock(`${targetRole?.hexColor}`), inline: true },
+				{ name: 'Members', value: inlineCodeBlock(`${targetRole.members.size}`), inline: true },
+				{ name: 'Color', value: inlineCodeBlock(`${targetRole.hexColor}`), inline: true },
 				{ name: 'Hierarchy', value: inlineCodeBlock(`${rolesSorted!.map(r => r.position).indexOf(targetRole?.position as number) + 1}`), inline: true },
-				{ name: 'Created', value: `<t:${Math.round(targetRole?.createdTimestamp as number / 1000)}:R>` }
+				{ name: 'Created', value: `<t:${Math.round(targetRole.createdTimestamp as number / 1000)}:R>` }
 			);
+
+		// Gather Info for Response Embed
+		const roleInfo = [];
+		if (targetRole.mentionable) roleInfo.push('- Mentionable');
+		if (targetRole.hoist) roleInfo.push('- Displayed Separately');
+
+		if (targetRole.tags) {
+			if (targetRole.tags.premiumSubscriberRole) roleInfo.push('- Received when Boosting Server');
+			if (targetRole.tags.botId) roleInfo.push(`- Managed by <@${targetRole.tags.botId}>`);
+			if (targetRole.tags.integrationId) {
+				const integrations = await targetRole.guild.fetchIntegrations();
+				const integration = integrations.get(targetRole.tags.integrationId);
+				if (integration) {
+					roleInfo.push(`- Managed by ${integration.name} (Integration)`);
+				}
+			}
+		}
 
 		// Add additional info to Response Embed
 		if (roleInfo.length) embed.addFields({ name: 'Details', value: roleInfo.join('\n') });
