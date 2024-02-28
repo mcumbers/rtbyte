@@ -12,10 +12,8 @@ export class UserEvent extends Listener {
 
 		const embed = this.generateGuildLog(oldUser, user);
 
-		for await (const guildContainer of this.container.client.guilds.cache) {
-			const guild = guildContainer[1];
-
-			if (!(await guild.members.fetch(user))) continue;
+		for await (const guild of this.container.client.guilds.cache.values()) {
+			if (!(await guild.members.fetch(user).catch(undefined))) continue;
 
 			const guildSettingsInfoLogs = await this.container.prisma.guildSettingsInfoLogs.fetch(guild.id);
 			if (!guildSettingsInfoLogs?.guildMemberUpdateLog || !guildSettingsInfoLogs.infoLogChannel) return;
