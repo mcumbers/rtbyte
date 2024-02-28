@@ -2,6 +2,8 @@ import { container } from "@sapphire/framework";
 import { isNullishOrEmpty } from "@sapphire/utilities";
 import { ChannelType, GuildChannel, GuildSystemChannelFlags, Invite, PermissionFlagsBits, type ApplicationCommandPermissions, type AuditLogEvent, type Emoji, type Guild, type GuildScheduledEvent, type Interaction, type Message, type Role, type StageChannel, type StageInstance, type Sticker, type ThreadChannel, type User, type VoiceChannel, type Webhook } from "discord.js";
 
+const CUTOFF_MINUTES = 1;
+
 /**
  * Get the executor user from the last audit log entry of specific type
  * @param action The audit log type to fetch
@@ -44,9 +46,12 @@ export async function getAuditLogEntry(action: AuditLogEvent, guild: Guild, targ
 		return targetAuditLotEntry || null;
 	}
 
+	// Only grab audit log entries from within the last x minutes
+	const cutoff = Date.now() - (CUTOFF_MINUTES * 60_000);
+
 	// Casting target to any as all possible target types except Invite can be compared like this
 	const handleTarget = target as any;
-	const targetAuditLotEntry = auditLogEntries.entries.find((entry: any) => entry.target?.id && entry.target.id === handleTarget.id);
+	const targetAuditLotEntry = auditLogEntries.entries.find((entry: any) => entry.target && entry.target.id === handleTarget.id && entry.createdTimestamp >= cutoff);
 	return targetAuditLotEntry || null;
 }
 
