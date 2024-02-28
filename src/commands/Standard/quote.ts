@@ -12,6 +12,7 @@ export class UserCommand extends BotCommand {
 			builder
 				.setName('Quote Message')
 				.setType(ApplicationCommandType.Message)
+				.setDMPermission(false)
 				.setDefaultMemberPermissions(PermissionFlagsBits.ReadMessageHistory));
 	}
 

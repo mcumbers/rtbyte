@@ -27,6 +27,7 @@ export class UserCommand extends Command {
 			builder
 				.setName(this.name)
 				.setDescription(this.description)
+				.setDMPermission(false)
 				.addNumberOption((option) =>
 					option
 						.setName('messages')

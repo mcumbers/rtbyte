@@ -30,6 +30,7 @@ export class UserCommand extends Command {
 			builder
 				.setName(this.name)
 				.setDescription(this.description)
+				.setDMPermission(false)
 				.addStringOption((option) =>
 					option
 						.setName('action')

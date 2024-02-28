@@ -16,6 +16,7 @@ export class UserCommand extends Command {
 			builder
 				.setName(this.name)
 				.setDescription(this.description)
+				.setDMPermission(false)
 				.addBooleanOption((option) =>
 					option
 						.setName('private')
