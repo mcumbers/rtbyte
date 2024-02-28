@@ -1,6 +1,7 @@
 import { BotCommand } from '#lib/extensions/BotCommand';
 import { BotEmbed } from '#lib/extensions/BotEmbed';
 import type { CommandRunEvent } from '#root/listeners/control-guild-logs/commandRun';
+import { CustomEvents } from '#utils/CustomTypes';
 import { Emojis } from '#utils/constants';
 import { ApplyOptions } from '@sapphire/decorators';
 import { type ChatInputCommand } from '@sapphire/framework';
@@ -43,7 +44,7 @@ export class UserCommand extends BotCommand {
 		const targetRole = interaction.guild?.roles.resolve(interaction.options.getRole('role')?.id as string);
 		if (!targetRole) {
 			message = await interaction.followUp({ content: `${Emojis.X} Unable to fetch information for ${targetRole}, please try again later.` });
-			return this.container.client.emit('commandRun', { interaction, message, runtime: Date.now() - startTime } as CommandRunEvent);
+			return this.container.client.emit(CustomEvents.BotCommandRun, { interaction, message, runtime: Date.now() - startTime } as CommandRunEvent);
 		}
 
 		// Find targetRole's position in Guild Roles
@@ -73,6 +74,6 @@ export class UserCommand extends BotCommand {
 
 		// Send Response Embed
 		message = await interaction.followUp({ content: '', embeds: [embed] });
-		return this.container.client.emit('commandRun', { interaction, message, runtime: Date.now() - startTime } as CommandRunEvent);
+		return this.container.client.emit(CustomEvents.BotCommandRun, { interaction, message, runtime: Date.now() - startTime } as CommandRunEvent);
 	}
 }

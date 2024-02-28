@@ -2,6 +2,7 @@ import { BotCommand } from '#lib/extensions/BotCommand';
 import { BotEmbed } from '#lib/extensions/BotEmbed';
 import { initializeMember } from '#root/lib/util/functions/initialize';
 import type { CommandRunEvent } from '#root/listeners/control-guild-logs/commandRun';
+import { CustomEvents } from '#utils/CustomTypes';
 import { Colors, Emojis } from '#utils/constants';
 import { ApplyOptions } from '@sapphire/decorators';
 import { type ChatInputCommand } from '@sapphire/framework';
@@ -42,7 +43,7 @@ export class UserCommand extends BotCommand {
 		const member = interaction.guild?.members.resolve(interaction.options.getUser('member')?.id as string);
 		if (!member) {
 			message = await interaction.followUp({ content: `Unable to fetch information for the specified member, please try again later.` });
-			return this.container.client.emit('commandRun', { interaction, message, runtime: Date.now() - startTime } as CommandRunEvent);
+			return this.container.client.emit(CustomEvents.BotCommandRun, { interaction, message, runtime: Date.now() - startTime } as CommandRunEvent);
 		}
 
 		const roles = member?.roles.cache.filter(role => role.name !== '@everyone');
@@ -57,7 +58,7 @@ export class UserCommand extends BotCommand {
 
 		if (!memberData) {
 			message = await interaction.followUp({ content: 'Whoops! Something went wrong... ' });
-			return this.container.client.emit('commandRun', { interaction, message, runtime: Date.now() - startTime } as CommandRunEvent);
+			return this.container.client.emit(CustomEvents.BotCommandRun, { interaction, message, runtime: Date.now() - startTime } as CommandRunEvent);
 		}
 
 		const embed = new BotEmbed()
@@ -85,6 +86,6 @@ export class UserCommand extends BotCommand {
 		if (userInfo.length) embed.addFields({ name: 'Details', value: userInfo.join('\n') });
 
 		message = await interaction.followUp({ content: '', embeds: [embed] });
-		return this.container.client.emit('commandRun', { interaction, message, runtime: Date.now() - startTime } as CommandRunEvent);
+		return this.container.client.emit(CustomEvents.BotCommandRun, { interaction, message, runtime: Date.now() - startTime } as CommandRunEvent);
 	}
 }

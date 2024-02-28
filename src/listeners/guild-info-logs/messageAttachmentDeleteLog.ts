@@ -1,6 +1,7 @@
 import { GuildLogEmbed } from '#lib/extensions/GuildLogEmbed';
 import { PluralKitMessage } from '#lib/util/pluralkit/PluralKitMessage';
 import { pluralkitInGuild } from '#lib/util/pluralkit/pluralkitInGuild';
+import { CustomEvents } from '#utils/CustomTypes';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Listener, type ListenerOptions } from '@sapphire/framework';
 import { isNullish } from '@sapphire/utilities';
@@ -8,7 +9,7 @@ import { Attachment, Events, type BaseGuildTextChannel, type GuildMember, type M
 
 const embeddedImageMIMETypes = ['image/gif', 'image/jpeg', 'image/png', 'image/webp'];
 
-@ApplyOptions<ListenerOptions>({ event: 'messageAttachmentDeleteLog' })
+@ApplyOptions<ListenerOptions>({ event: CustomEvents.MessageAttachmentDelete })
 export class UserEvent extends Listener {
 	public async run(message: Message, attachment: Attachment) {
 		if (isNullish(message.id)) return;
@@ -42,7 +43,7 @@ export class UserEvent extends Listener {
 			authorOverride = await message.guild.members.fetch(authorOverrideID);
 		}
 
-		return this.container.client.emit('guildLogCreate', logChannel, this.generateGuildLog(message, attachment, authorOverride));
+		return this.container.client.emit(CustomEvents.GuildLogCreate, logChannel, this.generateGuildLog(message, attachment, authorOverride));
 	}
 
 	private generateGuildLog(message: Message, attachment: Attachment, authorOverride: GuildMember | null) {

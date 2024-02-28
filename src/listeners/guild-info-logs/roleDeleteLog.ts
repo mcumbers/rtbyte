@@ -1,4 +1,5 @@
 import { GuildLogEmbed } from '#lib/extensions/GuildLogEmbed';
+import { CustomEvents } from '#utils/CustomTypes';
 import { getAuditLogEntry } from '#utils/util';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Events, Listener, type ListenerOptions } from '@sapphire/framework';
@@ -16,7 +17,7 @@ export class UserEvent extends Listener {
 		const logChannel = role.guild.channels.resolve(guildSettingsInfoLogs.infoLogChannel) as BaseGuildTextChannel;
 		const auditLogEntry = await getAuditLogEntry(AuditLogEvent.RoleDelete, role.guild, role);
 
-		return this.container.client.emit('guildLogCreate', logChannel, await this.generateGuildLog(role, auditLogEntry));
+		return this.container.client.emit(CustomEvents.GuildLogCreate, logChannel, await this.generateGuildLog(role, auditLogEntry));
 	}
 
 	private async generateGuildLog(role: Role, auditLogEntry: GuildAuditLogsEntry | null) {

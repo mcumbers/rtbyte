@@ -1,6 +1,7 @@
 import { BotEmbed } from '#lib/extensions/BotEmbed';
 import { CONTROL_GUILD } from '#root/config';
 import type { CommandRunEvent } from '#root/listeners/control-guild-logs/commandRun';
+import { CustomEvents } from '#utils/CustomTypes';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command } from '@sapphire/framework';
 import { memoryUsage } from 'node:process';
@@ -70,6 +71,6 @@ export class UserCommand extends Command {
 			.addFields({ name: 'Guild Commands', value: `${guildAppCommandCount}`, inline: true });
 
 		message = await interaction.followUp({ content: '', embeds: [embed], ephemeral });
-		return this.container.client.emit('commandRun', { interaction, message, runtime: Date.now() - startTime } as CommandRunEvent);
+		return this.container.client.emit(CustomEvents.BotCommandRun, { interaction, message, runtime: Date.now() - startTime } as CommandRunEvent);
 	}
 }

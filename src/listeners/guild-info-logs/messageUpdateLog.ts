@@ -1,6 +1,7 @@
 import { GuildLogEmbed } from '#lib/extensions/GuildLogEmbed';
 import { PluralKitMessage } from '#lib/util/pluralkit/PluralKitMessage';
 import { pluralkitInGuild } from '#lib/util/pluralkit/pluralkitInGuild';
+import { CustomEvents } from '#utils/CustomTypes';
 import { getContent } from '#utils/util';
 import { UpdateLogStyle } from '@prisma/client';
 import { ApplyOptions } from '@sapphire/decorators';
@@ -25,7 +26,7 @@ export class UserEvent extends Listener {
 		if (oldMessage.attachments.size !== message.attachments.size) {
 			const differenceCollection = oldMessage.attachments.difference(message.attachments);
 			for (const attachmentPair of differenceCollection) {
-				this.container.client.emit('messageAttachmentDeleteLog', message, attachmentPair[1]);
+				this.container.client.emit(CustomEvents.MessageAttachmentDelete, message, attachmentPair[1]);
 			}
 		}
 
@@ -51,7 +52,7 @@ export class UserEvent extends Listener {
 		// Check if this log is enabled in this server after letting the messageAttachmentDeleteLog events fire
 		if (!guildSettingsInfoLogs.messageUpdateLog) return;
 
-		return this.container.client.emit('guildLogCreate', logChannel, await this.generateGuildLog(oldMessage, message, guildSettingsInfoLogs.messageUpdateLogStyle, authorOverride));
+		return this.container.client.emit(CustomEvents.GuildLogCreate, logChannel, await this.generateGuildLog(oldMessage, message, guildSettingsInfoLogs.messageUpdateLogStyle, authorOverride));
 	}
 
 	private async generateGuildLog(oldMessage: Message, message: Message, style: UpdateLogStyle, authorOverride: GuildMember | null) {

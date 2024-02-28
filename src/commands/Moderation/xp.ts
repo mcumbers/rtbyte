@@ -1,4 +1,5 @@
 import type { CommandRunEvent } from '#root/listeners/control-guild-logs/commandRun';
+import { CustomEvents } from '#utils/CustomTypes';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command } from '@sapphire/framework';
 import type { GuildChannel } from 'discord.js';
@@ -94,12 +95,12 @@ export class UserCommand extends Command {
 			// End Interaction if we couldn't create GuildSettingsXP
 			if (!guildSettingsXP) {
 				message = await interaction.followUp({ content: 'Whoops! Something went wrong...' });
-				return this.container.client.emit('commandRun', { interaction, message, runtime: Date.now() - startTime, failed: true } as CommandRunEvent);
+				return this.container.client.emit(CustomEvents.BotCommandRun, { interaction, message, runtime: Date.now() - startTime, failed: true } as CommandRunEvent);
 			}
 			// End Interaction if Levels & XP are disabled for the Guild
 			if (!guildSettingsXP.enabled) {
 				message = await interaction.followUp({ content: 'Levels & XP are not enabled on this Server' });
-				return this.container.client.emit('commandRun', { interaction, message, runtime: Date.now() - startTime } as CommandRunEvent);
+				return this.container.client.emit(CustomEvents.BotCommandRun, { interaction, message, runtime: Date.now() - startTime } as CommandRunEvent);
 			}
 
 			// Start variables prep
@@ -117,12 +118,12 @@ export class UserCommand extends Command {
 			if (targetChannel) {
 				if (action !== XPCommandActions.MULTIPLIER) {
 					message = await interaction.followUp({ content: 'You cannot add or subtract XP from a Channel' });
-					return this.container.client.emit('commandRun', { interaction, message, runtime: Date.now() - startTime } as CommandRunEvent);
+					return this.container.client.emit(CustomEvents.BotCommandRun, { interaction, message, runtime: Date.now() - startTime } as CommandRunEvent);
 				}
 
 				if (!targetChannel.isTextBased()) {
 					message = await interaction.followUp({ content: 'Users can only earn XP in Text-Based Channels' });
-					return this.container.client.emit('commandRun', { interaction, message, runtime: Date.now() - startTime } as CommandRunEvent);
+					return this.container.client.emit(CustomEvents.BotCommandRun, { interaction, message, runtime: Date.now() - startTime } as CommandRunEvent);
 				}
 
 				// Create the new Multiplier Object
@@ -155,17 +156,17 @@ export class UserCommand extends Command {
 				// Update failed... Exit interaction
 				if (!updated) {
 					message = await interaction.followUp({ content: 'Whoops! Something went wrong...' });
-					return this.container.client.emit('commandRun', { interaction, message, runtime: Date.now() - startTime, failed: true } as CommandRunEvent);
+					return this.container.client.emit(CustomEvents.BotCommandRun, { interaction, message, runtime: Date.now() - startTime, failed: true } as CommandRunEvent);
 				}
 
 				message = await interaction.followUp({ content: completedStringChannel });
-				return this.container.client.emit('commandRun', { interaction, message, runtime: Date.now() - startTime } as CommandRunEvent);
+				return this.container.client.emit(CustomEvents.BotCommandRun, { interaction, message, runtime: Date.now() - startTime } as CommandRunEvent);
 			}
 
 			if (targetRole) {
 				if (action !== XPCommandActions.MULTIPLIER) {
 					message = await interaction.followUp({ content: 'You cannot add or subtract XP from a Role' });
-					return this.container.client.emit('commandRun', { interaction, message, runtime: Date.now() - startTime } as CommandRunEvent);
+					return this.container.client.emit(CustomEvents.BotCommandRun, { interaction, message, runtime: Date.now() - startTime } as CommandRunEvent);
 				}
 
 				// Create the new Multiplier Object
@@ -198,11 +199,11 @@ export class UserCommand extends Command {
 				// Update failed... Exit interaction
 				if (!updated) {
 					message = await interaction.followUp({ content: 'Whoops! Something went wrong...' });
-					return this.container.client.emit('commandRun', { interaction, message, runtime: Date.now() - startTime, failed: true } as CommandRunEvent);
+					return this.container.client.emit(CustomEvents.BotCommandRun, { interaction, message, runtime: Date.now() - startTime, failed: true } as CommandRunEvent);
 				}
 
 				message = await interaction.followUp({ content: completedStringRole });
-				return this.container.client.emit('commandRun', { interaction, message, runtime: Date.now() - startTime } as CommandRunEvent);
+				return this.container.client.emit(CustomEvents.BotCommandRun, { interaction, message, runtime: Date.now() - startTime } as CommandRunEvent);
 			}
 
 			if (targetUser) {
@@ -210,7 +211,7 @@ export class UserCommand extends Command {
 
 				if (!member) {
 					message = await interaction.followUp({ content: 'Whoops! Something went wrong...' });
-					return this.container.client.emit('commandRun', { interaction, message, runtime: Date.now() - startTime, failed: true } as CommandRunEvent);
+					return this.container.client.emit(CustomEvents.BotCommandRun, { interaction, message, runtime: Date.now() - startTime, failed: true } as CommandRunEvent);
 				}
 
 				let memberDataXP = await this.container.prisma.memberDataXP.fetchTuple([member.id, interaction.guild.id], ['userID', 'guildID']);
@@ -228,11 +229,11 @@ export class UserCommand extends Command {
 					// See if creation failed
 					if (!memberDataXP) {
 						message = await interaction.followUp({ content: 'Whoops! Something went wrong...' });
-						return this.container.client.emit('commandRun', { interaction, message, runtime: Date.now() - startTime, failed: true } as CommandRunEvent);
+						return this.container.client.emit(CustomEvents.BotCommandRun, { interaction, message, runtime: Date.now() - startTime, failed: true } as CommandRunEvent);
 					}
 
 					message = await interaction.followUp({ content: completedStringUser });
-					return this.container.client.emit('commandRun', { interaction, message, runtime: Date.now() - startTime } as CommandRunEvent);
+					return this.container.client.emit(CustomEvents.BotCommandRun, { interaction, message, runtime: Date.now() - startTime } as CommandRunEvent);
 				}
 
 				if (action !== XPCommandActions.MULTIPLIER) {
@@ -241,11 +242,11 @@ export class UserCommand extends Command {
 					const updated = await this.container.prisma.memberDataXP.update({ where: { id: memberDataXP.id }, data: memberDataXP });
 					if (!updated) {
 						message = await interaction.followUp({ content: 'Whoops! Something went wrong...' });
-						return this.container.client.emit('commandRun', { interaction, message, runtime: Date.now() - startTime, failed: true } as CommandRunEvent);
+						return this.container.client.emit(CustomEvents.BotCommandRun, { interaction, message, runtime: Date.now() - startTime, failed: true } as CommandRunEvent);
 					}
 
 					message = await interaction.followUp({ content: completedStringUser });
-					return this.container.client.emit('commandRun', { interaction, message, runtime: Date.now() - startTime } as CommandRunEvent);
+					return this.container.client.emit(CustomEvents.BotCommandRun, { interaction, message, runtime: Date.now() - startTime } as CommandRunEvent);
 				}
 
 				memberDataXP.multiplier = amount;
@@ -253,15 +254,15 @@ export class UserCommand extends Command {
 				const updated = await this.container.prisma.memberDataXP.update({ where: { id: memberDataXP.id }, data: memberDataXP });
 				if (!updated) {
 					message = await interaction.followUp({ content: 'Whoops! Something went wrong...' });
-					return this.container.client.emit('commandRun', { interaction, message, runtime: Date.now() - startTime, failed: true } as CommandRunEvent);
+					return this.container.client.emit(CustomEvents.BotCommandRun, { interaction, message, runtime: Date.now() - startTime, failed: true } as CommandRunEvent);
 				}
 
 				message = await interaction.followUp({ content: completedStringUser });
-				return this.container.client.emit('commandRun', { interaction, message, runtime: Date.now() - startTime } as CommandRunEvent);
+				return this.container.client.emit(CustomEvents.BotCommandRun, { interaction, message, runtime: Date.now() - startTime } as CommandRunEvent);
 			}
 
 			message = await interaction.followUp({ content: 'You must specify a target User, Channel, or Role' });
-			return this.container.client.emit('commandRun', { interaction, message, runtime: Date.now() - startTime } as CommandRunEvent);
+			return this.container.client.emit(CustomEvents.BotCommandRun, { interaction, message, runtime: Date.now() - startTime } as CommandRunEvent);
 		} catch (error) {
 			console.log(error);
 			return null;

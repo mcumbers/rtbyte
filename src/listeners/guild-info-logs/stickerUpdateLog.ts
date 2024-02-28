@@ -1,4 +1,5 @@
 import { GuildLogEmbed } from '#lib/extensions/GuildLogEmbed';
+import { CustomEvents } from '#utils/CustomTypes';
 import { getAuditLogEntry } from '#utils/util';
 import { UpdateLogStyle } from '@prisma/client';
 import { ApplyOptions } from '@sapphire/decorators';
@@ -18,7 +19,7 @@ export class UserEvent extends Listener {
 		const logChannel = sticker.guild?.channels.resolve(guildSettingsInfoLogs.infoLogChannel) as BaseGuildTextChannel;
 		const auditLogEntry = await getAuditLogEntry(AuditLogEvent.StickerUpdate, sticker.guild as Guild, sticker);
 
-		return this.container.client.emit('guildLogCreate', logChannel, await this.generateGuildLog(oldSticker, sticker, auditLogEntry, guildSettingsInfoLogs.stickerUpdateLogStyle));
+		return this.container.client.emit(CustomEvents.GuildLogCreate, logChannel, await this.generateGuildLog(oldSticker, sticker, auditLogEntry, guildSettingsInfoLogs.stickerUpdateLogStyle));
 	}
 
 	private async generateGuildLog(oldSticker: Sticker, sticker: Sticker, auditLogEntry: GuildAuditLogsEntry | null, style: UpdateLogStyle) {

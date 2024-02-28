@@ -1,4 +1,5 @@
 import { authenticated } from '#root/lib/util/decorators/routeAuthenticated';
+import { CustomEvents } from '#utils/CustomTypes';
 import { initializeUser } from '#utils/functions/initialize';
 import type { UserSettings } from '@prisma/client';
 import { ApplyOptions } from '@sapphire/decorators';
@@ -65,7 +66,7 @@ export class UserRoute extends Route {
 
 		if (updatedSettings?.disableBot) {
 			const user = await client.users.fetch(requestAuth.id);
-			client.emit('userDisableBot', user);
+			client.emit(CustomEvents.BotDisableUser, user);
 		}
 
 		response.json({ data: { userSettings: updatedSettings } });

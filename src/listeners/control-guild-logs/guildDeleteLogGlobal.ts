@@ -1,4 +1,5 @@
 import { GuildLogEmbed } from '#lib/extensions/GuildLogEmbed';
+import { CustomEvents } from '#utils/CustomTypes';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Events, Listener, type ListenerOptions } from '@sapphire/framework';
 import { BaseGuildTextChannel, Guild, User } from 'discord.js';
@@ -14,7 +15,7 @@ export class UserEvent extends Listener {
 
 		if (!privateGlobalLogChannel) return;
 
-		return this.container.client.emit('guildLogCreate', privateGlobalLogChannel, await this.generateGuildLog(guild));
+		return this.container.client.emit(CustomEvents.GuildLogCreate, privateGlobalLogChannel, await this.generateGuildLog(guild));
 	}
 
 	private async generateGuildLog(guild: Guild) {

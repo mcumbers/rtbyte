@@ -1,4 +1,5 @@
 import { GuildLogEmbed } from '#lib/extensions/GuildLogEmbed';
+import { CustomEvents } from '#utils/CustomTypes';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Events, Listener, type ListenerOptions } from '@sapphire/framework';
 import { BaseGuildTextChannel, ContextMenuCommandInteraction, Message, type ChatInputCommandInteraction } from 'discord.js';
@@ -10,7 +11,7 @@ export interface CommandRunEvent {
 	runtime?: number
 }
 
-@ApplyOptions<ListenerOptions>({ event: 'commandRun' })
+@ApplyOptions<ListenerOptions>({ event: CustomEvents.BotCommandRun })
 export class UserEvent extends Listener {
 	public async run(event: CommandRunEvent) {
 		const { client, prisma } = this.container;
@@ -29,7 +30,7 @@ export class UserEvent extends Listener {
 		if (event.failed && !botGlobalSettings.globalLogCommandExecutionFailure) return;
 
 
-		return this.container.client.emit('guildLogCreate', privateGlobalLogChannel, await this.generateGuildLog(event));
+		return this.container.client.emit(CustomEvents.GuildLogCreate, privateGlobalLogChannel, await this.generateGuildLog(event));
 	}
 
 	private async generateGuildLog(event: CommandRunEvent) {

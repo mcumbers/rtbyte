@@ -1,4 +1,5 @@
 import { GuildLogEmbed } from '#lib/extensions/GuildLogEmbed';
+import { CustomEvents } from '#utils/CustomTypes';
 import { getAuditLogEntry } from '#utils/util';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Events, Listener, type ListenerOptions } from '@sapphire/framework';
@@ -19,7 +20,7 @@ export class UserEvent extends Listener {
 		const logChannel = guild.channels.resolve(guildSettingsInfoLogs.infoLogChannel) as BaseGuildTextChannel;
 		const auditLogEntry = await getAuditLogEntry(AuditLogEvent.InviteDelete, guild, invite);
 
-		return this.container.client.emit('guildLogCreate', logChannel, this.generateGuildLog(invite, auditLogEntry));
+		return this.container.client.emit(CustomEvents.GuildLogCreate, logChannel, this.generateGuildLog(invite, auditLogEntry));
 	}
 
 	private generateGuildLog(invite: Invite | undefined, auditLogEntry: GuildAuditLogsEntry | null) {

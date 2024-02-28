@@ -1,4 +1,5 @@
 import { GuildLogEmbed } from '#lib/extensions/GuildLogEmbed';
+import { CustomEvents } from '#utils/CustomTypes';
 import { seconds } from '#utils/common/times';
 import { getAuditLogEntry } from '#utils/util';
 import { ApplyOptions } from '@sapphire/decorators';
@@ -19,7 +20,7 @@ export class UserEvent extends Listener {
 		const auditLogEntry = await getAuditLogEntry(AuditLogEvent.ThreadUpdate, thread.guild, thread);
 		const isForumThread = thread.parent?.type === ChannelType.GuildForum;
 
-		return this.container.client.emit('guildLogCreate', logChannel, this.generateGuildLog(oldThread, thread, auditLogEntry, isForumThread));
+		return this.container.client.emit(CustomEvents.GuildLogCreate, logChannel, this.generateGuildLog(oldThread, thread, auditLogEntry, isForumThread));
 	}
 
 	private generateGuildLog(oldThread: ThreadChannel, thread: ThreadChannel, auditLogEntry: GuildAuditLogsEntry | null, isForumThread: boolean) {

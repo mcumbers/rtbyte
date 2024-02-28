@@ -1,4 +1,5 @@
 import { GuildLogEmbed } from '#lib/extensions/GuildLogEmbed';
+import { CustomEvents } from '#utils/CustomTypes';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Events, Listener, type ListenerOptions } from '@sapphire/framework';
 import { isNullish } from '@sapphire/utilities';
@@ -17,7 +18,7 @@ export class UserEvent extends Listener {
 
 		const logChannel = event.guild?.channels.resolve(guildSettingsInfoLogs.infoLogChannel) as BaseGuildTextChannel;
 
-		return this.container.client.emit('guildLogCreate', logChannel, this.generateGuildLog(fetchedEvent, fetchedEvent.creator));
+		return this.container.client.emit(CustomEvents.GuildLogCreate, logChannel, this.generateGuildLog(fetchedEvent, fetchedEvent.creator));
 	}
 
 	private generateGuildLog(event: GuildScheduledEvent, creator: User | null | undefined) {

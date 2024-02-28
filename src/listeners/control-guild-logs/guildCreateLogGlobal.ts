@@ -1,4 +1,5 @@
 import { GuildLogEmbed } from '#lib/extensions/GuildLogEmbed';
+import { CustomEvents } from '#utils/CustomTypes';
 import { initializeMember } from '#utils/functions/initialize';
 import { getAuditLogExecutor } from '#utils/util';
 import { ApplyOptions } from '@sapphire/decorators';
@@ -20,7 +21,7 @@ export class UserEvent extends Listener {
 
 		const executor = await getAuditLogExecutor(AuditLogEvent.BotAdd, guild, client.user as User);
 
-		return this.container.client.emit('guildLogCreate', privateGlobalLogChannel, await this.generateGuildLog(guild, executor));
+		return this.container.client.emit(CustomEvents.GuildLogCreate, privateGlobalLogChannel, await this.generateGuildLog(guild, executor));
 	}
 
 	private async generateGuildLog(guild: Guild, executor: User | null | undefined) {

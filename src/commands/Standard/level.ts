@@ -1,4 +1,5 @@
 import type { CommandRunEvent } from '#root/listeners/control-guild-logs/commandRun';
+import { CustomEvents } from '#utils/CustomTypes';
 import { getLevel } from '#utils/functions/xp';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command } from '@sapphire/framework';
@@ -42,6 +43,6 @@ export class UserCommand extends Command {
 		const xpLevel = getLevel(memberDataXP!.currentXP);
 		// Send message
 		message = await interaction.followUp({ content: `Level ${xpLevel.level} | ${xpLevel.levelXP}/${xpLevel.levelThreshhold}xp` });
-		return this.container.client.emit('commandRun', { interaction, message, runtime: Date.now() - startTime } as CommandRunEvent);
+		return this.container.client.emit(CustomEvents.BotCommandRun, { interaction, message, runtime: Date.now() - startTime } as CommandRunEvent);
 	}
 }

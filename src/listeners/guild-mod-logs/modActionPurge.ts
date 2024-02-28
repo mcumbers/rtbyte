@@ -1,10 +1,11 @@
 import { GuildLogEmbed } from '#lib/extensions/GuildLogEmbed';
 import type { ModActionPurgeEvent } from '#root/commands/Moderation/purge';
+import { CustomEvents } from '#utils/CustomTypes';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Events, Listener, type ListenerOptions } from '@sapphire/framework';
 import type { BaseGuildTextChannel } from 'discord.js';
 
-@ApplyOptions<ListenerOptions>({ event: 'modActionPurge' })
+@ApplyOptions<ListenerOptions>({ event: CustomEvents.ModActionPurge })
 export class UserEvent extends Listener {
 	public async run(purge: ModActionPurgeEvent) {
 
@@ -14,8 +15,8 @@ export class UserEvent extends Listener {
 		const logChannel: BaseGuildTextChannel | null = guildSettingsModActions.modLogChannel ? purge.guild.channels.resolve(guildSettingsModActions.modLogChannel) as BaseGuildTextChannel : null;
 		const logChannelPublic: BaseGuildTextChannel | null = guildSettingsModActions.modLogChannelPublic ? purge.guild.channels.resolve(guildSettingsModActions.modLogChannelPublic) as BaseGuildTextChannel : null;
 
-		if (logChannel) this.container.client.emit('guildLogCreate', logChannel, this.generateGuildLog(purge));
-		if (logChannelPublic) this.container.client.emit('guildLogCreate', logChannelPublic, this.generateGuildLog(purge));
+		if (logChannel) this.container.client.emit(CustomEvents.GuildLogCreate, logChannel, this.generateGuildLog(purge));
+		if (logChannelPublic) this.container.client.emit(CustomEvents.GuildLogCreate, logChannelPublic, this.generateGuildLog(purge));
 	}
 
 	private generateGuildLog(purge: ModActionPurgeEvent) {

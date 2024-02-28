@@ -1,4 +1,5 @@
 import { BotEmbed } from "#lib/extensions/BotEmbed";
+import { CustomEvents } from "#utils/CustomTypes";
 import { Colors } from "#utils/constants";
 import { Events } from "@sapphire/framework";
 
@@ -19,11 +20,13 @@ export class GuildLogEmbed extends BotEmbed {
 			case Events.StageInstanceCreate:
 			case Events.ThreadCreate:
 			case Events.ClientReady:
+			case CustomEvents.BotCommandRun:
 				this.setColor(Colors.Green);
 				break;
 			case Events.GuildDelete:
 			case Events.AutoModerationRuleDelete:
 			case Events.ChannelDelete:
+			case Events.GuildBanAdd:
 			case Events.GuildEmojiDelete:
 			case Events.GuildMemberRemove:
 			case Events.GuildRoleDelete:
@@ -37,10 +40,15 @@ export class GuildLogEmbed extends BotEmbed {
 			case Events.MessageReactionRemoveEmoji:
 			case Events.StageInstanceDelete:
 			case Events.ThreadDelete:
+			case CustomEvents.MessageAttachmentDelete:
+			case CustomEvents.ModActionKick:
+			case CustomEvents.ModActionPurge:
+			case CustomEvents.ModActionTimeout:
 				this.setColor(Colors.Red);
 				break;
 			case Events.AutoModerationRuleUpdate:
 			case Events.ChannelUpdate:
+			case Events.GuildBanRemove:
 			case Events.GuildEmojiUpdate:
 			case Events.GuildMemberUpdate:
 			case Events.GuildRoleUpdate:

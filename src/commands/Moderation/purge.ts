@@ -1,4 +1,5 @@
 import type { CommandRunEvent } from '#root/listeners/control-guild-logs/commandRun';
+import { CustomEvents } from '#utils/CustomTypes';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command } from '@sapphire/framework';
 import { Collection, Message, PermissionFlagsBits, TextChannel, type Channel, type FetchMessagesOptions, type Guild, type GuildMember, type User } from 'discord.js';
@@ -63,7 +64,7 @@ export class UserCommand extends Command {
 		let message = await interaction.deferReply({ ephemeral, fetchReply: true });
 		if (!interaction.guild) {
 			message = await interaction.followUp({ content: 'This Command can only be used in Servers.', components: [], embeds: [] });
-			return this.container.client.emit('commandRun', { interaction, message, runtime: Date.now() - startTime } as CommandRunEvent);
+			return this.container.client.emit(CustomEvents.BotCommandRun, { interaction, message, runtime: Date.now() - startTime } as CommandRunEvent);
 		}
 
 		const numMessagesToDelete = interaction.options.getNumber('messages') || 1;
@@ -72,12 +73,12 @@ export class UserCommand extends Command {
 		const targetChannel = interaction.channel as TextChannel;
 		if (!targetChannel) {
 			message = await interaction.followUp({ content: 'This Command can only be used in Text Channels.', components: [], embeds: [] });
-			return this.container.client.emit('commandRun', { interaction, message, runtime: Date.now() - startTime } as CommandRunEvent);
+			return this.container.client.emit(CustomEvents.BotCommandRun, { interaction, message, runtime: Date.now() - startTime } as CommandRunEvent);
 		}
 
 		if (!targetChannel.permissionsFor(interaction.member as GuildMember).has(PermissionFlagsBits.ManageMessages)) {
 			message = await interaction.followUp({ content: `You don't have permission to delete messages in ${targetChannel.url}`, components: [], embeds: [] });
-			return this.container.client.emit('commandRun', { interaction, message, runtime: Date.now() - startTime } as CommandRunEvent);
+			return this.container.client.emit(CustomEvents.BotCommandRun, { interaction, message, runtime: Date.now() - startTime } as CommandRunEvent);
 		}
 
 		let messagesColl: null | Collection<string, Message<boolean>> = null;
@@ -116,7 +117,7 @@ export class UserCommand extends Command {
 		// Fail if no messages to delete
 		if (!targetMessages.size) {
 			message = await interaction.followUp({ content: 'Could not find any messages that fit the criteria in this Channel.', components: [], embeds: [] });
-			return this.container.client.emit('commandRun', { interaction, message, runtime: Date.now() - startTime } as CommandRunEvent);
+			return this.container.client.emit(CustomEvents.BotCommandRun, { interaction, message, runtime: Date.now() - startTime } as CommandRunEvent);
 		}
 
 		// Prep ModActionPurgeEvent
@@ -140,10 +141,10 @@ export class UserCommand extends Command {
 
 				message = await interaction.followUp({ content: `Deleted ${targetMessages.size} Message${targetMessages.size > 1 ? 's' : ''} ${targetUser ? `from ${targetUser.toString()} ` : ''}in this Channel.`, components: [], embeds: [] });
 				this.sendLogEvent(purgeEvent);
-				return this.container.client.emit('commandRun', { interaction, message, runtime: Date.now() - startTime } as CommandRunEvent);
+				return this.container.client.emit(CustomEvents.BotCommandRun, { interaction, message, runtime: Date.now() - startTime } as CommandRunEvent);
 			} catch (error) {
 				message = await interaction.followUp({ content: 'Whoops... Something went wrong...' });
-				return this.container.client.emit('commandRun', { interaction, message, runtime: Date.now() - startTime, failed: true } as CommandRunEvent);
+				return this.container.client.emit(CustomEvents.BotCommandRun, { interaction, message, runtime: Date.now() - startTime, failed: true } as CommandRunEvent);
 			}
 		}
 
@@ -181,16 +182,16 @@ export class UserCommand extends Command {
 
 			message = await interaction.editReply({ content: `Deleted ${targetMessages.size} Messages ${targetUser ? `from ${targetUser.toString()} ` : ''}in this Channel.` });
 			this.sendLogEvent(purgeEvent);
-			return this.container.client.emit('commandRun', { interaction, message, runtime: Date.now() - startTime } as CommandRunEvent);
+			return this.container.client.emit(CustomEvents.BotCommandRun, { interaction, message, runtime: Date.now() - startTime } as CommandRunEvent);
 		} catch (error) {
 			message = await interaction.followUp({ content: 'Whoops... Something went wrong...' });
-			return this.container.client.emit('commandRun', { interaction, message, runtime: Date.now() - startTime, failed: true } as CommandRunEvent);
+			return this.container.client.emit(CustomEvents.BotCommandRun, { interaction, message, runtime: Date.now() - startTime, failed: true } as CommandRunEvent);
 		}
 
 	}
 
 	private sendLogEvent(logEvent: ModActionPurgeEvent) {
-		this.container.client.emit('modActionPurge', logEvent);
+		this.container.client.emit(CustomEvents.ModActionPurge, logEvent);
 	}
 
 }

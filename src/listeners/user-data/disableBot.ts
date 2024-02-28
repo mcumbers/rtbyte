@@ -1,9 +1,10 @@
 import { initializeUser } from '#root/lib/util/functions/initialize';
+import { CustomEvents } from '#utils/CustomTypes';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Listener, type ListenerOptions } from '@sapphire/framework';
 import { User } from 'discord.js';
 
-@ApplyOptions<ListenerOptions>({ event: 'userDisableBot' })
+@ApplyOptions<ListenerOptions>({ event: CustomEvents.BotDisableUser })
 export class UserEvent extends Listener {
 	public async run(user: User) {
 		let userSettings = await this.container.prisma.userSettings.fetch(user.id);

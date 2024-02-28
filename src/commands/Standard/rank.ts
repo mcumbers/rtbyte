@@ -1,4 +1,5 @@
 import type { CommandRunEvent } from '#root/listeners/control-guild-logs/commandRun';
+import { CustomEvents } from '#utils/CustomTypes';
 import { getLevel } from '#utils/functions/xp';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command } from '@sapphire/framework';
@@ -45,7 +46,7 @@ export class UserCommand extends Command {
 		let rankedMemberDataXPEntries = await prisma.memberDataXP.findMany({ where: { guildID: interaction.guild.id }, orderBy: { currentXP: 'desc' } });
 		if (!rankedMemberDataXPEntries) {
 			message = await interaction.followUp({ content: 'Whoops! Something went wrong...' });
-			return this.container.client.emit('commandRun', { interaction, message, runtime: Date.now() - startTime, failed: true } as CommandRunEvent);
+			return this.container.client.emit(CustomEvents.BotCommandRun, { interaction, message, runtime: Date.now() - startTime, failed: true } as CommandRunEvent);
 		}
 
 		// Filter out entries of members who've left the guild
@@ -63,6 +64,6 @@ export class UserCommand extends Command {
 
 		// Send message
 		message = await interaction.followUp({ content: `Rank: #${rank} | Level ${xpLevel.level} | ${xpLevel.levelXP}/${xpLevel.levelThreshhold}xp` });
-		return this.container.client.emit('commandRun', { interaction, message, runtime: Date.now() - startTime } as CommandRunEvent);
+		return this.container.client.emit(CustomEvents.BotCommandRun, { interaction, message, runtime: Date.now() - startTime } as CommandRunEvent);
 	}
 }

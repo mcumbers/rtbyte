@@ -1,4 +1,5 @@
 import { GuildLogEmbed } from '#lib/extensions/GuildLogEmbed';
+import { CustomEvents } from '#utils/CustomTypes';
 import { minutes, seconds } from '#utils/common/times';
 import { getPermissionDifference } from '#utils/functions/permissions';
 import { getAuditLogEntry, getChannelDescriptor, getRegionOverride } from '#utils/util';
@@ -21,7 +22,7 @@ export class UserEvent extends Listener {
 		const logChannel = channel.guild.channels.resolve(guildSettingsInfoLogs.infoLogChannel) as BaseGuildTextChannel;
 		const auditLogEntry = await getAuditLogEntry(AuditLogEvent.ChannelUpdate, channel.guild, channel);
 
-		return this.container.client.emit('guildLogCreate', logChannel, await this.generateGuildLog(oldChannel, channel, auditLogEntry));
+		return this.container.client.emit(CustomEvents.GuildLogCreate, logChannel, await this.generateGuildLog(oldChannel, channel, auditLogEntry));
 	}
 
 	private async generateGuildLog(oldChannel: GuildBasedChannel, channel: GuildBasedChannel, auditLogEntry: GuildAuditLogsEntry | null) {

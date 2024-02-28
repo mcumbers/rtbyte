@@ -2,6 +2,7 @@ import { GuildLogEmbed } from '#lib/extensions/GuildLogEmbed';
 import { PluralKitCommands } from '#lib/util/constants';
 import { PluralKitMessage } from '#lib/util/pluralkit/PluralKitMessage';
 import { pluralkitInGuild } from '#lib/util/pluralkit/pluralkitInGuild';
+import { CustomEvents } from '#utils/CustomTypes';
 import { getContent } from '#utils/util';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Events, Listener, type ListenerOptions } from '@sapphire/framework';
@@ -21,7 +22,7 @@ export class UserEvent extends Listener {
 
 		if (message.attachments.size) {
 			for (const attachmentPair of message.attachments) {
-				this.container.client.emit('messageAttachmentDeleteLog', message, attachmentPair[1]);
+				this.container.client.emit(CustomEvents.MessageAttachmentDelete, message, attachmentPair[1]);
 			}
 		}
 
@@ -59,7 +60,7 @@ export class UserEvent extends Listener {
 			authorOverride = await message.guild.members.fetch(authorOverrideID);
 		}
 
-		return this.container.client.emit('guildLogCreate', logChannel, this.generateGuildLog(message, authorOverride));
+		return this.container.client.emit(CustomEvents.GuildLogCreate, logChannel, this.generateGuildLog(message, authorOverride));
 	}
 
 	private generateGuildLog(message: Message, authorOverride: GuildMember | null) {

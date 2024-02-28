@@ -1,4 +1,5 @@
 import type { XPMultiplerStore } from '#root/commands/Moderation/xp.js';
+import { CustomEvents } from '#utils/CustomTypes';
 import { getLevel, messageXPRoll } from '#utils/functions/xp';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Events, Listener, type ListenerOptions } from '@sapphire/framework';
@@ -76,7 +77,7 @@ export class UserEvent extends Listener {
 		const oldLevel = getLevel(memberDataXP.currentXP);
 		const newLevel = getLevel(memberDataXP.currentXP + earnedXP);
 		// Emit guildXPLevelUp event if member levelled up with this message
-		if (oldLevel.level > newLevel.level) this.container.client.emit('guildXPLevelUp', message.member, newLevel, message);
+		if (oldLevel.level > newLevel.level) this.container.client.emit(CustomEvents.GuildXPLevelUp, message.member, newLevel, message);
 
 		// Update memberXP object in the database
 		return prisma.memberDataXP.update({

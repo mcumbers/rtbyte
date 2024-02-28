@@ -1,9 +1,10 @@
+import { CustomEvents } from '#utils/CustomTypes';
 import { type XPLevel } from '#utils/functions/xp';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Listener, type ListenerOptions } from '@sapphire/framework';
 import { Message, type GuildMember, type GuildTextBasedChannel } from 'discord.js';
 
-@ApplyOptions<ListenerOptions>({ event: 'guildXPLevelUp' })
+@ApplyOptions<ListenerOptions>({ event: CustomEvents.GuildXPLevelUp })
 export class UserEvent extends Listener {
 	public async run(member: GuildMember, xpLevel: XPLevel, message?: Message) {
 		// TODO: guildSettingsXp.levelUpNotifyMessage -- Make a simple and naive string replacer where you can use tags for contextual info?

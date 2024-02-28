@@ -1,6 +1,7 @@
 import { BotCommand } from '#lib/extensions/BotCommand';
 import { BotEmbed } from '#lib/extensions/BotEmbed';
 import type { CommandRunEvent } from '#root/listeners/control-guild-logs/commandRun';
+import { CustomEvents } from '#utils/CustomTypes';
 import { Colors } from "#utils/constants";
 import { type ChatInputCommand, type ContextMenuCommand } from '@sapphire/framework';
 import { ActionRowBuilder, ApplicationCommandType, ChannelSelectMenuBuilder, ChannelType, ComponentType, GuildMember, PermissionFlagsBits, type TextChannel } from 'discord.js';
@@ -57,26 +58,26 @@ export class UserCommand extends BotCommand {
 				// Shouldn't be possible, but fail if no targetChannel specified
 				if (!targetChannel) {
 					response = await interaction.editReply({ content: 'Whoops... Something went wrong...', components: [], embeds: [] });
-					return this.container.client.emit('commandRun', { interaction, message: response, runtime: Date.now() - startTime, failed: true } as CommandRunEvent);
+					return this.container.client.emit(CustomEvents.BotCommandRun, { interaction, message: response, runtime: Date.now() - startTime, failed: true } as CommandRunEvent);
 				}
 
 				if (!targetChannel.permissionsFor(interaction.member as GuildMember).has(PermissionFlagsBits.SendMessages)) {
 					response = await interaction.editReply({ content: `You don't have permission to send messages in ${targetChannel.url}`, components: [], embeds: [] });
-					return this.container.client.emit('commandRun', { interaction, message: response, runtime: Date.now() - startTime } as CommandRunEvent);
+					return this.container.client.emit(CustomEvents.BotCommandRun, { interaction, message: response, runtime: Date.now() - startTime } as CommandRunEvent);
 				}
 
 				// Send the quote embed in a new message
 				const quoteMessage = await targetChannel.send({ embeds: [quoteEmbed] });
 				// Update the interaction message to inform the user
 				response = await interaction.editReply({ content: `Sent! ${quoteMessage.url}`, components: [], embeds: [] });
-				return this.container.client.emit('commandRun', { interaction, message: quoteMessage, runtime: Date.now() - startTime } as CommandRunEvent);
+				return this.container.client.emit(CustomEvents.BotCommandRun, { interaction, message: quoteMessage, runtime: Date.now() - startTime } as CommandRunEvent);
 			}
 			// This shouldn't ever happen... but let's appease eslint
-			return this.container.client.emit('commandRun', { interaction, runtime: Date.now() - startTime } as CommandRunEvent);
+			return this.container.client.emit(CustomEvents.BotCommandRun, { interaction, runtime: Date.now() - startTime } as CommandRunEvent);
 		} catch (e) {
 			// User took too long to send
 			await interaction.editReply({ content: 'Interaction Timed Out...', components: [], embeds: [] });
-			return this.container.client.emit('commandRun', { interaction, runtime: Date.now() - startTime } as CommandRunEvent);
+			return this.container.client.emit(CustomEvents.BotCommandRun, { interaction, runtime: Date.now() - startTime } as CommandRunEvent);
 		}
 
 	}
