@@ -46,7 +46,7 @@ export class UserCommand extends BotCommand {
 			return this.container.client.emit(CustomEvents.BotCommandRun, { interaction, message, runtime: Date.now() - startTime } as CommandRunEvent);
 		}
 
-		const roles = member?.roles.cache.filter(role => role.name !== '@everyone');
+		const roles = member.roles.cache.filter(role => role.name !== '@everyone');
 		const joinPosition = interaction.guild?.members.cache.sort((memberA, memberB) => Number(memberA.joinedTimestamp) - Number(memberB.joinedTimestamp)).map(mbr => mbr).indexOf(member as GuildMember);
 
 		let memberData = await this.container.prisma.member.fetch(member.id);
@@ -62,9 +62,10 @@ export class UserCommand extends BotCommand {
 		}
 
 		const embed = new BotEmbed()
-			.setDescription(`${member} ${inlineCodeBlock(`${member?.id}`)}`)
-			.setThumbnail(member?.displayAvatarURL() ?? null)
-			.setColor(member?.roles.highest.color ?? Colors.White)
+			.setTitle('User Information')
+			.setDescription(member.toString())
+			.setThumbnail(member.displayAvatarURL() ?? null)
+			.setColor(member.roles.highest.color ?? Colors.White)
 			.addFields(
 				{ name: 'Join position', value: `${joinPosition! + 1}`, inline: true },
 				{ name: 'Joined', value: `<t:${Math.round(member?.joinedTimestamp as number / 1000)}:R>`, inline: true },
