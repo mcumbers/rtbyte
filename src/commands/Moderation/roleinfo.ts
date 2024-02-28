@@ -4,7 +4,6 @@ import type { CommandRunEvent } from '#root/listeners/control-guild-logs/command
 import { CustomEvents } from '#utils/CustomTypes';
 import { ApplyOptions } from '@sapphire/decorators';
 import { type ChatInputCommand } from '@sapphire/framework';
-import { inlineCodeBlock } from '@sapphire/utilities';
 import { PermissionFlagsBits } from 'discord.js';
 
 @ApplyOptions<ChatInputCommand.Options>({
@@ -51,15 +50,21 @@ export class UserCommand extends BotCommand {
 
 		// Create Response Embed
 		const embed = new BotEmbed()
-			.setDescription(`${targetRole.unicodeEmoji ?? ''}${targetRole.toString()} ${inlineCodeBlock(`${targetRole.id}`)}`)
+			.setTitle('Role Information')
+			.setDescription(`${targetRole.unicodeEmoji ?? ''}${targetRole.toString()}`)
 			.setThumbnail(targetRole.iconURL() ?? interaction.guild?.iconURL() ?? null)
-			.setColor(targetRole.color as number)
+			.setFooter({ text: `Role ID: ${targetRole.id}` })
 			.addFields(
-				{ name: 'Members', value: inlineCodeBlock(`${targetRole.members.size}`), inline: true },
-				{ name: 'Color', value: inlineCodeBlock(`${targetRole.hexColor}`), inline: true },
-				{ name: 'Hierarchy', value: inlineCodeBlock(`${rolesSorted!.map(r => r.position).indexOf(targetRole?.position as number) + 1}`), inline: true },
-				{ name: 'Created', value: `<t:${Math.round(targetRole.createdTimestamp as number / 1000)}:R>` }
+				{ name: 'Members', value: `${targetRole.members.size}`, inline: true },
+				{ name: 'Hierarchy', value: `${rolesSorted!.map(r => r.position).indexOf(targetRole?.position as number) + 1}`, inline: true }
 			);
+
+		if (targetRole.hexColor !== '#000000') {
+			embed.setColor(targetRole.color);
+			embed.addFields({ name: 'Color', value: targetRole.hexColor, inline: true });
+		}
+
+		embed.addFields({ name: 'Created', value: `<t:${Math.round(targetRole.createdTimestamp as number / 1000)}:R>` });
 
 		// Gather Info for Response Embed
 		const roleInfo = [];
@@ -68,12 +73,19 @@ export class UserCommand extends BotCommand {
 
 		if (targetRole.tags) {
 			if (targetRole.tags.premiumSubscriberRole) roleInfo.push('- Received when Boosting Server');
-			if (targetRole.tags.botId) roleInfo.push(`- Managed by <@${targetRole.tags.botId}>`);
+			if (targetRole.tags.botId) {
+				const botMember = await targetRole.guild.members.fetch(targetRole.tags.botId).catch(undefined);
+				if (botMember.user.displayAvatarURL()) {
+					embed.setThumbnail(botMember.user.displayAvatarURL());
+				}
+				roleInfo.push(`- Managed by <@${targetRole.tags.botId}>`);
+			}
+
 			if (targetRole.tags.integrationId) {
 				const integrations = await targetRole.guild.fetchIntegrations();
 				const integration = integrations.get(targetRole.tags.integrationId);
 				if (integration) {
-					roleInfo.push(`- Managed by ${integration.name} (Integration)`);
+					roleInfo.push(`- Managed by ${integration.type === 'discord' ? integration.name : integration.type} (Integration)`);
 				}
 			}
 		}
