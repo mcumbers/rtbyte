@@ -2,7 +2,6 @@ import { BotCommand } from '#lib/extensions/BotCommand';
 import { BotEmbed } from '#lib/extensions/BotEmbed';
 import type { CommandRunEvent } from '#root/listeners/control-guild-logs/commandRun';
 import { CustomEvents } from '#utils/CustomTypes';
-import { Emojis } from '#utils/constants';
 import { ApplyOptions } from '@sapphire/decorators';
 import { type ChatInputCommand } from '@sapphire/framework';
 import { inlineCodeBlock } from '@sapphire/utilities';
@@ -43,7 +42,7 @@ export class UserCommand extends BotCommand {
 		// Fetch targetRole from Discord
 		const targetRole = interaction.guild?.roles.resolve(interaction.options.getRole('role')?.id as string);
 		if (!targetRole) {
-			message = await interaction.followUp({ content: `${Emojis.X} Unable to fetch information for ${targetRole}, please try again later.` });
+			message = await interaction.followUp({ content: `Unable to fetch information for ${targetRole}, please try again later.` });
 			return this.container.client.emit(CustomEvents.BotCommandRun, { interaction, message, runtime: Date.now() - startTime } as CommandRunEvent);
 		}
 
@@ -52,10 +51,10 @@ export class UserCommand extends BotCommand {
 
 		// Gather Info for Response Embed
 		const roleInfo = [];
-		if (targetRole?.mentionable) roleInfo.push(`${Emojis.Bullet}Mentionable`);
-		if (targetRole?.hoist) roleInfo.push(`${Emojis.Bullet}Displayed separately`);
-		if (targetRole.tags?.premiumSubscriberRole) roleInfo.push(`${Emojis.Bullet}Received when boosting server`);
-		if (targetRole.tags?.botId) roleInfo.push(`${Emojis.Bullet}Managed by <@${targetRole.tags.botId}>`);
+		if (targetRole?.mentionable) roleInfo.push(`Mentionable`);
+		if (targetRole?.hoist) roleInfo.push(`Displayed separately`);
+		if (targetRole.tags?.premiumSubscriberRole) roleInfo.push(`Received when boosting server`);
+		if (targetRole.tags?.botId) roleInfo.push(`Managed by <@${targetRole.tags.botId}>`);
 
 		// Create Response Embed
 		const embed = new BotEmbed()

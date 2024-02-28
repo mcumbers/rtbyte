@@ -3,7 +3,7 @@ import { BotEmbed } from '#lib/extensions/BotEmbed';
 import { initializeMember } from '#root/lib/util/functions/initialize';
 import type { CommandRunEvent } from '#root/listeners/control-guild-logs/commandRun';
 import { CustomEvents } from '#utils/CustomTypes';
-import { Colors, Emojis } from '#utils/constants';
+import { Colors } from '#utils/constants';
 import { ApplyOptions } from '@sapphire/decorators';
 import { type ChatInputCommand } from '@sapphire/framework';
 import { inlineCodeBlock } from '@sapphire/utilities';
@@ -76,13 +76,13 @@ export class UserCommand extends BotCommand {
 		if (memberData.displayNameHistory.length > 1) embed.addFields({ name: 'Previous nicknames', value: inlineCodeBlock(memberData.displayNameHistory.join(', ')) });
 
 		const userInfo = [];
-		if (member.isCommunicationDisabled()) userInfo.push(`${Emojis.Bullet}Currently timed out, will be removed <t:${Math.round(member?.communicationDisabledUntilTimestamp as number / 1000)}:R>`);
-		if (member?.premiumSinceTimestamp) userInfo.push(`${Emojis.Bullet}Nitro boosting since <t:${Math.round(member.premiumSinceTimestamp as number / 1000)}:R>`);
-		if (member?.user.bot) userInfo.push(`${Emojis.Bullet}${member.user.flags?.has(UserFlagsBitField.Flags.VerifiedBot) ? 'Verified bot' : 'Bot'}`);
-		if (member?.user.flags?.has(UserFlags.Staff)) userInfo.push(`${Emojis.Bullet}Discord staff`);
-		if (member?.user.flags?.has(UserFlags.Partner)) userInfo.push(`${Emojis.Bullet}Partnered server owner`);
-		if (member?.user.flags?.has(UserFlags.ActiveDeveloper)) userInfo.push(`${Emojis.Bullet}Active developer`);
-		if (member?.flags.has(GuildMemberFlags.DidRejoin)) userInfo.push(`${Emojis.Bullet}Has rejoined`);
+		if (member.isCommunicationDisabled()) userInfo.push(`Currently timed out, will be removed <t:${Math.round(member?.communicationDisabledUntilTimestamp as number / 1000)}:R>`);
+		if (member?.premiumSinceTimestamp) userInfo.push(`Nitro boosting since <t:${Math.round(member.premiumSinceTimestamp as number / 1000)}:R>`);
+		if (member?.user.bot) userInfo.push(`${member.user.flags?.has(UserFlagsBitField.Flags.VerifiedBot) ? 'Verified bot' : 'Bot'}`);
+		if (member?.user.flags?.has(UserFlags.Staff)) userInfo.push(`Discord staff`);
+		if (member?.user.flags?.has(UserFlags.Partner)) userInfo.push(`Partnered server owner`);
+		if (member?.user.flags?.has(UserFlags.ActiveDeveloper)) userInfo.push(`Active developer`);
+		if (member?.flags.has(GuildMemberFlags.DidRejoin)) userInfo.push(`$Has rejoined`);
 		if (userInfo.length) embed.addFields({ name: 'Details', value: userInfo.join('\n') });
 
 		message = await interaction.followUp({ content: '', embeds: [embed] });
