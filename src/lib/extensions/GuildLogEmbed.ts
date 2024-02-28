@@ -44,6 +44,7 @@ export class GuildLogEmbed extends BotEmbed {
 			case CustomEvents.ModActionKick:
 			case CustomEvents.ModActionPurge:
 			case CustomEvents.ModActionMute:
+			case CustomEvents.ModActionVCKick:
 				this.setColor(Colors.Red);
 				break;
 			case Events.AutoModerationRuleUpdate:

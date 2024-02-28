@@ -7,5 +7,6 @@ export enum CustomEvents {
 	ModActionKick = 'modActionKick',
 	ModActionPurge = 'modActionPurge',
 	ModActionMute = 'modActionMute',
-	ModActionUnmute = 'modActionUnmute'
+	ModActionUnmute = 'modActionUnmute',
+	ModActionVCKick = 'modActionVCKick'
 };

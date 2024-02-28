@@ -27,7 +27,7 @@ export class UserEvent extends Listener {
 
 	private generateGuildLog(member: GuildMember, auditLogEntry: GuildAuditLogsEntry<AuditLogEvent, GuildAuditLogsActionType, GuildAuditLogsTargetType, AuditLogEvent> | null) {
 		const embed = new GuildLogEmbed()
-			.setTitle('User Timeout Ended')
+			.setTitle('User Timeout Removed')
 			.setDescription(member.toString())
 			.setThumbnail(member.user.displayAvatarURL())
 			.addFields({ name: 'Username', value: member.user.username, inline: true })
