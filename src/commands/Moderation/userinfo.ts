@@ -42,7 +42,7 @@ export class UserCommand extends BotCommand {
 
 		const member = interaction.guild?.members.resolve(interaction.options.getUser('member')?.id as string);
 		if (!member) {
-			message = await interaction.followUp({ content: `Unable to fetch information for the specified member, please try again later.` });
+			message = await interaction.followUp({ content: 'Unable to fetch information for the specified member, please try again later.' });
 			return this.container.client.emit(CustomEvents.BotCommandRun, { interaction, message, runtime: Date.now() - startTime } as CommandRunEvent);
 		}
 
@@ -66,7 +66,7 @@ export class UserCommand extends BotCommand {
 			.setThumbnail(member?.displayAvatarURL() ?? null)
 			.setColor(member?.roles.highest.color ?? Colors.White)
 			.addFields(
-				{ name: 'Join position', value: inlineCodeBlock(`${joinPosition! + 1}`), inline: true },
+				{ name: 'Join position', value: `${joinPosition! + 1}`, inline: true },
 				{ name: 'Joined', value: `<t:${Math.round(member?.joinedTimestamp as number / 1000)}:R>`, inline: true },
 				{ name: 'Registered', value: `<t:${Math.round(member?.user.createdTimestamp as number / 1000)}:R>`, inline: true },
 			);
@@ -75,15 +75,21 @@ export class UserCommand extends BotCommand {
 		if (memberData.usernameHistory.length > 1) embed.addFields({ name: 'Previous usernames', value: inlineCodeBlock(memberData.usernameHistory.join(', ')) });
 		if (memberData.displayNameHistory.length > 1) embed.addFields({ name: 'Previous nicknames', value: inlineCodeBlock(memberData.displayNameHistory.join(', ')) });
 
-		const userInfo = [];
-		if (member.isCommunicationDisabled()) userInfo.push(`Currently timed out, will be removed <t:${Math.round(member?.communicationDisabledUntilTimestamp as number / 1000)}:R>`);
-		if (member?.premiumSinceTimestamp) userInfo.push(`Nitro boosting since <t:${Math.round(member.premiumSinceTimestamp as number / 1000)}:R>`);
-		if (member?.user.bot) userInfo.push(`${member.user.flags?.has(UserFlagsBitField.Flags.VerifiedBot) ? 'Verified bot' : 'Bot'}`);
-		if (member?.user.flags?.has(UserFlags.Staff)) userInfo.push(`Discord staff`);
-		if (member?.user.flags?.has(UserFlags.Partner)) userInfo.push(`Partnered server owner`);
-		if (member?.user.flags?.has(UserFlags.ActiveDeveloper)) userInfo.push(`Active developer`);
-		if (member?.flags.has(GuildMemberFlags.DidRejoin)) userInfo.push(`$Has rejoined`);
-		if (userInfo.length) embed.addFields({ name: 'Details', value: userInfo.join('\n') });
+		if (member.isCommunicationDisabled()) embed.addFields({ name: 'Timed Out Until', value: `<t:${Math.round(member?.communicationDisabledUntilTimestamp as number / 1000)}:R>`, inline: true });
+		if (member?.premiumSinceTimestamp) embed.addFields({ name: 'Server Boosting Since', value: `<t:${Math.round(member.premiumSinceTimestamp as number / 1000)}:R>`, inline: true });
+		if (member?.user.bot) embed.addFields({ name: 'Bot Status', value: `${member.user.flags?.has(UserFlagsBitField.Flags.VerifiedBot) ? 'Verified' : 'Unverified'}`, inline: true });
+
+		if (member.user.flags) {
+			const flagsInfo: string[] = [];
+			if (member.user.flags.has(UserFlags.Spammer)) flagsInfo.push('- Identified as a Spammer by Discord');
+			if (member.user.flags.has(UserFlags.Quarantined)) flagsInfo.push('- Quarantined by Discord');
+
+			if (member.user.flags.has(UserFlags.Staff)) flagsInfo.push(`- Discord Staff Member`);
+			if (member.user.flags.has(UserFlags.Partner)) flagsInfo.push(`- Partnered Server Owner`);
+
+			if (member.flags.has(GuildMemberFlags.DidRejoin)) flagsInfo.push(`- Has Rejoined this Server`);
+			if (flagsInfo.length) embed.addFields({ name: 'Special Notes', value: flagsInfo.join('\n') });
+		}
 
 		message = await interaction.followUp({ content: '', embeds: [embed] });
 		return this.container.client.emit(CustomEvents.BotCommandRun, { interaction, message, runtime: Date.now() - startTime } as CommandRunEvent);
