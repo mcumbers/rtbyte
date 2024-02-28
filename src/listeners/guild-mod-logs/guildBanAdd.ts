@@ -3,7 +3,6 @@ import { CustomEvents } from '#utils/CustomTypes';
 import { getAuditLogEntry } from '#utils/util';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Events, Listener, type ListenerOptions } from '@sapphire/framework';
-import { isNullish } from '@sapphire/utilities';
 import type { BaseGuildTextChannel, GuildAuditLogsEntry, GuildBan, GuildMember } from 'discord.js';
 import { AuditLogEvent } from 'discord.js';
 
@@ -13,22 +12,35 @@ export class UserEvent extends Listener {
 		// Try to grab the GuildMember for the banned user from the cache as fast as possible
 		const bannedMember = guildBan.guild.members.resolve(guildBan.user.id);
 
-		const guildSettingsInfoLogs = await this.container.prisma.guildSettingsInfoLogs.fetch(guildBan.guild.id);
-		if (!guildSettingsInfoLogs?.channelDeleteLog || !guildSettingsInfoLogs.infoLogChannel) return;
+		const guildSettingsModActions = await this.container.prisma.guildSettingsModActions.fetch(guildBan.guild.id);
+		if (!guildSettingsModActions || (!guildSettingsModActions.kickLog && !guildSettingsModActions.kickLogPublic)) return;
 
-		const logChannel = guildBan.guild.channels.resolve(guildSettingsInfoLogs.infoLogChannel) as BaseGuildTextChannel;
 		const auditLogEntry = await getAuditLogEntry(AuditLogEvent.MemberBanAdd, guildBan.guild, guildBan.user);
 
-		return this.container.client.emit(CustomEvents.GuildLogCreate, logChannel, await this.generateGuildLog(guildBan, auditLogEntry, bannedMember));
+		if (guildSettingsModActions.modLogChannel && guildSettingsModActions.kickLog) {
+			const modLogChannel = guildBan.guild.channels.resolve(guildSettingsModActions.modLogChannel) as BaseGuildTextChannel;
+			this.container.client.emit(CustomEvents.GuildLogCreate, modLogChannel, await this.generateGuildLog(guildBan, auditLogEntry, bannedMember));
+		}
+
+		if (guildSettingsModActions.modLogChannelPublic && guildSettingsModActions.kickLogPublic) {
+			const modLogChannelPublic = guildBan.guild.channels.resolve(guildSettingsModActions.modLogChannelPublic) as BaseGuildTextChannel;
+			this.container.client.emit(CustomEvents.GuildLogCreate, modLogChannelPublic, await this.generateGuildLog(guildBan, auditLogEntry, bannedMember));
+		}
 	}
 
 	private async generateGuildLog(guildBan: GuildBan, auditLogEntry: GuildAuditLogsEntry | null, bannedMember: GuildMember | null) {
 		const embed = new GuildLogEmbed()
 			.setTitle('User Banned from Server')
-			.setDescription(guildBan.user.username)
+			.setDescription(guildBan.user.toString())
 			.setThumbnail(guildBan.user.avatarURL())
+			.addFields({ name: 'Username', value: guildBan.user.username, inline: true })
 			.setFooter({ text: `User ID: ${guildBan.user.id}` })
 			.setType(Events.GuildBanAdd);
+
+		if (bannedMember) {
+			embed.addBlankFields({ name: '', value: '', inline: true });
+			embed.addFields({ name: `${bannedMember.flags.has("DidRejoin") ? 'Last ' : ''}Joined Server`, value: `<t:${Math.round(bannedMember.joinedTimestamp as number / 1000)}:R>`, inline: true });
+		}
 
 		const memberData = await this.container.prisma.member.fetchTuple([guildBan.user.id, guildBan.guild.id], ['userID', 'guildID']);
 
@@ -40,13 +52,9 @@ export class UserEvent extends Listener {
 			}
 		}
 
-		if (bannedMember) {
-			embed.addFields({ name: `${bannedMember.flags.has("DidRejoin") ? 'Last ' : ''}Joined Server`, value: `<t:${Math.round(bannedMember.joinedTimestamp as number / 1000)}:R>`, inline: true });
-		}
-
 		if (auditLogEntry) {
-			if (!isNullish(auditLogEntry.reason)) embed.addFields({ name: 'Reason', value: auditLogEntry.reason, inline: false });
-			if (!isNullish(auditLogEntry.executor)) embed.addFields({ name: 'Banned By', value: auditLogEntry.executor.toString(), inline: false });
+			if (auditLogEntry.reason) embed.addFields({ name: 'Reason', value: auditLogEntry.reason, inline: false });
+			if (auditLogEntry.executor) embed.addFields({ name: 'Banned By', value: auditLogEntry.executor.toString(), inline: false });
 		}
 
 		return [embed];
