@@ -43,7 +43,7 @@ export class GuildLogEmbed extends BotEmbed {
 			case CustomEvents.MessageAttachmentDelete:
 			case CustomEvents.ModActionKick:
 			case CustomEvents.ModActionPurge:
-			case CustomEvents.ModActionTimeout:
+			case CustomEvents.ModActionMute:
 				this.setColor(Colors.Red);
 				break;
 			case Events.AutoModerationRuleUpdate:
@@ -58,6 +58,7 @@ export class GuildLogEmbed extends BotEmbed {
 			case Events.MessageUpdate:
 			case Events.StageInstanceUpdate:
 			case Events.ThreadUpdate:
+			case CustomEvents.ModActionUnmute:
 				this.setColor(Colors.Yellow);
 				break;
 		}

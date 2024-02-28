@@ -9,7 +9,12 @@ import { AuditLogEvent, type BaseGuildTextChannel, type GuildAuditLogsEntry, typ
 @ApplyOptions<ListenerOptions>({ event: Events.GuildMemberUpdate })
 export class UserEvent extends Listener {
 	public async run(oldMember: GuildMember, member: GuildMember) {
-		if (isNullish(member.id)) return;
+
+		if (oldMember.communicationDisabledUntilTimestamp !== member.communicationDisabledUntilTimestamp) {
+			if (member.isCommunicationDisabled()) this.container.client.emit(CustomEvents.ModActionMute, member);
+			if (oldMember.isCommunicationDisabled()) this.container.client.emit(CustomEvents.ModActionUnmute, member);
+			return;
+		}
 
 		const guildSettingsInfoLogs = await this.container.prisma.guildSettingsInfoLogs.fetch(member.guild.id);
 		if (!guildSettingsInfoLogs?.guildMemberUpdateLog || !guildSettingsInfoLogs.infoLogChannel) return;

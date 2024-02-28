@@ -6,5 +6,6 @@ export enum CustomEvents {
 	MessageAttachmentDelete = 'messageAttachmentDelete',
 	ModActionKick = 'modActionKick',
 	ModActionPurge = 'modActionPurge',
-	ModActionTimeout = 'modActionTimeout'
+	ModActionMute = 'modActionMute',
+	ModActionUnmute = 'modActionUnmute'
 };
