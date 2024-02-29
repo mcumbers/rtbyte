@@ -207,7 +207,8 @@ model GuildSettingsInfoLogs {
     guildSettings GuildSettings @relation(fields: [id], references: [id], onUpdate: Cascade)
 
     // Log Channels
-    infoLogChannel String? @map("log_channel_info")
+    infoLogChannel   String?  @map("log_channel_info")
+    ignoredExecutors String[] @map("log_ignored_executor_ids")
 
     // Channel Changes
     channelCreateLog      Boolean        @default(false) @map("log_channel_create")
@@ -434,16 +435,17 @@ enum ModActionType {
 }
 
 model ModAction {
-    id          Int           @id @default(autoincrement())
-    guildID     String        @map("guild_id")
-    guild       Guild         @relation(fields: [guildID], references: [id], onUpdate: Cascade)
-    type        ModActionType @map("action_type")
-    target      String        @map("target_id")
-    moderator   String        @map("moderator_id")
-    timestamp   DateTime      @map("timestamp")
-    description String?       @map("description") /// @encrypted?mode=strict
-    duration    Int?          @map("duration_minutes")
-    silent      Boolean?      @default(false) @map("silent")
+    id             Int           @id @default(autoincrement())
+    guildID        String        @map("guild_id")
+    guild          Guild         @relation(fields: [guildID], references: [id], onUpdate: Cascade)
+    type           ModActionType @map("action_type")
+    targetID       String?       @map("target_id")
+    executorID     String?       @map("executor_id")
+    auditLogID     String?       @map("audit_log_id")
+    createdAt      DateTime      @map("created_time")
+    reason         String?       @map("reason") /// @encrypted?mode=strict
+    details        String?       @map("details") /// @encrypted?mode=strict
+    effectiveUntil DateTime?     @map("effective_until")
 
     @@map("modActions")
 }
