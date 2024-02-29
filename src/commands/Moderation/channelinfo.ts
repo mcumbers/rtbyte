@@ -4,8 +4,7 @@ import { minutes, seconds } from '#utils/common/times';
 import { ApplyOptions } from '@sapphire/decorators';
 import { type ChatInputCommand } from '@sapphire/framework';
 import { DurationFormatter } from '@sapphire/time-utilities';
-import { inlineCodeBlock } from '@sapphire/utilities';
-import { ChannelType, PermissionFlagsBits } from 'discord.js';
+import { ForumChannel, MediaChannel, NewsChannel, PermissionFlagsBits, StageChannel, TextChannel, ThreadChannel, VoiceChannel } from 'discord.js';
 
 @ApplyOptions<ChatInputCommand.Options>({
 	description: 'Retrieve information about a channel',
@@ -43,40 +42,70 @@ export class UserCommand extends BotCommand {
 		if (!targetChannel) return interaction.followUp({ content: `Unable to fetch information for ${targetChannel}, please try again later.`, ephemeral });
 
 		// Fetch this Guild's log settings
-		const guildLogSettings = await this.container.prisma.guildSettingsInfoLogs.fetch(interaction.guild?.id as string);
+		const guildSettingsInfoLogs = await this.container.prisma.guildSettingsInfoLogs.fetch(interaction.guild?.id as string);
+		const guildSettingsModActions = await this.container.prisma.guildSettingsModActions.fetch(interaction.guild?.id as string)
 
 		// Gather Info for Response Embed
 		const channelInfo = [];
-		if (targetChannel.type === ChannelType.GuildForum) {
-			if (targetChannel.defaultReactionEmoji) channelInfo.push(`Default reaction: ${targetChannel.guild.emojis.resolve(targetChannel.defaultReactionEmoji.id as string) ?? targetChannel.defaultReactionEmoji.name}`);
-			if (targetChannel.rateLimitPerUser) channelInfo.push(`Posts slowmode: ${inlineCodeBlock(new DurationFormatter().format(seconds(targetChannel.rateLimitPerUser)))}`);
-			if (targetChannel.defaultThreadRateLimitPerUser) channelInfo.push(`Messages slowmode: ${inlineCodeBlock(new DurationFormatter().format(seconds(targetChannel.defaultThreadRateLimitPerUser)))}`);
-			if (targetChannel.defaultForumLayout) {
-				const forumLayout = ['Not set', 'List view', 'Gallery view'];
-				channelInfo.push(`Default layout: ${inlineCodeBlock(`${forumLayout[targetChannel.defaultForumLayout]}`)}`);
-			}
-			if (targetChannel.defaultSortOrder) {
-				const sortOrder = ['Recent activity', 'Creation time'];
-				channelInfo.push(`Sort order: ${inlineCodeBlock(`${sortOrder[targetChannel.defaultSortOrder!]}`)}`)
-			}
-			if (targetChannel.nsfw) channelInfo.push(`Age-restricted`);
-			if (targetChannel.defaultAutoArchiveDuration) channelInfo.push(`Hide after inactivity: ${inlineCodeBlock(`${new DurationFormatter().format(minutes(targetChannel.defaultAutoArchiveDuration ?? 4320))}`)}`);
-		}
+
 		// Show whether the targetChannel is designated as the Info Log Channel for the Guild
-		if (guildLogSettings?.infoLogChannel === targetChannel.id) channelInfo.push(`Bot log channel`);
+		if (guildSettingsInfoLogs?.infoLogChannel === targetChannel.id) channelInfo.push('- Bot Info Log channel');
+		if (guildSettingsModActions?.modLogChannel === targetChannel.id) channelInfo.push('- Moderation Log Channel');
+		if (guildSettingsModActions?.modLogChannelPublic === targetChannel.id) channelInfo.push('- Public Moderation Log Channel');
 
 		// Create Response Embed
 		const embed = new BotEmbed()
-			.setDescription(`<#${targetChannel.id}> ${inlineCodeBlock(`${targetChannel?.id}`)}`)
-			.setThumbnail(interaction.guild?.iconURL() ?? null);
+			.setTitle('Channel Information')
+			.setDescription(`${targetChannel.url}`)
+			.setThumbnail(interaction.guild?.iconURL() ?? null)
+			.setFooter({ text: `Channel ID: ${targetChannel.id}` });
 
-		if (targetChannel.parent) embed.addFields({ name: 'Category', value: inlineCodeBlock(targetChannel.parent.name), inline: true });
+		if (targetChannel.parent) embed.addFields({ name: 'Category', value: targetChannel.parent.name, inline: true });
 		embed.addFields({ name: 'Created', value: `<t:${Math.round(targetChannel.createdTimestamp as number / 1000)}:R>`, inline: true });
 
-		// Add Forum-Specific Info to Response Embed
-		if (targetChannel.type === ChannelType.GuildForum) {
-			if (targetChannel.topic) embed.addFields({ name: 'Post guidelines', value: inlineCodeBlock(targetChannel.topic), inline: true });
-			if (targetChannel.availableTags) embed.addFields({ name: 'Tags', value: targetChannel.availableTags.map(tag => `${tag.emoji ? targetChannel.guild.emojis.resolve(tag.emoji.id as string) ?? tag.emoji.name : ''} ${inlineCodeBlock(tag.name)}`).join(', '), inline: true });
+		if (targetChannel instanceof ForumChannel || targetChannel instanceof MediaChannel) {
+			if (targetChannel.availableTags) embed.addFields({ name: 'Tags', value: targetChannel.availableTags.map(tag => `${tag.emoji ? targetChannel.guild.emojis.resolve(tag.emoji.id as string) ?? tag.emoji.name : ''} ${tag.name}`).join(', '), inline: true });
+			if (targetChannel.defaultAutoArchiveDuration) embed.addFields({ name: 'Stale Threads Hide After', value: `${new DurationFormatter().format(minutes(targetChannel.defaultAutoArchiveDuration ?? 4320))}`, inline: true });
+			if (targetChannel.defaultReactionEmoji) embed.addFields({ name: 'Default Reaction', value: `${targetChannel.guild.emojis.resolve(targetChannel.defaultReactionEmoji.id as string) ?? targetChannel.defaultReactionEmoji.name}`, inline: true });
+			if (targetChannel.defaultSortOrder) {
+				const sortOrder = ['Recent Activity', 'Creation Time'];
+				embed.addFields({ name: 'Sorted By', value: `${sortOrder[targetChannel.defaultSortOrder!]}`, inline: true })
+			}
+			if (targetChannel.defaultThreadRateLimitPerUser) embed.addFields({ name: 'Message Slowmode', value: `${new DurationFormatter().format(seconds(targetChannel.defaultThreadRateLimitPerUser))}`, inline: true });
+			if (targetChannel.nsfw) channelInfo.push('- Marked NSFW');
+			if (targetChannel.rateLimitPerUser) embed.addFields({ name: 'Post Slowmode', value: `${new DurationFormatter().format(seconds(targetChannel.rateLimitPerUser))}`, inline: true });
+			if (targetChannel.topic) embed.addFields({ name: 'Post guidelines', value: targetChannel.topic, inline: true });
+		}
+
+		if (targetChannel instanceof ForumChannel) {
+			if (targetChannel.defaultForumLayout) {
+				const forumLayout = ['Not set', 'List view', 'Gallery view'];
+				embed.addFields({ name: 'Default Layout', value: `${forumLayout[targetChannel.defaultForumLayout]}`, inline: true });
+			}
+		}
+
+		if (targetChannel instanceof NewsChannel || targetChannel instanceof TextChannel) {
+			if (targetChannel.defaultAutoArchiveDuration) embed.addFields({ name: 'Stale Threads Hide After', value: `${new DurationFormatter().format(minutes(targetChannel.defaultAutoArchiveDuration ?? 4320))}`, inline: true });
+			if (targetChannel.defaultThreadRateLimitPerUser) embed.addFields({ name: 'Thread Slowmode', value: `${new DurationFormatter().format(seconds(targetChannel.defaultThreadRateLimitPerUser))}`, inline: true });
+			if (targetChannel.nsfw) channelInfo.push('- Marked NSFW');
+			if (targetChannel.topic) embed.addFields({ name: 'Channel Topic', value: targetChannel.topic, inline: true });
+		}
+
+		if (targetChannel instanceof ThreadChannel) {
+			if (targetChannel.rateLimitPerUser) embed.addFields({ name: 'Slowmode', value: `${new DurationFormatter().format(seconds(targetChannel.rateLimitPerUser))}`, inline: true });
+		}
+
+		if (targetChannel instanceof TextChannel) {
+			if (targetChannel.rateLimitPerUser) embed.addFields({ name: 'Slowmode', value: `${new DurationFormatter().format(seconds(targetChannel.rateLimitPerUser))}`, inline: true });
+		}
+
+		if (targetChannel instanceof StageChannel) {
+			if (targetChannel.topic) embed.addFields({ name: 'Channel Topic', value: targetChannel.topic, inline: true });
+		}
+
+		if (targetChannel instanceof StageChannel || targetChannel instanceof VoiceChannel) {
+			if (targetChannel.nsfw) channelInfo.push('- Marked NSFW');
+			if (targetChannel.rateLimitPerUser) embed.addFields({ name: 'Slowmode', value: `${new DurationFormatter().format(seconds(targetChannel.rateLimitPerUser))}`, inline: true });
 		}
 
 		// Add extra information gathered in channelInfo
