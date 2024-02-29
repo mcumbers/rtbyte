@@ -1,6 +1,7 @@
 import { GuildLogEmbed } from '#lib/extensions/GuildLogEmbed';
 import { CustomEvents } from '#utils/CustomTypes';
 import { getAuditLogEntry } from '#utils/util';
+import { ModActionType } from '@prisma/client';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Events, Listener, type ListenerOptions } from '@sapphire/framework';
 import { AuditLogEvent, GuildBan, type BaseGuildTextChannel, type GuildAuditLogsEntry } from 'discord.js';
@@ -8,12 +9,24 @@ import { AuditLogEvent, GuildBan, type BaseGuildTextChannel, type GuildAuditLogs
 @ApplyOptions<ListenerOptions>({ event: Events.GuildBanRemove })
 export class UserEvent extends Listener {
 	public async run(guildBan: GuildBan) {
+		const auditLogEntry = await getAuditLogEntry(AuditLogEvent.MemberBanRemove, guildBan.guild, guildBan.user);
+		const embed = await this.generateGuildLog(guildBan, auditLogEntry);
+
+		// Log ModAction
+		await this.container.prisma._prisma.modAction.create({
+			data: {
+				guildID: guildBan.guild.id,
+				type: ModActionType.UNBAN,
+				targetID: guildBan.user.id,
+				executorID: auditLogEntry?.executorId,
+				auditLogID: auditLogEntry?.id,
+				createdAt: auditLogEntry?.createdAt || new Date(),
+				reason: auditLogEntry?.reason
+			}
+		});
 
 		const guildSettingsModActions = await this.container.prisma.guildSettingsModActions.fetch(guildBan.guild.id);
 		if (!guildSettingsModActions || (!guildSettingsModActions.unbanLog && !guildSettingsModActions.unbanLogPublic)) return;
-
-		const auditLogEntry = await getAuditLogEntry(AuditLogEvent.MemberBanRemove, guildBan.guild, guildBan.user);
-		const embed = await this.generateGuildLog(guildBan, auditLogEntry);
 
 		if (guildSettingsModActions.modLogChannel && guildSettingsModActions.unbanLog) {
 			const modLogChannel = guildBan.guild.channels.resolve(guildSettingsModActions.modLogChannel) as BaseGuildTextChannel;

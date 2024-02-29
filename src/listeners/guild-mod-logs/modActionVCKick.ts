@@ -1,5 +1,6 @@
 import { GuildLogEmbed } from '#lib/extensions/GuildLogEmbed';
 import { CustomEvents } from '#utils/CustomTypes';
+import { ModActionType } from '@prisma/client';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Listener, type ListenerOptions } from '@sapphire/framework';
 import type { BaseGuildTextChannel, GuildAuditLogsActionType, GuildAuditLogsEntry, GuildAuditLogsTargetType, GuildMember, VoiceState } from 'discord.js';
@@ -25,6 +26,19 @@ export class UserEvent extends Listener {
 		const auditLogEntries = await newState.guild.fetchAuditLogs({ type: AuditLogEvent.MemberDisconnect });
 		const auditLogEntry = auditLogEntries.entries.find((entry) => entry.createdTimestamp > cutoff);
 		if (!auditLogEntry) return;
+
+		// Log ModAction
+		await this.container.prisma._prisma.modAction.create({
+			data: {
+				guildID: member.guild.id,
+				type: ModActionType.VCKICK,
+				targetID: member.id,
+				executorID: auditLogEntry?.executorId,
+				auditLogID: auditLogEntry?.id,
+				createdAt: auditLogEntry?.createdAt || new Date(),
+				reason: auditLogEntry?.reason
+			}
+		});
 
 		const guildSettingsModActions = await this.container.prisma.guildSettingsModActions.fetch(member.guild.id);
 		if (!guildSettingsModActions || (!guildSettingsModActions.vcKickLog && !guildSettingsModActions.vcKickLogPublic)) return;

@@ -1,5 +1,6 @@
 import { GuildLogEmbed } from '#lib/extensions/GuildLogEmbed';
 import { CustomEvents } from '#utils/CustomTypes';
+import { ModActionType } from '@prisma/client';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Events, Listener, type ListenerOptions } from '@sapphire/framework';
 import { UserFlags, type BaseGuildTextChannel, type GuildBasedChannel, type User } from 'discord.js';
@@ -33,6 +34,16 @@ export class UserEvent extends Listener {
 		for await (const guild of this.container.client.guilds.cache.values()) {
 			// Move in if this user isn't in this guild
 			if (!(await guild.members.fetch(user).catch(undefined))) continue;
+
+			// Log ModAction
+			await this.container.prisma._prisma.modAction.create({
+				data: {
+					guildID: guild.id,
+					type: spammerFlagAdded ? ModActionType.FLAG_SPAMMER_ADD : spammerFlagRemoved ? ModActionType.FLAG_SPAMMER_REMOVE : quarantineFlagAdded ? ModActionType.FLAG_QUARANTINE_ADD : quarantineFlagRemoved ? ModActionType.FLAG_QUARANTINE_REMOVE : ModActionType.FLAG_QUARANTINE_REMOVE,
+					targetID: user.id,
+					createdAt: new Date()
+				}
+			});
 
 			const guildSettingsModActions = await this.container.prisma.guildSettingsModActions.fetch(guild.id);
 			if (!guildSettingsModActions) return;

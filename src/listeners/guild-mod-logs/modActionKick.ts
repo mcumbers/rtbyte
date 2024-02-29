@@ -1,5 +1,6 @@
 import { GuildLogEmbed } from '#lib/extensions/GuildLogEmbed';
 import { CustomEvents } from '#utils/CustomTypes';
+import { ModActionType } from '@prisma/client';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Listener, type ListenerOptions } from '@sapphire/framework';
 import type { BaseGuildTextChannel, GuildAuditLogsActionType, GuildAuditLogsEntry, GuildAuditLogsTargetType, GuildMember } from 'discord.js';
@@ -13,7 +14,20 @@ export interface ModActionKickEvent {
 @ApplyOptions<ListenerOptions>({ event: CustomEvents.ModActionKick })
 export class UserEvent extends Listener {
 	public async run(event: ModActionKickEvent) {
-		const { member } = event;
+		const { member, auditLogEntry } = event;
+
+		// Log ModAction
+		await this.container.prisma._prisma.modAction.create({
+			data: {
+				guildID: member.guild.id,
+				type: ModActionType.KICK,
+				targetID: member.id,
+				executorID: auditLogEntry?.executorId,
+				auditLogID: auditLogEntry?.id,
+				createdAt: auditLogEntry?.createdAt || new Date(),
+				reason: auditLogEntry?.reason
+			}
+		});
 
 		const guildSettingsModActions = await this.container.prisma.guildSettingsModActions.fetch(member.guild.id);
 		if (!guildSettingsModActions || (!guildSettingsModActions.kickLog && !guildSettingsModActions.kickLogPublic)) return;
