@@ -45,6 +45,8 @@ export class GuildLogEmbed extends BotEmbed {
 			case CustomEvents.ModActionPurge:
 			case CustomEvents.ModActionMute:
 			case CustomEvents.ModActionVCKick:
+			case CustomEvents.ModActionFlagSpammerAdd:
+			case CustomEvents.ModActionFlagQuarantineAdd:
 				this.setColor(Colors.Red);
 				break;
 			case Events.AutoModerationRuleUpdate:
@@ -60,6 +62,8 @@ export class GuildLogEmbed extends BotEmbed {
 			case Events.StageInstanceUpdate:
 			case Events.ThreadUpdate:
 			case CustomEvents.ModActionUnmute:
+			case CustomEvents.ModActionFlagSpammerRemove:
+			case CustomEvents.ModActionFlagQuarantineRemove:
 				this.setColor(Colors.Yellow);
 				break;
 		}

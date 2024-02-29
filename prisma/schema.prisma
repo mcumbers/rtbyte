@@ -350,6 +350,22 @@ model GuildSettingsModActions {
     vcKickLog        Boolean @default(true) @map("vckick_log")
     vcKickLogPublic  Boolean @default(false) @map("vckick_log_public")
 
+    // Discord User Flags - Spammer
+    flagSpammerAddNotifyUser    Boolean @default(false) @map("flag_spammer_add_notify_user")
+    flagSpammerAddLog           Boolean @default(true) @map("flag_spammer_add_log")
+    flagSpammerAddLogPublic     Boolean @default(false) @map("flag_spammer_add_log_public")
+    flagSpammerRemoveNotifyUser Boolean @default(false) @map("flag_spammer_remove_notify_user")
+    flagSpammerRemoveLog        Boolean @default(true) @map("flag_spammer_remove_log")
+    flagSpammerRemoveLogPublic  Boolean @default(false) @map("flag_spammer_remove_log_public")
+
+    // Discord User Flags - Quarantine
+    flagQuarantineAddNotifyUser    Boolean @default(false) @map("flag_quarantine_add_notify_user")
+    flagQuarantineAddLog           Boolean @default(true) @map("flag_quarantine_add_log")
+    flagQuarantineAddLogPublic     Boolean @default(false) @map("flag_quarantine_add_log_public")
+    flagQuarantineRemoveNotifyUser Boolean @default(false) @map("flag_quarantine_remove_notify_user")
+    flagQuarantineRemoveLog        Boolean @default(true) @map("flag_quarantine_remove_log")
+    flagQuarantineRemoveLogPublic  Boolean @default(false) @map("flag_quarantine_remove_log_public")
+
     // Anti-Invite Filter Settings
     antiInviteNotifyUser   Boolean @default(true) @map("anti_invite_notify_user")
     antiInviteLog          Boolean @default(true) @map("anti_invite_log")
@@ -409,10 +425,12 @@ enum ModActionType {
     VCBAN
     VCUNBAN
     VCKICK
-    FILTER_ANTI_INVITE
-    FILTER_MENTION_SPAM
     FILTER_CHAT
-    FILTER_USERNAME
+    FILTER_NAME
+    FLAG_SPAMMER_ADD
+    FLAG_SPAMMER_REMOVE
+    FLAG_QUARANTINE_ADD
+    FLAG_QUARANTINE_REMOVE
 }
 
 model ModAction {
