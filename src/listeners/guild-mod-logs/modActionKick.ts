@@ -1,4 +1,4 @@
-import { GuildLogEmbed } from '#lib/extensions/GuildLogEmbed';
+import { ModActionLogEmbed } from '#root/lib/extensions/ModActionLogEmbed';
 import { CustomEvents } from '#utils/CustomTypes';
 import { ModActionType } from '@prisma/client';
 import { ApplyOptions } from '@sapphire/decorators';
@@ -17,7 +17,7 @@ export class UserEvent extends Listener {
 		const { member, auditLogEntry } = event;
 
 		// Log ModAction
-		await this.container.prisma._prisma.modAction.create({
+		const modAction = await this.container.prisma.modAction.create({
 			data: {
 				guildID: member.guild.id,
 				type: ModActionType.KICK,
@@ -29,36 +29,25 @@ export class UserEvent extends Listener {
 			}
 		});
 
+		if (!modAction) {
+			// Something's up--we couldn't create this ModAction
+			return;
+		}
+
+		const embed = await new ModActionLogEmbed().fromModAction(modAction);
+
 		const guildSettingsModActions = await this.container.prisma.guildSettingsModActions.fetch(member.guild.id);
 		if (!guildSettingsModActions || (!guildSettingsModActions.kickLog && !guildSettingsModActions.kickLogPublic)) return;
 
 		if (guildSettingsModActions.modLogChannel && guildSettingsModActions.kickLog) {
 			const modLogChannel = member.guild.channels.resolve(guildSettingsModActions.modLogChannel) as BaseGuildTextChannel;
-			this.container.client.emit(CustomEvents.GuildLogCreate, modLogChannel, this.generateGuildLog(event));
+			this.container.client.emit(CustomEvents.ModActionLogCreate, modAction, modLogChannel, embed);
 		}
 
 		if (guildSettingsModActions.modLogChannelPublic && guildSettingsModActions.kickLogPublic) {
 			const modLogChannelPublic = member.guild.channels.resolve(guildSettingsModActions.modLogChannelPublic) as BaseGuildTextChannel;
-			this.container.client.emit(CustomEvents.GuildLogCreate, modLogChannelPublic, this.generateGuildLog(event));
+			this.container.client.emit(CustomEvents.ModActionLogCreate, modAction, modLogChannelPublic, embed);
 		}
 	}
 
-	private generateGuildLog({ member, auditLogEntry }: ModActionKickEvent) {
-		const embed = new GuildLogEmbed()
-			.setTitle('User Kicked From Server')
-			.setDescription(member.toString())
-			.setThumbnail(member.user.displayAvatarURL())
-			.addFields({ name: 'Username', value: member.user.username, inline: true })
-			.addBlankFields({ name: '', value: '', inline: true })
-			.addFields({ name: 'Joined Server', value: `<t:${Math.round(member?.joinedTimestamp as number / 1000)}:R>`, inline: true })
-			.setFooter({ text: `User ID: ${member.user.id}` })
-			.setType(CustomEvents.ModActionKick);
-
-		if (auditLogEntry) {
-			if (auditLogEntry.reason) embed.addFields({ name: 'Reason', value: auditLogEntry.reason, inline: false });
-			if (auditLogEntry.executor) embed.addFields({ name: 'Kicked By', value: auditLogEntry.executor.toString(), inline: false });
-		}
-
-		return [embed];
-	}
 }
