@@ -7,10 +7,10 @@ import type { BaseGuildTextChannel } from 'discord.js';
 
 @ApplyOptions<ListenerOptions>({ event: CustomEvents.GuildLogCreate })
 export class UserEvent extends Listener {
-	public run(logChannel: BaseGuildTextChannel | null, logEmbeds: GuildLogEmbed[] | null) {
+	public run(logChannel: BaseGuildTextChannel | null, logEmbeds: GuildLogEmbed[] | null, logComponents?: any[]) {
 		if (isNullish(logChannel)) return;
 		if (!logEmbeds || !logEmbeds.length) return;
 
-		return logChannel.send({ embeds: logEmbeds });
+		return logChannel.send({ embeds: logEmbeds, components: logComponents });
 	}
 }
