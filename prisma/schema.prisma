@@ -442,10 +442,12 @@ model ModAction {
     targetID       String?       @map("target_id")
     executorID     String?       @map("executor_id")
     auditLogID     String?       @map("audit_log_id")
+    channelID      String?       @map("channel_id")
     createdAt      DateTime      @map("created_time")
     reason         String?       @map("reason") /// @encrypted?mode=strict
     details        String?       @map("details") /// @encrypted?mode=strict
     effectiveUntil DateTime?     @map("effective_until")
+    messageCount   Int?          @map("message_count")
 
     @@map("modActions")
 }
@@ -503,7 +505,7 @@ model MemberDataXP {
     userID     String    @map("user_id")
     guildID    String    @map("guild_id")
     currentXP  BigInt    @default(0) @map("xp_current")
-    multiplier Int       @default(1) @map("xp_multiplier")
+    multiplier Float     @default(1) @map("xp_multiplier")
     lastEarned DateTime? @map("xp_last_earned")
 
     mee6ImportedXP   BigInt    @default(0) @map("xp_imported_mee6")
