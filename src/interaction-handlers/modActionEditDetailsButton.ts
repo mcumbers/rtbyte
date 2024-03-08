@@ -1,8 +1,9 @@
 import { ModActionEditDetailsModalIDPrefix } from '#root/interaction-handlers/modActionEditDetailsModal';
+import { isModerator } from '#utils/functions/permissions';
 import { ModActionType, type ModAction } from '@prisma/client';
 import { ApplyOptions } from '@sapphire/decorators';
 import { InteractionHandler, InteractionHandlerTypes } from '@sapphire/framework';
-import { ActionRowBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, type ButtonInteraction, type User } from 'discord.js';
+import { ActionRowBuilder, GuildMember, ModalBuilder, TextInputBuilder, TextInputStyle, type ButtonInteraction, type User } from 'discord.js';
 
 export const ModActionEditDetailsButtonIDPrefix = 'btn-maed-';
 
@@ -19,8 +20,9 @@ interface BuildModalOptions {
 export class ButtonHandler extends InteractionHandler {
 	public async run(interaction: ButtonInteraction, modActionID: InteractionHandler.ParseResult<this>) {
 		if (!interaction.guild) return;
-
-		// Permissions?
+		if (!interaction.member || !isModerator(interaction.member as GuildMember)) {
+			return interaction.reply({ content: 'Only Moderators can Edit ModActions', ephemeral: true });
+		}
 
 		const modAction = await this.container.prisma.modAction.fetch(modActionID);
 		if (!modAction) return interaction.reply({ content: `No ModAction found with ID ${modActionID}`, ephemeral: true });

@@ -1,7 +1,8 @@
 import { ModActionLogEmbed } from '#root/lib/extensions/ModActionLogEmbed';
+import { isModerator } from '#utils/functions/permissions';
 import { ApplyOptions } from '@sapphire/decorators';
 import { InteractionHandler, InteractionHandlerTypes } from '@sapphire/framework';
-import type { ModalSubmitInteraction } from 'discord.js';
+import type { GuildMember, ModalSubmitInteraction } from 'discord.js';
 
 export const ModActionEditDetailsModalIDPrefix = 'mod-maed-';
 
@@ -12,8 +13,9 @@ export class ModalHandler extends InteractionHandler {
 	public async run(interaction: ModalSubmitInteraction, modActionID: InteractionHandler.ParseResult<this>) {
 		if (!interaction.guild) return;
 		await interaction.deferReply({ ephemeral: true });
-
-		// Permissions?
+		if (!interaction.member || !isModerator(interaction.member as GuildMember)) {
+			return interaction.editReply({ content: 'Only Moderators can Edit ModActions' });
+		}
 
 		const modAction = await this.container.prisma.modAction.fetch(modActionID);
 		if (!modAction) return interaction.reply({ content: `No ModAction found with ID ${modActionID}`, ephemeral: true });
