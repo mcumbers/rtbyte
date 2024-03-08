@@ -1,3 +1,4 @@
+import { ModActionLogEmbed } from '#root/lib/extensions/ModActionLogEmbed';
 import { ApplyOptions } from '@sapphire/decorators';
 import { InteractionHandler, InteractionHandlerTypes } from '@sapphire/framework';
 import type { ModalSubmitInteraction } from 'discord.js';
@@ -10,8 +11,9 @@ export const ModActionEditDetailsModalIDPrefix = 'mod-maed-';
 export class ModalHandler extends InteractionHandler {
 	public async run(interaction: ModalSubmitInteraction, modActionID: InteractionHandler.ParseResult<this>) {
 		if (!interaction.guild) return;
-
 		await interaction.deferReply({ ephemeral: true });
+
+		// Permissions?
 
 		const modAction = await this.container.prisma.modAction.fetch(modActionID);
 		if (!modAction) return interaction.reply({ content: `No ModAction found with ID ${modActionID}`, ephemeral: true });
@@ -25,28 +27,10 @@ export class ModalHandler extends InteractionHandler {
 			return interaction.followUp({ content: 'Whoops! Something went wrong...' });
 		}
 
-		const embed = interaction.message?.embeds[0];
+		const embeds = (await new ModActionLogEmbed().fromModAction(updated)).filter((embed) => embed !== undefined) as ModActionLogEmbed[];
 
-		if (embed) {
-			const reasonEmbedFieldIndex = embed.fields.findIndex((field) => field.name === 'Reason');
-			if (reasonEmbedFieldIndex >= 0) {
-				const reasonEmbedField = embed.fields[reasonEmbedFieldIndex];
-				reasonEmbedField.value = updated.reason ?? 'N/A';
-				embed.fields[reasonEmbedFieldIndex] = reasonEmbedField;
-			} else {
-				embed.fields.push({ name: 'Reason', value: updated.reason ?? 'N/A' });
-			}
-
-			const detailsEmbedFieldIndex = embed.fields.findIndex((field) => field.name === 'Details');
-			if (detailsEmbedFieldIndex >= 0) {
-				const detailsEmbedField = embed.fields[detailsEmbedFieldIndex];
-				detailsEmbedField.value = updated.details ?? 'N/A';
-				embed.fields[detailsEmbedFieldIndex] = detailsEmbedField;
-			} else {
-				embed.fields.push({ name: 'Details', value: updated.details ?? 'N/A' });
-			}
-
-			await interaction.message?.edit({ content: '', embeds: [embed] });
+		if (embeds.length) {
+			await interaction.message?.edit({ content: '', embeds });
 		}
 
 		return interaction.followUp({ content: 'ModAction has been updated' });
