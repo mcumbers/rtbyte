@@ -2,9 +2,16 @@ import { ModActionEditDetailsModalIDPrefix } from '#root/interaction-handlers/mo
 import { ModActionType, type ModAction } from '@prisma/client';
 import { ApplyOptions } from '@sapphire/decorators';
 import { InteractionHandler, InteractionHandlerTypes } from '@sapphire/framework';
-import { ActionRowBuilder, Guild, GuildMember, ModalBuilder, TextInputBuilder, TextInputStyle, type ButtonInteraction } from 'discord.js';
+import { ActionRowBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, type ButtonInteraction, type User } from 'discord.js';
 
 export const ModActionEditDetailsButtonIDPrefix = 'btn-maed-';
+
+interface BuildModalOptions {
+	reasonLabel: string,
+	detailsLabel: string,
+	titleGeneric: string,
+	titleTargeted: string
+}
 
 @ApplyOptions<InteractionHandler.Options>({
 	interactionHandlerType: InteractionHandlerTypes.Button
@@ -23,31 +30,76 @@ export class ButtonHandler extends InteractionHandler {
 
 		switch (modAction.type) {
 			case ModActionType.BAN:
-				modal = null;
+				modal = await this.buildModal(modAction, {
+					reasonLabel: 'Reason for Ban:',
+					detailsLabel: 'Additional Details:',
+					titleGeneric: 'Edit Ban Details',
+					titleTargeted: 'Edit Ban: '
+				});
 				break;
 			case ModActionType.UNBAN:
-				modal = null;
+				modal = await this.buildModal(modAction, {
+					reasonLabel: 'Reason for Ban Removal:',
+					detailsLabel: 'Additional Details:',
+					titleGeneric: 'Edit Unban Details',
+					titleTargeted: 'Edit Unban: '
+				});
 				break;
 			case ModActionType.KICK:
-				modal = null;
+				modal = await this.buildModal(modAction, {
+					reasonLabel: 'Reason for Kick:',
+					detailsLabel: 'Additional Details:',
+					titleGeneric: 'Edit Kick Details',
+					titleTargeted: 'Edit Kick: '
+				});
 				break;
 			case ModActionType.MUTE:
-				modal = await this.buildTimeoutModal(interaction.guild, modAction);
+				modal = await this.buildModal(modAction, {
+					reasonLabel: 'Reason for Timeout:',
+					detailsLabel: 'Additional Details:',
+					titleGeneric: 'Edit Timeout Details',
+					titleTargeted: 'Edit Timeout: '
+				});
 				break;
 			case ModActionType.UNMUTE:
-				modal = null;
+				modal = await this.buildModal(modAction, {
+					reasonLabel: 'Reason for Timeout Removal:',
+					detailsLabel: 'Additional Details:',
+					titleGeneric: 'Edit Un-Timeout Details',
+					titleTargeted: 'Edit Un-Timeout: '
+				});
 				break;
 			case ModActionType.PURGE:
-				modal = null;
+				modal = await this.buildModal(modAction, {
+					reasonLabel: 'Reason for Purge:',
+					detailsLabel: 'Additional Details:',
+					titleGeneric: 'Edit Purge Details',
+					titleTargeted: 'Edit Purge: '
+				});
 				break;
 			case ModActionType.VCBAN:
-				modal = null;
+				modal = await this.buildModal(modAction, {
+					reasonLabel: 'Reason for VC Ban:',
+					detailsLabel: 'Additional Details:',
+					titleGeneric: 'Edit Voice Chat Ban Details',
+					titleTargeted: 'Edit Voice Chat Ban: '
+				});
 				break;
 			case ModActionType.VCUNBAN:
-				modal = null;
+				modal = await this.buildModal(modAction, {
+					reasonLabel: 'Reason for VC Ban Removal:',
+					detailsLabel: 'Additional Details:',
+					titleGeneric: 'Edit Voice Chat UnBan Details',
+					titleTargeted: 'Edit Voice Chat UnBan: '
+				});
 				break;
 			case ModActionType.VCKICK:
-				modal = null;
+				modal = await this.buildModal(modAction, {
+					reasonLabel: 'Reason for VC Kick:',
+					detailsLabel: 'Additional Details:',
+					titleGeneric: 'Edit Voice Chat Kick Details',
+					titleTargeted: 'Edit Voice Chat Kick: '
+				});
 				break;
 			case ModActionType.FILTER_CHAT:
 				modal = null;
@@ -67,6 +119,9 @@ export class ButtonHandler extends InteractionHandler {
 			case ModActionType.FLAG_QUARANTINE_REMOVE:
 				modal = null;
 				break;
+			default:
+				modal = null;
+				break;
 		}
 
 		if (modal) await interaction.showModal(modal);
@@ -82,13 +137,13 @@ export class ButtonHandler extends InteractionHandler {
 		return this.some(parseInt(modActionID, 10));
 	}
 
-	private async buildTimeoutModal(guild: Guild, modAction: ModAction) {
-		let member: GuildMember | null = null;
-		if (modAction.targetID) member = await guild.members.fetch(modAction.targetID).catch(null);
+	private async buildModal(modAction: ModAction, { reasonLabel, detailsLabel, titleGeneric, titleTargeted }: BuildModalOptions) {
+		let target: User | undefined;
+		if (modAction.targetID) target = await this.container.client.users.fetch(modAction.targetID).catch(() => undefined);
 
 		const reasonField = new TextInputBuilder()
 			.setCustomId('reason')
-			.setLabel("Reason for Timeout:")
+			.setLabel(reasonLabel)
 			.setMaxLength(512)
 			.setRequired(false)
 			.setStyle(TextInputStyle.Paragraph);
@@ -97,7 +152,7 @@ export class ButtonHandler extends InteractionHandler {
 
 		const detailsField = new TextInputBuilder()
 			.setCustomId('details')
-			.setLabel("Additional Details:")
+			.setLabel(detailsLabel)
 			.setMaxLength(2048)
 			.setRequired(false)
 			.setStyle(TextInputStyle.Paragraph);
@@ -106,11 +161,11 @@ export class ButtonHandler extends InteractionHandler {
 
 		const modal = new ModalBuilder()
 			.setCustomId(`${ModActionEditDetailsModalIDPrefix}${modAction.id}`)
-			.setTitle('Edit Timeout Details')
+			.setTitle(titleGeneric)
 			.addComponents(new ActionRowBuilder<TextInputBuilder>().addComponents(reasonField))
 			.addComponents(new ActionRowBuilder<TextInputBuilder>().addComponents(detailsField));
 
-		if (member && member.displayName) modal.setTitle(`Edit Timeout: ${member.displayName}`);
+		if (target) modal.setTitle(`${titleTargeted}${target.username}`);
 
 		return modal;
 	}
