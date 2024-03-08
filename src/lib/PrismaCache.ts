@@ -19,21 +19,23 @@ type PrismaModelInterface = DynamicModelExtensionThis<Prisma.TypeMap<InternalArg
 	client: object;
 }>
 
-export type PrismaCacheIDTuple = [number | string, number | string];
+export type PrismaCacheIDTuple = [PrismaCacheID, PrismaCacheID];
+
+export type PrismaCacheID = string | number;
 
 export class PrismaCache<PrismaModel> {
-	public _cache: Collection<string, PrismaModel>;
+	public _cache: Collection<PrismaCacheID, PrismaModel>;
 	private readonly prismaModel: PrismaModelInterface;
 
 	public constructor(prismaModelInterface: PrismaModelInterface) {
-		this._cache = new Collection<string, PrismaModel>();
+		this._cache = new Collection<PrismaCacheID, PrismaModel>();
 		this.prismaModel = prismaModelInterface;
 	}
 
 	public async create(args: Args<PrismaModel, 'create'>) {
 		const result = await this.prismaModel.create(args);
 		if (!result) return result as null;
-		this._cache.set(result.id as string, result as PrismaModel);
+		this._cache.set(result.id as PrismaCacheID, result as PrismaModel);
 
 		return result as PrismaModel;
 	}
@@ -41,7 +43,7 @@ export class PrismaCache<PrismaModel> {
 	public async findUnique(args: Args<PrismaModel, 'findUnique'>) {
 		const result = await this.prismaModel.findUnique(args);
 		if (!result) return result as null;
-		this._cache.set(result.id as string, result as PrismaModel);
+		this._cache.set(result.id as PrismaCacheID, result as PrismaModel);
 
 		return result as PrismaModel;
 	}
@@ -50,7 +52,7 @@ export class PrismaCache<PrismaModel> {
 		const result = await this.prismaModel.findMany(args);
 		if (!result || !result.length) return result as null | PrismaModel[];
 		for (const entry of result) {
-			this._cache.set(entry.id as string, entry as PrismaModel);
+			this._cache.set(entry.id as PrismaCacheID, entry as PrismaModel);
 		}
 		return result as PrismaModel[];
 	}
@@ -58,7 +60,7 @@ export class PrismaCache<PrismaModel> {
 	public async update(args: Args<PrismaModel, 'update'>) {
 		const result = await this.prismaModel.update(args);
 		if (!result) return result as null;
-		this._cache.set(result.id as string, result as PrismaModel);
+		this._cache.set(result.id as PrismaCacheID, result as PrismaModel);
 
 		return result as PrismaModel;
 	}
@@ -66,12 +68,12 @@ export class PrismaCache<PrismaModel> {
 	public async delete(args: Args<PrismaModel, 'delete'>) {
 		const result = await this.prismaModel.delete(args);
 		if (!result) return result as null;
-		this._cache.delete(result.id as string);
+		this._cache.delete(result.id as PrismaCacheID);
 
 		return result as PrismaModel;
 	}
 
-	public async fetch(id: string, force?: boolean) {
+	public async fetch(id: PrismaCacheID, force?: boolean) {
 		if (force) return this.findUnique({ where: { id } } as Args<PrismaModel, 'findUnique'>);
 
 		if (this._cache.has(id)) return this._cache.get(id) as PrismaModel;
@@ -79,11 +81,11 @@ export class PrismaCache<PrismaModel> {
 		return this.findUnique({ where: { id } } as Args<PrismaModel, 'findUnique'>);
 	}
 
-	public async fetchMany(ids: string[], force?: boolean) {
+	public async fetchMany(ids: PrismaCacheID[], force?: boolean) {
 		if (!ids.length) return null;
 		if (force) return this.findMany({ where: { id: { in: ids } } } as Args<PrismaModel, 'findMany'>);
 
-		const unCached: string[] = ids.filter((entry) => !this._cache.has(entry));
+		const unCached: PrismaCacheID[] = ids.filter((entry) => !this._cache.has(entry));
 
 		if (unCached.length) await this.findMany({ where: { id: { in: unCached } } } as Args<PrismaModel, 'findMany'>);
 
