@@ -1,5 +1,6 @@
 import { Colors, ZeroWidthSpace } from "#utils/constants";
 import { UpdateLogStyle } from "@prisma/client";
+import { isNullishOrEmpty } from "@sapphire/utilities";
 import * as Diff from 'diff';
 import { EmbedBuilder } from "discord.js";
 
@@ -24,7 +25,7 @@ export class BotEmbed extends EmbedBuilder {
 				this.addBlankFields(field);
 			}
 		} else {
-			return this.addFields({ name: fields.name || ZeroWidthSpace, value: fields.value || ZeroWidthSpace, inline: fields.inline || false });
+			return this.addFields({ name: isNullishOrEmpty(fields.name) ? ZeroWidthSpace : fields.name, value: isNullishOrEmpty(fields.value) ? ZeroWidthSpace : fields.value, inline: fields.inline || false });
 		}
 		return this;
 	}
