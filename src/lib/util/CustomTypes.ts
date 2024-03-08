@@ -4,6 +4,7 @@ export enum CustomEvents {
 	GuildLogCreate = 'guildLogCreate',
 	GuildXPLevelUp = 'guildXPLevelUp',
 	MessageAttachmentDelete = 'messageAttachmentDelete',
+	ModActionLogCreate = 'modActionLogCreate',
 	ModActionKick = 'modActionKick',
 	ModActionPurge = 'modActionPurge',
 	ModActionMute = 'modActionMute',
