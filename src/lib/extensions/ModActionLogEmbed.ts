@@ -24,10 +24,10 @@ export class ModActionLogEmbed extends GuildLogEmbed {
 	}
 
 	public async fromModAction(modAction: ModAction) {
-		const target: User | undefined = await this.container.client.users.fetch(modAction.targetID as string).catch(undefined);
-		const executor: User | undefined = await this.container.client.users.fetch(modAction.executorID as string).catch(undefined);
-		const guild: Guild | undefined = await this.container.client.guilds.fetch(modAction.guildID).catch(undefined);
-		const guildPreview: GuildPreview | undefined = await this.container.client.fetchGuildPreview(modAction.guildID).catch(undefined);
+		const target: User | undefined = await this.container.client.users.fetch(modAction.targetID as string).catch(() => undefined);
+		const executor: User | undefined = await this.container.client.users.fetch(modAction.executorID as string).catch(() => undefined);
+		const guild: Guild | undefined = await this.container.client.guilds.fetch(modAction.guildID).catch(() => undefined);
+		const guildPreview: GuildPreview | undefined = await this.container.client.fetchGuildPreview(modAction.guildID).catch(() => undefined);
 
 		let targetMember: GuildMember | undefined;
 		let executorMember: GuildMember | undefined;
@@ -229,7 +229,7 @@ export class ModActionLogEmbed extends GuildLogEmbed {
 
 		if (guild) {
 			if (modAction.channelID) {
-				const channel = await guild.channels.fetch(modAction.channelID).catch(undefined);
+				const channel = await guild.channels.fetch(modAction.channelID).catch(() => undefined);
 
 				if (channel) {
 					this.addFields({ name: 'Channel', value: channel.url as string, inline: true });

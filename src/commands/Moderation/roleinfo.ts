@@ -74,8 +74,8 @@ export class UserCommand extends BotCommand {
 		if (targetRole.tags) {
 			if (targetRole.tags.premiumSubscriberRole) roleInfo.push('- Received when Boosting Server');
 			if (targetRole.tags.botId) {
-				const botMember = await targetRole.guild.members.fetch(targetRole.tags.botId).catch(undefined);
-				if (botMember.user.displayAvatarURL()) {
+				const botMember = await targetRole.guild.members.fetch(targetRole.tags.botId).catch(() => undefined);
+				if (botMember && botMember.user.displayAvatarURL()) {
 					embed.setThumbnail(botMember.user.displayAvatarURL());
 				}
 				roleInfo.push(`- Managed by <@${targetRole.tags.botId}>`);

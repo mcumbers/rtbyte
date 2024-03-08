@@ -208,7 +208,7 @@ export class UserCommand extends Command {
 			}
 
 			if (targetUser) {
-				const member = await interaction.guild.members.fetch(targetUser.id).catch(undefined);
+				const member = await interaction.guild.members.fetch(targetUser.id).catch(() => undefined);
 
 				if (!member) {
 					message = await interaction.followUp({ content: 'Whoops! Something went wrong...' });
