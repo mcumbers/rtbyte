@@ -61,10 +61,10 @@ export class ModActionLogEmbed extends GuildLogEmbed {
 			case ModActionType.VCKICK: return [await this.buildVCKickEmbed(modAction, resources)];
 			case ModActionType.FILTER_CHAT: return [];
 			case ModActionType.FILTER_NAME: return [];
-			case ModActionType.FLAG_SPAMMER_ADD: return [];
-			case ModActionType.FLAG_SPAMMER_REMOVE: return [];
-			case ModActionType.FLAG_QUARANTINE_ADD: return [];
-			case ModActionType.FLAG_QUARANTINE_REMOVE: return [];
+			case ModActionType.FLAG_SPAMMER_ADD: return [this.buildFlagSpammerAddEmbed(modAction, resources)];
+			case ModActionType.FLAG_SPAMMER_REMOVE: return [this.buildFlagSpammerRemoveEmbed(modAction, resources)];
+			case ModActionType.FLAG_QUARANTINE_ADD: return [this.buildFlagQuarantineAddEmbed(modAction, resources)];
+			case ModActionType.FLAG_QUARANTINE_REMOVE: return [this.buildFlagQuarantineRemoveEmbed(modAction, resources)];
 
 			default: return [];
 		}
@@ -240,6 +240,46 @@ export class ModActionLogEmbed extends GuildLogEmbed {
 		if (modAction.executorID) this.addFields({ name: 'Kicked By', value: executorMember ? executorMember.toString() : executor ? executor.toString() : `<@${modAction.executorID}>`, inline: true });
 		if (modAction.reason) this.addFields({ name: 'Reason', value: modAction.reason, inline: false });
 		if (modAction.details) this.addFields({ name: 'Details', value: modAction.details, inline: false });
+
+		return this;
+	}
+
+	private buildFlagSpammerAddEmbed(modAction: ModAction, { target, guild, guildPreview, targetMember }: ModActionLogEmbedOptions) {
+		this.setTitle('User Marked as Spammer by Discord');
+		this.setDescription(`<@${modAction.targetID}>`);
+		this.setThumbnail(targetMember ? targetMember.displayAvatarURL() : target ? target.avatarURL() : guild ? guild.iconURL() : guildPreview ? guildPreview.iconURL() : null)
+		this.setFooter({ text: `User ID: ${modAction.targetID}` });
+		this.setType(CustomEvents.ModActionFlagSpammerAdd);
+
+		return this;
+	}
+
+	private buildFlagSpammerRemoveEmbed(modAction: ModAction, { target, guild, guildPreview, targetMember }: ModActionLogEmbedOptions) {
+		this.setTitle('User Un-Marked as Spammer by Discord');
+		this.setDescription(`<@${modAction.targetID}>`);
+		this.setThumbnail(targetMember ? targetMember.displayAvatarURL() : target ? target.avatarURL() : guild ? guild.iconURL() : guildPreview ? guildPreview.iconURL() : null)
+		this.setFooter({ text: `User ID: ${modAction.targetID}` });
+		this.setType(CustomEvents.ModActionFlagSpammerRemove);
+
+		return this;
+	}
+
+	private buildFlagQuarantineAddEmbed(modAction: ModAction, { target, guild, guildPreview, targetMember }: ModActionLogEmbedOptions) {
+		this.setTitle('User Marked as Quarantined by Discord');
+		this.setDescription(`<@${modAction.targetID}>`);
+		this.setThumbnail(targetMember ? targetMember.displayAvatarURL() : target ? target.avatarURL() : guild ? guild.iconURL() : guildPreview ? guildPreview.iconURL() : null)
+		this.setFooter({ text: `User ID: ${modAction.targetID}` });
+		this.setType(CustomEvents.ModActionFlagQuarantineAdd);
+
+		return this;
+	}
+
+	private buildFlagQuarantineRemoveEmbed(modAction: ModAction, { target, guild, guildPreview, targetMember }: ModActionLogEmbedOptions) {
+		this.setTitle('User Un-Marked as Quarantined by Discord');
+		this.setDescription(`<@${modAction.targetID}>`);
+		this.setThumbnail(targetMember ? targetMember.displayAvatarURL() : target ? target.avatarURL() : guild ? guild.iconURL() : guildPreview ? guildPreview.iconURL() : null)
+		this.setFooter({ text: `User ID: ${modAction.targetID}` });
+		this.setType(CustomEvents.ModActionFlagQuarantineRemove);
 
 		return this;
 	}
