@@ -1,31 +1,35 @@
-import { initializeMember } from '#utils/functions/initialize';
+import { initializeMember, initializeUser } from '#utils/functions/initialize';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Events, Listener, type ListenerOptions } from '@sapphire/framework';
-import { isNullish } from '@sapphire/utilities';
 import { GuildMember } from 'discord.js';
 
 @ApplyOptions<ListenerOptions>({ event: Events.GuildMemberUpdate })
 export class UserEvent extends Listener {
 	public async run(oldMember: GuildMember, member: GuildMember) {
-		if (isNullish(member.id)) return;
 		if (member.user.bot) return;
+		if (oldMember.nickname === member.nickname) return;
+
+		let userSettings = await this.container.prisma.userSettings.fetch(member.user.id);
+		if (!userSettings) {
+			await initializeUser(member.user);
+			userSettings = await this.container.prisma.userSettings.fetch(member.user.id);
+			if (!userSettings) return;
+		}
+
+		if (userSettings.disableBot) return;
 
 		let memberData = await this.container.prisma.member.fetchTuple([member.id, member.guild.id], ['userID', 'guildID']);
 		if (!memberData) {
-			await initializeMember(member.user, member.guild);
+			await initializeMember(member.user, member.guild, member);
 			memberData = await this.container.prisma.member.fetchTuple([member.id, member.guild.id], ['userID', 'guildID']);
+			if (!memberData) return;
 		}
 
-		const userSettings = await this.container.prisma.userSettings.fetch(member.id);
+		const { displayNameHistory } = memberData;
 
-		if (userSettings?.disableBot) return;
+		if (oldMember.nickname && !displayNameHistory.includes(oldMember.nickname)) displayNameHistory.push(oldMember.nickname);
+		if (member.nickname && !displayNameHistory.includes(member.nickname)) displayNameHistory.push(member.nickname);
 
-		const usernameHistory = memberData?.usernameHistory;
-		const displayNameHistory = memberData?.displayNameHistory;
-
-		if (oldMember.user.username !== member.user.username) usernameHistory?.push(oldMember.user.username);
-		if (oldMember.displayName !== member.displayName) displayNameHistory?.push(oldMember.displayName);
-
-		await this.container.prisma.member.update({ where: { id: memberData?.id }, data: { usernameHistory, displayNameHistory } });
+		await this.container.prisma.member.update({ where: { id: memberData.id }, data: { displayNameHistory } });
 	}
 }
