@@ -11,7 +11,7 @@ import { GuildMember, GuildMemberFlags, PermissionFlagsBits, UserFlags, UserFlag
 
 @ApplyOptions<ChatInputCommand.Options>({
 	description: 'Retrieve information about a user',
-	preconditions: [['IsGuildOwner', ['HasAdminRole', ['HasModRole']]]]
+	preconditions: ['IsModerator']
 })
 
 export class UserCommand extends BotCommand {

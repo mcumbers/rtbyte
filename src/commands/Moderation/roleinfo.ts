@@ -8,7 +8,7 @@ import { PermissionFlagsBits } from 'discord.js';
 
 @ApplyOptions<ChatInputCommand.Options>({
 	description: 'Retrieve information about a role',
-	preconditions: [['IsGuildOwner', ['HasAdminRole', ['HasModRole']]]]
+	preconditions: ['IsModerator']
 })
 
 export class UserCommand extends BotCommand {

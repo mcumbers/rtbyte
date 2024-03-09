@@ -19,7 +19,7 @@ export interface ModActionPurgeEvent {
 
 @ApplyOptions<Command.Options>({
 	description: "Mass Delete Messages from this Channel",
-	preconditions: [['IsGuildOwner', ['HasAdminRole', ['HasModRole']]]]
+	preconditions: ['IsModerator']
 })
 export class UserCommand extends Command {
 	public override registerApplicationCommands(registry: Command.Registry) {

@@ -21,7 +21,7 @@ export interface XPMultiplier {
 
 @ApplyOptions<Command.Options>({
 	description: 'Add or Subtract XP from a User, or set their multiplier',
-	preconditions: [['IsGuildOwner', ['HasAdminRole', ['HasModRole']]]]
+	preconditions: ['IsModerator']
 })
 
 export class UserCommand extends Command {

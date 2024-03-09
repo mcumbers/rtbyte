@@ -7,7 +7,7 @@ import { PermissionFlagsBits, type GuildMember } from 'discord.js';
 
 @ApplyOptions<ChatInputCommand.Options>({
 	description: 'Sends a message to the specified channel as the bot',
-	preconditions: [['IsGuildOwner', ['HasAdminRole', ['HasModRole']]]]
+	preconditions: ['IsModerator']
 })
 
 export class UserCommand extends BotCommand {

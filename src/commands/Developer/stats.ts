@@ -8,7 +8,7 @@ import { memoryUsage } from 'node:process';
 
 @ApplyOptions<Command.Options>({
 	description: 'See statistics about the Bot.',
-	preconditions: ['DevOnly']
+	preconditions: ['IsDeveloper']
 })
 
 export class UserCommand extends Command {

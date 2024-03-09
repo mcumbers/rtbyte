@@ -8,7 +8,7 @@ import { ForumChannel, MediaChannel, NewsChannel, PermissionFlagsBits, StageChan
 
 @ApplyOptions<ChatInputCommand.Options>({
 	description: 'Retrieve information about a channel',
-	preconditions: [['IsGuildOwner', ['HasAdminRole', ['HasModRole']]]]
+	preconditions: ['IsModerator']
 })
 
 export class UserCommand extends BotCommand {
