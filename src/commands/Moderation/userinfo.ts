@@ -49,11 +49,11 @@ export class UserCommand extends BotCommand {
 		const roles = member.roles.cache.filter(role => role.name !== '@everyone');
 		const joinPosition = interaction.guild?.members.cache.sort((memberA, memberB) => Number(memberA.joinedTimestamp) - Number(memberB.joinedTimestamp)).map(mbr => mbr).indexOf(member as GuildMember);
 
-		let memberData = await this.container.prisma.member.fetch(member.id);
+		let memberData = await this.container.prisma.member.fetchTuple([member.id, member.guild.id], ['userID', 'guildID']);
 
 		if (!memberData) {
 			await initializeMember(member.user, member.guild, member);
-			memberData = await this.container.prisma.member.fetch(member.id);
+			memberData = await this.container.prisma.member.fetchTuple([member.id, member.guild.id], ['userID', 'guildID']);
 		}
 
 		if (!memberData) {
