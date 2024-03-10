@@ -1,9 +1,10 @@
-import { ModActionEditTargetButtonIDPrefix } from '#root/interaction-handlers/modActionEditTargetButton';
 import { ModActionLogEmbed } from '#root/lib/extensions/ModActionLogEmbed';
 import { isModerator } from '#utils/functions/permissions';
 import { ApplyOptions } from '@sapphire/decorators';
 import { InteractionHandler, InteractionHandlerTypes } from '@sapphire/framework';
 import type { GuildMember, Message, StringSelectMenuInteraction } from 'discord.js';
+
+export const ModActionEditTargetSelectIDPrefix = 'sel-maet-';
 
 @ApplyOptions<InteractionHandler.Options>({
 	interactionHandlerType: InteractionHandlerTypes.SelectMenu
@@ -13,7 +14,6 @@ export class MenuHandler extends InteractionHandler {
 		if (!interaction.guild) return;
 		await interaction.deferReply({ ephemeral: true });
 		if (!interaction.member || !isModerator(interaction.member as GuildMember)) {
-			await interaction.message.delete();
 			return interaction.followUp({ content: 'Only Moderators can Edit ModActions' });
 		}
 
@@ -25,13 +25,11 @@ export class MenuHandler extends InteractionHandler {
 		const target = await this.container.client.users.fetch(targetID).catch(() => undefined);
 
 		if (!target) {
-			await interaction.message.delete();
 			return interaction.followUp({ content: `Could not find User with ID ${targetID}` });
 		}
 
 		const updated = await this.container.prisma.modAction.update({ where: { id: modAction.id }, data: { targetID } });
 		if (!updated) {
-			await interaction.message.delete();
 			return interaction.followUp({ content: 'Whoops! Something went wrong...' });
 		}
 
@@ -65,14 +63,13 @@ export class MenuHandler extends InteractionHandler {
 				}
 			}
 		}
-		await interaction.message.delete();
-		return interaction.followUp({ content: 'ModAction has been updated' });
+		return interaction.followUp({ content: 'ModAction has been updated', embeds: [], components: [] });
 	}
 
 	public override parse(interaction: StringSelectMenuInteraction) {
-		if (!interaction.customId.startsWith(ModActionEditTargetButtonIDPrefix)) return this.none();
+		if (!interaction.customId.startsWith(ModActionEditTargetSelectIDPrefix)) return this.none();
 
-		const modActionID = interaction.customId.substring(ModActionEditTargetButtonIDPrefix.length, interaction.customId.length);
+		const modActionID = interaction.customId.substring(ModActionEditTargetSelectIDPrefix.length, interaction.customId.length);
 
 		return this.some(parseInt(modActionID, 10));
 	}

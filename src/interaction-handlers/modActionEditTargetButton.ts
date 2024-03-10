@@ -1,3 +1,4 @@
+import { ModActionEditTargetSelectIDPrefix } from '#root/interaction-handlers/modActionEditTargetSelect';
 import { ModActionLogEmbed } from '#root/lib/extensions/ModActionLogEmbed';
 import { isModerator } from '#utils/functions/permissions';
 import { ModActionType, type ModAction } from '@prisma/client';
@@ -104,7 +105,7 @@ export class ButtonHandler extends InteractionHandler {
 		if (modAction.targetID) target = await this.container.client.users.fetch(modAction.targetID).catch(() => undefined);
 
 		const targetUserSelect = new UserSelectMenuBuilder()
-			.setCustomId('targetID')
+			.setCustomId(`${ModActionEditTargetSelectIDPrefix}${modAction.id}`)
 			.setPlaceholder(title)
 			.setMinValues(1)
 			.setMaxValues(1);
