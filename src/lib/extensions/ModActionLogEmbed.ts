@@ -3,6 +3,7 @@ import { CustomEvents } from "#root/lib/util/CustomTypes";
 import { getAuditLogEntry } from "#utils/util";
 import { ModActionType, type ModAction } from "@prisma/client";
 import { container, type Container } from "@sapphire/framework";
+import { isNullishOrEmpty } from "@sapphire/utilities";
 import type { Guild, GuildMember, GuildPreview, User } from "discord.js";
 import { AuditLogEvent, Events } from "discord.js";
 
@@ -35,15 +36,20 @@ export class ModActionLogEmbed extends GuildLogEmbed {
 		// If we can access the guild...
 		if (guild) {
 			// Try to grab the GuildMember for the target from the cache
-			targetMember = guild.members.cache.get(modAction.targetID as string);
-			// Or try to fetch them from the Guild... If we can't get their GuildMember, just pass undefined
-			if (!targetMember) {
-				targetMember = await guild.members.fetch(modAction.targetID as string).catch(() => undefined)
-			};
+			if (!isNullishOrEmpty(modAction.targetID)) {
+				targetMember = guild.members.cache.get(modAction.targetID as string);
+				// Or try to fetch them from the Guild... If we can't get their GuildMember, just pass undefined
+				if (!targetMember) {
+					targetMember = await guild.members.fetch(modAction.targetID as string).catch(() => undefined)
+				};
+			}
+
 			// Do the same for the executor
-			executorMember = guild.members.cache.get(modAction.executorID as string);
-			if (!executorMember) {
-				executorMember = await guild.members.fetch(modAction.executorID as string).catch(() => undefined);
+			if (!isNullishOrEmpty(modAction.executorID)) {
+				executorMember = guild.members.cache.get(modAction.executorID as string);
+				if (!executorMember) {
+					executorMember = await guild.members.fetch(modAction.executorID as string).catch(() => undefined);
+				}
 			}
 		}
 
