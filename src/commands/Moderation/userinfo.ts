@@ -7,7 +7,7 @@ import { Colors } from '#utils/constants';
 import { ApplyOptions } from '@sapphire/decorators';
 import { type ChatInputCommand } from '@sapphire/framework';
 import { inlineCodeBlock } from '@sapphire/utilities';
-import { GuildMember, GuildMemberFlags, PermissionFlagsBits, UserFlags, UserFlagsBitField } from 'discord.js';
+import { GuildMember, GuildMemberFlags, PermissionFlagsBits, UserFlags, UserFlagsBitField, type Guild } from 'discord.js';
 
 @ApplyOptions<ChatInputCommand.Options>({
 	description: 'Retrieve information about a user',
@@ -61,15 +61,17 @@ export class UserCommand extends BotCommand {
 			return this.container.client.emit(CustomEvents.BotCommandRun, { interaction, message, runtime: Date.now() - startTime } as CommandRunEvent);
 		}
 
+		const emoji = member.roles.icon?.icon ? await this.getEmojiFromIcon(member.guild, member.roles.icon.icon) : undefined;
+
 		const embed = new BotEmbed()
 			.setTitle('User Information')
-			.setDescription(member.toString())
+			.setDescription(`${member.toString()}${emoji ?? ''}`)
 			.setThumbnail(member.displayAvatarURL() ?? null)
 			.setColor(member.roles.highest.color ?? Colors.White)
 			.addFields(
-				{ name: 'Join position', value: `${joinPosition! + 1}`, inline: true },
-				{ name: 'Joined', value: `<t:${Math.round(member?.joinedTimestamp as number / 1000)}:R>`, inline: true },
-				{ name: 'Registered', value: `<t:${Math.round(member?.user.createdTimestamp as number / 1000)}:R>`, inline: true },
+				{ name: 'Join Position', value: `${joinPosition! + 1}`, inline: true },
+				{ name: 'Joined Server', value: `<t:${Math.round(member?.joinedTimestamp as number / 1000)}:R>`, inline: true },
+				{ name: 'Account Created', value: `<t:${Math.round(member?.user.createdTimestamp as number / 1000)}:R>`, inline: true },
 			);
 
 		if (roles?.map(role => role).length) embed.addFields({ name: `Roles (${roles?.size})`, value: roles!.map(role => role).join(' ') });
@@ -94,5 +96,15 @@ export class UserCommand extends BotCommand {
 
 		message = await interaction.followUp({ content: '', embeds: [embed] });
 		return this.container.client.emit(CustomEvents.BotCommandRun, { interaction, message, runtime: Date.now() - startTime } as CommandRunEvent);
+	}
+
+	private async getEmojiFromIcon(guild: Guild, icon: string) {
+		const emojis = await guild.emojis.fetch();
+
+		for await (const emoji of emojis.values()) {
+			if (emoji.identifier === icon) return emoji;
+		}
+
+		return undefined;
 	}
 }
