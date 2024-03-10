@@ -1,5 +1,6 @@
 import type { GuildLogEmbed } from '#lib/extensions/GuildLogEmbed';
 import { ModActionEditDetailsButtonIDPrefix } from '#root/interaction-handlers/modActionEditDetailsButton';
+import { ModActionEditTargetButtonIDPrefix } from '#root/interaction-handlers/modActionEditTargetButton';
 import { CustomEvents } from '#utils/CustomTypes';
 import { ModActionType, type ModAction } from '@prisma/client';
 import { ApplyOptions } from '@sapphire/decorators';
@@ -29,7 +30,7 @@ export class UserEvent extends Listener {
 		if (!modAction.targetID) {
 			// Add Target Button
 			const addTargetButton = new ButtonBuilder()
-				.setCustomId(`placeholderID-${modAction.id}`)
+				.setCustomId(`${ModActionEditTargetButtonIDPrefix}${modAction.id}`)
 				.setLabel('Add Target User')
 				.setStyle(ButtonStyle.Primary);
 
