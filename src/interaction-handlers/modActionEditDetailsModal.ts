@@ -29,10 +29,10 @@ export class ModalHandler extends InteractionHandler {
 			return interaction.followUp({ content: 'Whoops! Something went wrong...' });
 		}
 
-		const embeds = (await new ModActionLogEmbed().fromModAction(updated)).filter((embed) => embed !== undefined) as ModActionLogEmbed[];
+		const embed = await new ModActionLogEmbed().fromModAction(updated);
 
-		if (embeds.length) {
-			await interaction.message?.edit({ content: '', embeds });
+		if (embed) {
+			await interaction.message?.edit({ content: '', embeds: [embed] });
 		}
 
 		return interaction.followUp({ content: 'ModAction has been updated' });

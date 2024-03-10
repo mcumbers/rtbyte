@@ -37,12 +37,12 @@ export class UserEvent extends Listener {
 
 		if (guildSettingsModActions.modLogChannel && guildSettingsModActions.banLog) {
 			const modLogChannel = guildBan.guild.channels.resolve(guildSettingsModActions.modLogChannel) as BaseGuildTextChannel;
-			this.container.client.emit(CustomEvents.ModActionLogCreate, modAction, modLogChannel, embed);
+			this.container.client.emit(CustomEvents.ModActionLogCreate, modAction, modLogChannel, [embed]);
 		}
 
 		if (guildSettingsModActions.modLogChannelPublic && guildSettingsModActions.banLogPublic) {
 			const modLogChannelPublic = guildBan.guild.channels.resolve(guildSettingsModActions.modLogChannelPublic) as BaseGuildTextChannel;
-			this.container.client.emit(CustomEvents.ModActionLogCreate, modAction, modLogChannelPublic, embed);
+			this.container.client.emit(CustomEvents.ModActionLogCreate, modAction, modLogChannelPublic, [embed]);
 		}
 	}
 

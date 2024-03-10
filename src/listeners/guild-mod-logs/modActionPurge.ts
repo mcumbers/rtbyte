@@ -38,8 +38,8 @@ export class UserEvent extends Listener {
 		const logChannel: BaseGuildTextChannel | null = guildSettingsModActions.modLogChannel ? purge.guild.channels.resolve(guildSettingsModActions.modLogChannel) as BaseGuildTextChannel : null;
 		const logChannelPublic: BaseGuildTextChannel | null = guildSettingsModActions.modLogChannelPublic ? purge.guild.channels.resolve(guildSettingsModActions.modLogChannelPublic) as BaseGuildTextChannel : null;
 
-		if (logChannel) this.container.client.emit(CustomEvents.ModActionLogCreate, modAction, logChannel, embed);
-		if (logChannelPublic) this.container.client.emit(CustomEvents.ModActionLogCreate, modAction, logChannelPublic, embed);
+		if (logChannel) this.container.client.emit(CustomEvents.ModActionLogCreate, modAction, logChannel, [embed]);
+		if (logChannelPublic) this.container.client.emit(CustomEvents.ModActionLogCreate, modAction, logChannelPublic, [embed]);
 	}
 
 }

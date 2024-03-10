@@ -55,23 +55,23 @@ export class UserEvent extends Listener {
 			const embed = await new ModActionLogEmbed().fromModAction(modAction);
 
 			if (spammerFlagAdded) {
-				if (guildSettingsModActions.flagSpammerAddLog && modLogChannel) this.container.client.emit(CustomEvents.ModActionLogCreate, modAction, modLogChannel, embed);
-				if (guildSettingsModActions.flagSpammerAddLogPublic && modLogChannelPublic) this.container.client.emit(CustomEvents.ModActionLogCreate, modAction, modLogChannelPublic, embed);
+				if (guildSettingsModActions.flagSpammerAddLog && modLogChannel) this.container.client.emit(CustomEvents.ModActionLogCreate, modAction, modLogChannel, [embed]);
+				if (guildSettingsModActions.flagSpammerAddLogPublic && modLogChannelPublic) this.container.client.emit(CustomEvents.ModActionLogCreate, modAction, modLogChannelPublic, [embed]);
 			}
 
 			if (spammerFlagRemoved) {
-				if (guildSettingsModActions.flagSpammerRemoveLog && modLogChannel) this.container.client.emit(CustomEvents.ModActionLogCreate, modAction, modLogChannel, embed);
-				if (guildSettingsModActions.flagSpammerRemoveLogPublic && modLogChannelPublic) this.container.client.emit(CustomEvents.ModActionLogCreate, modAction, modLogChannelPublic, embed);
+				if (guildSettingsModActions.flagSpammerRemoveLog && modLogChannel) this.container.client.emit(CustomEvents.ModActionLogCreate, modAction, modLogChannel, [embed]);
+				if (guildSettingsModActions.flagSpammerRemoveLogPublic && modLogChannelPublic) this.container.client.emit(CustomEvents.ModActionLogCreate, modAction, modLogChannelPublic, [embed]);
 			}
 
 			if (quarantineFlagAdded) {
-				if (guildSettingsModActions.flagQuarantineAddLog && modLogChannel) this.container.client.emit(CustomEvents.ModActionLogCreate, modAction, modLogChannel, embed);
-				if (guildSettingsModActions.flagQuarantineAddLogPublic && modLogChannelPublic) this.container.client.emit(CustomEvents.ModActionLogCreate, modAction, modLogChannelPublic, embed);
+				if (guildSettingsModActions.flagQuarantineAddLog && modLogChannel) this.container.client.emit(CustomEvents.ModActionLogCreate, modAction, modLogChannel, [embed]);
+				if (guildSettingsModActions.flagQuarantineAddLogPublic && modLogChannelPublic) this.container.client.emit(CustomEvents.ModActionLogCreate, modAction, modLogChannelPublic, [embed]);
 			}
 
 			if (quarantineFlagRemoved) {
-				if (guildSettingsModActions.flagQuarantineRemoveLog && modLogChannel) this.container.client.emit(CustomEvents.ModActionLogCreate, modAction, modLogChannel, embed);
-				if (guildSettingsModActions.flagQuarantineRemoveLogPublic && modLogChannelPublic) this.container.client.emit(CustomEvents.ModActionLogCreate, modAction, modLogChannelPublic, embed);
+				if (guildSettingsModActions.flagQuarantineRemoveLog && modLogChannel) this.container.client.emit(CustomEvents.ModActionLogCreate, modAction, modLogChannel, [embed]);
+				if (guildSettingsModActions.flagQuarantineRemoveLogPublic && modLogChannelPublic) this.container.client.emit(CustomEvents.ModActionLogCreate, modAction, modLogChannelPublic, [embed]);
 			}
 		}
 	}

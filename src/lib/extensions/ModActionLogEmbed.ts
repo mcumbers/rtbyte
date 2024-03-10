@@ -50,23 +50,23 @@ export class ModActionLogEmbed extends GuildLogEmbed {
 		const resources: ModActionLogEmbedOptions = { target, executor, guild, guildPreview, targetMember, executorMember };
 
 		switch (modAction.type) {
-			case ModActionType.BAN: return [await this.buildBanEmbed(modAction, resources)];
-			case ModActionType.UNBAN: return [await this.buildUnbanEmbed(modAction, resources)];
-			case ModActionType.KICK: return [this.buildKickEmbed(modAction, resources)];
-			case ModActionType.MUTE: return [this.buildMuteEmbed(modAction, resources)];
-			case ModActionType.UNMUTE: return [await this.buildUnmuteEmbed(modAction, resources)];
-			case ModActionType.PURGE: return [this.buildPurgeEmbed(modAction, resources)];
-			case ModActionType.VCBAN: return [];
-			case ModActionType.VCUNBAN: return [];
-			case ModActionType.VCKICK: return [await this.buildVCKickEmbed(modAction, resources)];
-			case ModActionType.FILTER_CHAT: return [];
-			case ModActionType.FILTER_NAME: return [];
-			case ModActionType.FLAG_SPAMMER_ADD: return [this.buildFlagSpammerAddEmbed(modAction, resources)];
-			case ModActionType.FLAG_SPAMMER_REMOVE: return [this.buildFlagSpammerRemoveEmbed(modAction, resources)];
-			case ModActionType.FLAG_QUARANTINE_ADD: return [this.buildFlagQuarantineAddEmbed(modAction, resources)];
-			case ModActionType.FLAG_QUARANTINE_REMOVE: return [this.buildFlagQuarantineRemoveEmbed(modAction, resources)];
+			case ModActionType.BAN: return this.buildBanEmbed(modAction, resources);
+			case ModActionType.UNBAN: return this.buildUnbanEmbed(modAction, resources);
+			case ModActionType.KICK: return this.buildKickEmbed(modAction, resources);
+			case ModActionType.MUTE: return this.buildMuteEmbed(modAction, resources);
+			case ModActionType.UNMUTE: return this.buildUnmuteEmbed(modAction, resources);
+			case ModActionType.PURGE: return this.buildPurgeEmbed(modAction, resources);
+			case ModActionType.VCBAN: return undefined;
+			case ModActionType.VCUNBAN: return undefined;
+			case ModActionType.VCKICK: return this.buildVCKickEmbed(modAction, resources);
+			case ModActionType.FILTER_CHAT: return undefined;
+			case ModActionType.FILTER_NAME: return undefined;
+			case ModActionType.FLAG_SPAMMER_ADD: return this.buildFlagSpammerAddEmbed(modAction, resources);
+			case ModActionType.FLAG_SPAMMER_REMOVE: return this.buildFlagSpammerRemoveEmbed(modAction, resources);
+			case ModActionType.FLAG_QUARANTINE_ADD: return this.buildFlagQuarantineAddEmbed(modAction, resources);
+			case ModActionType.FLAG_QUARANTINE_REMOVE: return this.buildFlagQuarantineRemoveEmbed(modAction, resources);
 
-			default: return [];
+			default: return undefined;
 		}
 	}
 
