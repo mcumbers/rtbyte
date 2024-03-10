@@ -1,4 +1,4 @@
-import { initializeMember, initializeUser } from '#root/lib/util/functions/initialize.js';
+import { initializeMember, initializeUser } from '#root/lib/util/functions/initialize';
 import { ApplyOptions } from '@sapphire/decorators';
 import { Events, Listener, type ListenerOptions } from '@sapphire/framework';
 import type { User } from 'discord.js';
