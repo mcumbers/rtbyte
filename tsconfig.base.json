@@ -1,10 +1,13 @@
 {
-  "extends": "@sapphire/ts-config",
-  "compilerOptions": {
-    "sourceMap": true,
-    "outDir": "dist",
-    "strict": true,
-    "lib": ["esnext"],
-    "esModuleInterop": true
-  }
+	"extends": "@sapphire/ts-config",
+	"compilerOptions": {
+		"sourceMap": true,
+		"outDir": "dist",
+		"strict": true,
+		"lib": [
+			"esnext"
+		],
+		"esModuleInterop": true,
+		"skipLibCheck": true
+	}
 }

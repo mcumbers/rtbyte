@@ -17,7 +17,7 @@ type PrismaModelInterface = DynamicModelExtensionThis<Prisma.TypeMap<InternalArg
 	model: object;
 	query: object;
 	client: object;
-}>
+}, {}>
 
 export type PrismaCacheIDTuple = [PrismaCacheID, PrismaCacheID];
 

@@ -36,7 +36,7 @@ export class MenuHandler extends InteractionHandler {
 		const embed = await new ModActionLogEmbed().fromModAction(updated);
 
 		if (embed) {
-			if (interaction.channel) {
+			if (interaction.channel && interaction.channel.isSendable()) {
 				const messages = interaction.channel?.messages.cache.values();
 
 				let targetMessage: Message | undefined;

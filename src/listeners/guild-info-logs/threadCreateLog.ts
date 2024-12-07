@@ -34,7 +34,7 @@ export class UserEvent extends Listener {
 		if (thread.parent) embed.addFields({ name: `In ${parentDescriptor}`, value: thread.parent.url, inline: true });
 
 		if (thread.appliedTags.length && thread.parent?.type === ChannelType.GuildForum) {
-			const appliedTags = thread.parent.availableTags.filter(tag => thread.appliedTags.includes(tag.id)).map(tag => `${tag.emoji ? `${thread.guild.emojis.resolve(tag.emoji.id as string)} ` ?? `${tag.emoji.name} ` : ''}${inlineCodeBlock(tag.name)}`).join(' ');
+			const appliedTags = thread.parent.availableTags.filter(tag => thread.appliedTags.includes(tag.id)).map(tag => `${tag.emoji ? `${thread.guild.emojis.resolve(tag.emoji.id as string) || tag.emoji.name} ` : ''}${inlineCodeBlock(tag.name)}`).join(' ');
 			embed.addFields({ name: 'Applied tags', value: appliedTags });
 		}
 
