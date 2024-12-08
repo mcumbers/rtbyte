@@ -31,23 +31,23 @@ export class UserEvent extends Listener {
 			.setFooter({ text: `Thread ID: ${thread.id}` })
 			.setType(Events.ThreadDelete);
 
-		if (thread.parent) embed.addFields({ name: `In ${parentDescriptor}`, value: thread.parent.url, inline: true });
+		if (thread.parent) embed.addBlankFields({ name: `In ${parentDescriptor}`, value: thread.parent.url, inline: true });
 
 		if (thread.ownerId && thread.createdTimestamp) {
-			embed.addFields({ name: 'Created By', value: `<@${thread.ownerId}> <t:${Math.round(thread.createdTimestamp as number / 1000)}:R>`, inline: false });
+			embed.addBlankFields({ name: 'Created By', value: `<@${thread.ownerId}> <t:${Math.round(thread.createdTimestamp as number / 1000)}:R>`, inline: false });
 		}
 		if (thread.ownerId && !thread.createdTimestamp) {
-			embed.addFields({ name: 'Created By', value: `<@${thread.ownerId}>`, inline: false });
+			embed.addBlankFields({ name: 'Created By', value: `<@${thread.ownerId}>`, inline: false });
 		}
 		if (!thread.ownerId && thread.createdTimestamp) {
-			embed.addFields({ name: 'Created', value: `<t:${Math.round(thread.createdTimestamp as number / 1000)}:R>`, inline: false });
+			embed.addBlankFields({ name: 'Created', value: `<t:${Math.round(thread.createdTimestamp as number / 1000)}:R>`, inline: false });
 		}
 
-		if (thread.totalMessageSent) embed.addFields({ name: 'Thread Length', value: `${thread.totalMessageSent} Messages`, inline: true });
+		if (thread.totalMessageSent) embed.addBlankFields({ name: 'Thread Length', value: `${thread.totalMessageSent} Messages`, inline: true });
 
 		if (auditLogEntry) {
-			if (!isNullish(auditLogEntry.reason)) embed.addFields({ name: 'Reason', value: auditLogEntry.reason, inline: false });
-			if (!isNullish(auditLogEntry.executor)) embed.addFields({ name: 'Deleted By', value: auditLogEntry.executor.toString(), inline: false });
+			if (!isNullish(auditLogEntry.reason)) embed.addBlankFields({ name: 'Reason', value: auditLogEntry.reason, inline: false });
+			if (!isNullish(auditLogEntry.executor)) embed.addBlankFields({ name: 'Deleted By', value: auditLogEntry.executor.toString(), inline: false });
 		}
 
 		return [embed]

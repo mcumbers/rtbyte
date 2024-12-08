@@ -30,13 +30,13 @@ export class UserEvent extends Listener {
 			.setFooter({ text: `Channel ID: ${channel.id}` })
 			.setType(Events.ChannelDelete);
 
-		if (channel.parent) embed.addFields({ name: 'In Category', value: channel.parent.name, inline: true });
+		if (channel.parent) embed.addBlankFields({ name: 'In Category', value: channel.parent.name, inline: true });
 
-		if (channel.createdTimestamp) embed.addFields({ name: 'Created', value: `<t:${Math.round(channel.createdTimestamp as number / 1000)}:R>`, inline: true });
+		if (channel.createdTimestamp) embed.addBlankFields({ name: 'Created', value: `<t:${Math.round(channel.createdTimestamp as number / 1000)}:R>`, inline: true });
 
 		if (auditLogEntry) {
-			if (!isNullish(auditLogEntry.reason)) embed.addFields({ name: 'Reason', value: auditLogEntry.reason, inline: false });
-			if (!isNullish(auditLogEntry.executor)) embed.addFields({ name: 'Deleted By', value: auditLogEntry.executor.toString(), inline: false });
+			if (!isNullish(auditLogEntry.reason)) embed.addBlankFields({ name: 'Reason', value: auditLogEntry.reason, inline: false });
+			if (!isNullish(auditLogEntry.executor)) embed.addBlankFields({ name: 'Deleted By', value: auditLogEntry.executor.toString(), inline: false });
 		}
 
 		return [embed]

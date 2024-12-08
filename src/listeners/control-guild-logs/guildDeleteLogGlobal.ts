@@ -41,10 +41,10 @@ export class UserEvent extends Listener {
 			.setTitle('Bot Removed From Server')
 			.setDescription(guild.name)
 			.setThumbnail(guild.iconURL())
-			.addFields({ name: 'Created', value: `<t:${Math.round(guild.createdTimestamp as number / 1000)}:R>`, inline: true })
-			.addFields({ name: 'Registered Members', value: `${registeredMembers}`, inline: true })
-			.addFields({ name: 'Owner', value: `${owner.toString()} | \`@${owner.username}\``, inline: false })
-			.addFields({ name: 'Added to Server', value: `<t:${Math.round(lastJoin.getTime() as number / 1000)}:R>`, inline: false })
+			.addBlankFields({ name: 'Created', value: `<t:${Math.round(guild.createdTimestamp as number / 1000)}:R>`, inline: true })
+			.addBlankFields({ name: 'Registered Members', value: `${registeredMembers}`, inline: true })
+			.addBlankFields({ name: 'Owner', value: `${owner.toString()} | \`@${owner.username}\``, inline: false })
+			.addBlankFields({ name: 'Added to Server', value: `<t:${Math.round(lastJoin.getTime() as number / 1000)}:R>`, inline: false })
 			.setFooter({ text: `Guild ID: ${guild.id}` })
 			.setType(Events.GuildDelete);
 

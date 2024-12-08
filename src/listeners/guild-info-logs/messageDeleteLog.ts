@@ -73,8 +73,8 @@ export class UserEvent extends Listener {
 			.setType(Events.MessageDelete);
 
 		const messageContent = getContent(message);
-		if (messageContent) embed.addFields({ name: 'Message', value: messageContent, inline: false });
-		if (message?.createdTimestamp) embed.addFields({ name: 'Sent', value: `<t:${Math.round(message.createdTimestamp as number / 1000)}:R>`, inline: false });
+		if (messageContent) embed.addBlankFields({ name: 'Message', value: messageContent, inline: false });
+		if (message?.createdTimestamp) embed.addBlankFields({ name: 'Sent', value: `<t:${Math.round(message.createdTimestamp as number / 1000)}:R>`, inline: false });
 
 		return messageContent ? [embed] : null;
 	}

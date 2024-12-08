@@ -29,8 +29,8 @@ export class UserEvent extends Listener {
 			.setType(Events.GuildEmojiCreate);
 
 		if (auditLogEntry) {
-			if (!isNullish(auditLogEntry.reason)) embed.addFields({ name: 'Reason', value: auditLogEntry.reason, inline: false });
-			if (!isNullish(auditLogEntry.executor)) embed.addFields({ name: 'Created By', value: auditLogEntry.executor.toString(), inline: false });
+			if (!isNullish(auditLogEntry.reason)) embed.addBlankFields({ name: 'Reason', value: auditLogEntry.reason, inline: false });
+			if (!isNullish(auditLogEntry.executor)) embed.addBlankFields({ name: 'Created By', value: auditLogEntry.executor.toString(), inline: false });
 		}
 
 		return [embed]

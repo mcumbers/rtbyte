@@ -33,30 +33,30 @@ export class UserEvent extends Listener {
 
 		// Linked Event
 		if (oldStage.guildScheduledEventId !== stage.guildScheduledEventId) {
-			if (!oldStage.guildScheduledEventId) embed.addFields({ name: 'Stage Event Added', value: `[${stage.guildScheduledEvent?.name as string}](${stage.guildScheduledEvent?.url as string})`, inline: true });
-			if (!stage.guildScheduledEventId) embed.addFields({ name: 'Stage Event Removed', value: `[${oldStage.guildScheduledEvent?.name as string}](${oldStage.guildScheduledEvent?.url as string})`, inline: true });
-			if (oldStage.guildScheduledEventId && stage.guildScheduledEventId) embed.addFields({ name: 'Stage Event Changed', value: `[${oldStage.guildScheduledEvent?.name as string}](${oldStage.guildScheduledEvent?.url as string}) -> [${stage.guildScheduledEvent?.name as string}](${stage.guildScheduledEvent?.url as string})`, inline: true });
+			if (!oldStage.guildScheduledEventId) embed.addBlankFields({ name: 'Stage Event Added', value: `[${stage.guildScheduledEvent?.name as string}](${stage.guildScheduledEvent?.url as string})`, inline: true });
+			if (!stage.guildScheduledEventId) embed.addBlankFields({ name: 'Stage Event Removed', value: `[${oldStage.guildScheduledEvent?.name as string}](${oldStage.guildScheduledEvent?.url as string})`, inline: true });
+			if (oldStage.guildScheduledEventId && stage.guildScheduledEventId) embed.addBlankFields({ name: 'Stage Event Changed', value: `[${oldStage.guildScheduledEvent?.name as string}](${oldStage.guildScheduledEvent?.url as string}) -> [${stage.guildScheduledEvent?.name as string}](${stage.guildScheduledEvent?.url as string})`, inline: true });
 		}
 
 		// Topic
 		if (oldStage.topic !== stage.topic) {
-			if (!oldStage.topic) embed.addFields({ name: 'Topic Added', value: stage.topic as string, inline: true });
-			if (!stage.topic) embed.addFields({ name: 'Topic Removed', value: oldStage.topic as string, inline: true });
-			if (oldStage.topic && stage.topic) embed.addFields({ name: 'Topic Changed', value: `\`\`\`diff\n-${oldStage.topic}\n+${stage.topic}\n\`\`\``, inline: false });
+			if (!oldStage.topic) embed.addBlankFields({ name: 'Topic Added', value: stage.topic as string, inline: true });
+			if (!stage.topic) embed.addBlankFields({ name: 'Topic Removed', value: oldStage.topic as string, inline: true });
+			if (oldStage.topic && stage.topic) embed.addBlankFields({ name: 'Topic Changed', value: `\`\`\`diff\n-${oldStage.topic}\n+${stage.topic}\n\`\`\``, inline: false });
 		}
 
 		// Privacy Level
 		const privacyLevels = ['', 'Public', 'Members only'];
 		if (oldStage.privacyLevel !== stage.privacyLevel) {
-			if (!oldStage.privacyLevel) embed.addFields({ name: 'Privacy Level Added', value: privacyLevels[stage.privacyLevel], inline: true });
-			if (!stage.privacyLevel) embed.addFields({ name: 'Privacy Level Removed', value: privacyLevels[oldStage.privacyLevel], inline: true });
-			if (oldStage.topic && stage.topic) embed.addFields({ name: 'Privacy Level Changed', value: `\`\`\`diff\n-${privacyLevels[oldStage.privacyLevel]}\n+${privacyLevels[stage.privacyLevel]}\n\`\`\``, inline: false });
+			if (!oldStage.privacyLevel) embed.addBlankFields({ name: 'Privacy Level Added', value: privacyLevels[stage.privacyLevel], inline: true });
+			if (!stage.privacyLevel) embed.addBlankFields({ name: 'Privacy Level Removed', value: privacyLevels[oldStage.privacyLevel], inline: true });
+			if (oldStage.topic && stage.topic) embed.addBlankFields({ name: 'Privacy Level Changed', value: `\`\`\`diff\n-${privacyLevels[oldStage.privacyLevel]}\n+${privacyLevels[stage.privacyLevel]}\n\`\`\``, inline: false });
 		}
 
 		// Add audit log info to embed
 		if (auditLogEntry) {
-			if (!isNullish(auditLogEntry.reason)) embed.addFields({ name: 'Reason', value: auditLogEntry.reason, inline: false });
-			if (!isNullish(auditLogEntry.executor)) embed.addFields({ name: 'Edited By', value: auditLogEntry.executor.toString(), inline: false });
+			if (!isNullish(auditLogEntry.reason)) embed.addBlankFields({ name: 'Reason', value: auditLogEntry.reason, inline: false });
+			if (!isNullish(auditLogEntry.executor)) embed.addBlankFields({ name: 'Edited By', value: auditLogEntry.executor.toString(), inline: false });
 		}
 
 		return embed.data.fields?.length ? [embed] : [];

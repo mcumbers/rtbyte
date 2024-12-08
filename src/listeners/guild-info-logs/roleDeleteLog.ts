@@ -28,25 +28,25 @@ export class UserEvent extends Listener {
 			.setFooter({ text: `Role ID: ${role.id}` })
 			.setType(Events.GuildRoleDelete);
 
-		if (role.createdTimestamp) embed.addFields({ name: 'Created', value: `<t:${Math.round(role.createdTimestamp as number / 1000)}:R>`, inline: true });
+		if (role.createdTimestamp) embed.addBlankFields({ name: 'Created', value: `<t:${Math.round(role.createdTimestamp as number / 1000)}:R>`, inline: true });
 
 		if (role.tags) {
-			if (role.tags.botId) embed.addFields({ name: 'Bot Role For', value: `<@${role.tags.botId}> (Bot)`, inline: true });
+			if (role.tags.botId) embed.addBlankFields({ name: 'Bot Role For', value: `<@${role.tags.botId}> (Bot)`, inline: true });
 
 			if (role.tags.integrationId) {
 				const integrations = await role.guild.fetchIntegrations();
 				const integration = integrations.find((ign) => ign.id === role.tags?.integrationId);
-				if (integration) embed.addFields({ name: 'Integration Role For', value: integration?.name as string, inline: true });
+				if (integration) embed.addBlankFields({ name: 'Integration Role For', value: integration?.name as string, inline: true });
 			}
 
-			if (role.tags.premiumSubscriberRole) embed.addFields({ name: 'Role Type', value: 'Premium Subscriber Role', inline: true });
-			if (role.tags.guildConnections) embed.addFields({ name: 'Role Type', value: 'Server Linked Role', inline: true });
-			if (role.tags.availableForPurchase) embed.addFields({ name: 'Role Type', value: 'Purchasable Role', inline: true });
+			if (role.tags.premiumSubscriberRole) embed.addBlankFields({ name: 'Role Type', value: 'Premium Subscriber Role', inline: true });
+			if (role.tags.guildConnections) embed.addBlankFields({ name: 'Role Type', value: 'Server Linked Role', inline: true });
+			if (role.tags.availableForPurchase) embed.addBlankFields({ name: 'Role Type', value: 'Purchasable Role', inline: true });
 		}
 
 		if (auditLogEntry) {
-			if (!isNullish(auditLogEntry.reason)) embed.addFields({ name: 'Reason', value: auditLogEntry.reason, inline: false });
-			if (!isNullish(auditLogEntry.executor)) embed.addFields({ name: 'Deleted By', value: auditLogEntry.executor.toString(), inline: false });
+			if (!isNullish(auditLogEntry.reason)) embed.addBlankFields({ name: 'Reason', value: auditLogEntry.reason, inline: false });
+			if (!isNullish(auditLogEntry.executor)) embed.addBlankFields({ name: 'Deleted By', value: auditLogEntry.executor.toString(), inline: false });
 		}
 
 		return [embed]

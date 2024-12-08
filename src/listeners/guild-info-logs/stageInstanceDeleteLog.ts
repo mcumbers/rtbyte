@@ -26,16 +26,16 @@ export class UserEvent extends Listener {
 		const embed = new GuildLogEmbed()
 			.setTitle('Stage Instance Ended')
 			.setDescription(`${stage.channel?.toString()}${stage.topic ? `: ${stage.topic}` : ''}`)
-			.addFields({ name: 'Started', value: `<t:${Math.round(stage.createdTimestamp as number / 1000)}:R>`, inline: true })
+			.addBlankFields({ name: 'Started', value: `<t:${Math.round(stage.createdTimestamp as number / 1000)}:R>`, inline: true })
 			.setThumbnail(stage.guild!.iconURL() as string)
 			.setFooter({ text: `Stage ID: ${stage.id}` })
 			.setType(Events.StageInstanceDelete);
 
-		if (stage.guildScheduledEvent) embed.addFields({ name: 'For Event', value: `[${stage.guildScheduledEvent.name}](${stage.guildScheduledEvent.url})`, inline: true });
+		if (stage.guildScheduledEvent) embed.addBlankFields({ name: 'For Event', value: `[${stage.guildScheduledEvent.name}](${stage.guildScheduledEvent.url})`, inline: true });
 
 		if (auditLogEntry) {
-			if (!isNullish(auditLogEntry.reason)) embed.addFields({ name: 'Reason', value: auditLogEntry.reason, inline: false });
-			if (!isNullish(auditLogEntry.executor)) embed.addFields({ name: 'Deleted By', value: auditLogEntry.executor.toString(), inline: false });
+			if (!isNullish(auditLogEntry.reason)) embed.addBlankFields({ name: 'Reason', value: auditLogEntry.reason, inline: false });
+			if (!isNullish(auditLogEntry.executor)) embed.addBlankFields({ name: 'Deleted By', value: auditLogEntry.executor.toString(), inline: false });
 		}
 
 		return [embed];

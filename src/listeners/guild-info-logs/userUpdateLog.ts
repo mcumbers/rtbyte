@@ -34,19 +34,19 @@ export class UserEvent extends Listener {
 
 		// Check if Username changed
 		if (oldUser.username !== user.username) {
-			embed.addFields({ name: 'Username Changed', value: `\`\`\`diff\n-${oldUser.username}\n+${user.username}\n\`\`\``, inline: false });
+			embed.addBlankFields({ name: 'Username Changed', value: `\`\`\`diff\n-${oldUser.username}\n+${user.username}\n\`\`\``, inline: false });
 		}
 
 		// Check if Display Name changed
 		if (oldUser.globalName !== user.globalName) {
 			if (!oldUser.globalName) {
-				embed.addFields({ name: 'Display Name Added', value: `\`\`\`diff\n+ ${user.globalName}\n\`\`\``, inline: false });
+				embed.addBlankFields({ name: 'Display Name Added', value: `\`\`\`diff\n+ ${user.globalName}\n\`\`\``, inline: false });
 			}
 			if (!user.globalName) {
-				embed.addFields({ name: 'Display Name Removed', value: `\`\`\`diff\n- ${oldUser.globalName}\n\`\`\``, inline: false });
+				embed.addBlankFields({ name: 'Display Name Removed', value: `\`\`\`diff\n- ${oldUser.globalName}\n\`\`\``, inline: false });
 			}
 			if (oldUser.globalName && user.globalName) {
-				embed.addFields({ name: 'Display Name Changed', value: `\`\`\`diff\n- ${oldUser.globalName}\n+ ${user.globalName}\n\`\`\``, inline: false });
+				embed.addBlankFields({ name: 'Display Name Changed', value: `\`\`\`diff\n- ${oldUser.globalName}\n+ ${user.globalName}\n\`\`\``, inline: false });
 			}
 		}
 

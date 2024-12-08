@@ -33,9 +33,9 @@ export class UserEvent extends Listener {
 			.setTitle('Bot Added to Server')
 			.setDescription(guild.name)
 			.setThumbnail(guild.iconURL())
-			.addFields({ name: 'Created', value: `<t:${Math.round(guild.createdTimestamp as number / 1000)}:R>`, inline: true })
-			.addFields({ name: 'Members', value: `${fetchedGuild.approximateMemberCount}`, inline: true })
-			.addFields({ name: 'Owner', value: `${owner.toString()} | \`@${owner.username}\``, inline: false })
+			.addBlankFields({ name: 'Created', value: `<t:${Math.round(guild.createdTimestamp as number / 1000)}:R>`, inline: true })
+			.addBlankFields({ name: 'Members', value: `${fetchedGuild.approximateMemberCount}`, inline: true })
+			.addBlankFields({ name: 'Owner', value: `${owner.toString()} | \`@${owner.username}\``, inline: false })
 			.setFooter({ text: `Guild ID: ${guild.id}` })
 			.setType(Events.GuildCreate)
 			.setTimestamp(guild.joinedTimestamp);
@@ -50,11 +50,11 @@ export class UserEvent extends Listener {
 
 			if (botMemberInfo && botMemberInfo.leaveTimes.length) {
 				const lastLeave: Date = botMemberInfo?.leaveTimes[botMemberInfo.leaveTimes.length - 1];
-				embed.addFields({ name: 'Removed From Server', value: `<t:${Math.round(lastLeave.getTime() as number / 1000)}:R>`, inline: false });
+				embed.addBlankFields({ name: 'Removed From Server', value: `<t:${Math.round(lastLeave.getTime() as number / 1000)}:R>`, inline: false });
 			}
 		}
 
-		if (!isNullish(executor)) embed.addFields({ name: 'Added By', value: `${executor.toString()} | \`@${executor.username}\``, inline: false });
+		if (!isNullish(executor)) embed.addBlankFields({ name: 'Added By', value: `${executor.toString()} | \`@${executor.username}\``, inline: false });
 
 		return [embed];
 	}

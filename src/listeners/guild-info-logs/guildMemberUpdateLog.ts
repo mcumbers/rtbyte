@@ -38,18 +38,18 @@ export class UserEvent extends Listener {
 
 		// Check if Nickname changed
 		if (oldMember.nickname !== member.nickname) {
-			if (!oldMember.nickname) embed.addFields({ name: 'Nickname Added', value: `\`\`\`diff\n+${member.nickname}\n\`\`\``, inline: false });
-			if (!member.nickname) embed.addFields({ name: 'Nickname Removed', value: `\`\`\`diff\n-${oldMember.nickname}\n\`\`\``, inline: false });
-			if (oldMember.nickname && member.nickname) embed.addFields({ name: 'Nickname Changed', value: `\`\`\`diff\n-${oldMember.nickname}\n+${member.nickname}\n\`\`\``, inline: false });
+			if (!oldMember.nickname) embed.addBlankFields({ name: 'Nickname Added', value: `\`\`\`diff\n+${member.nickname}\n\`\`\``, inline: false });
+			if (!member.nickname) embed.addBlankFields({ name: 'Nickname Removed', value: `\`\`\`diff\n-${oldMember.nickname}\n\`\`\``, inline: false });
+			if (oldMember.nickname && member.nickname) embed.addBlankFields({ name: 'Nickname Changed', value: `\`\`\`diff\n-${oldMember.nickname}\n+${member.nickname}\n\`\`\``, inline: false });
 		}
 
 		// Check if Avatar changed
 		// NOTE: Does not create an entry in the Audit Log
 		if (oldMember.avatar !== member.avatar) {
 			showsInAuditLog = false;
-			if (!oldMember.avatar) embed.addFields({ name: 'Server Avatar Added', value: '', inline: false });
-			if (!member.avatar) embed.addFields({ name: 'Server Avatar Removed', value: '', inline: false });
-			if (oldMember.avatar && member.avatar) embed.addFields({ name: 'Server Avatar Changed', value: '', inline: false });
+			if (!oldMember.avatar) embed.addBlankFields({ name: 'Server Avatar Added', value: '', inline: false });
+			if (!member.avatar) embed.addBlankFields({ name: 'Server Avatar Removed', value: '', inline: false });
+			if (oldMember.avatar && member.avatar) embed.addBlankFields({ name: 'Server Avatar Changed', value: '', inline: false });
 		}
 
 		// Check if Roles changed
@@ -76,13 +76,13 @@ export class UserEvent extends Listener {
 				}
 			}
 
-			if (lines.length) embed.addFields({ name: 'Roles Changed', value: `\`\`\`diff\n${lines.join('\n')}\n\`\`\``, inline: false });
+			if (lines.length) embed.addBlankFields({ name: 'Roles Changed', value: `\`\`\`diff\n${lines.join('\n')}\n\`\`\``, inline: false });
 		}
 
 		// Show if changes were made by a different user or if we can see the executor
 		if (showsInAuditLog && auditLogEntry) {
-			if (!isNullish(auditLogEntry.reason)) embed.addFields({ name: 'Reason', value: auditLogEntry.reason, inline: false });
-			if (!isNullish(auditLogEntry.executor)) embed.addFields({ name: 'Edited By', value: auditLogEntry.executor.toString(), inline: false });
+			if (!isNullish(auditLogEntry.reason)) embed.addBlankFields({ name: 'Reason', value: auditLogEntry.reason, inline: false });
+			if (!isNullish(auditLogEntry.executor)) embed.addBlankFields({ name: 'Edited By', value: auditLogEntry.executor.toString(), inline: false });
 		}
 
 		return embed.data.fields?.length ? [embed] : [];

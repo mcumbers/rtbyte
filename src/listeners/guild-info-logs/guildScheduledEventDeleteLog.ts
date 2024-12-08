@@ -28,13 +28,13 @@ export class UserEvent extends Listener {
 			.setType(Events.GuildScheduledEventDelete);
 
 		if (event.name) embed.setDescription(event.name as string);
-		if (event.description && !event.name) embed.addFields({ name: 'Description', value: event.description as string, inline: false });
+		if (event.description && !event.name) embed.addBlankFields({ name: 'Description', value: event.description as string, inline: false });
 
-		if (event.createdTimestamp) embed.addFields({ name: 'Created', value: `<t:${Math.round(event.createdTimestamp as number / 1000)}:R>`, inline: true });
+		if (event.createdTimestamp) embed.addBlankFields({ name: 'Created', value: `<t:${Math.round(event.createdTimestamp as number / 1000)}:R>`, inline: true });
 
 		if (auditLogEntry) {
-			if (!isNullish(auditLogEntry.reason)) embed.addFields({ name: 'Reason', value: auditLogEntry.reason, inline: false });
-			if (!isNullish(auditLogEntry.executor)) embed.addFields({ name: 'Deleted By', value: auditLogEntry.executor.toString(), inline: false });
+			if (!isNullish(auditLogEntry.reason)) embed.addBlankFields({ name: 'Reason', value: auditLogEntry.reason, inline: false });
+			if (!isNullish(auditLogEntry.executor)) embed.addBlankFields({ name: 'Deleted By', value: auditLogEntry.executor.toString(), inline: false });
 		}
 
 		return [embed]

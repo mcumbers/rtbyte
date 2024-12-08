@@ -30,11 +30,11 @@ export class UserEvent extends Listener {
 			.setFooter({ text: `Stage ID: ${stage.id}` })
 			.setType(Events.StageInstanceCreate);
 
-		if (stage.guildScheduledEvent) embed.addFields({ name: 'For Event', value: `[${stage.guildScheduledEvent.name}](${stage.guildScheduledEvent.url})`, inline: true });
+		if (stage.guildScheduledEvent) embed.addBlankFields({ name: 'For Event', value: `[${stage.guildScheduledEvent.name}](${stage.guildScheduledEvent.url})`, inline: true });
 
 		if (auditLogEntry) {
-			if (!isNullish(auditLogEntry.reason)) embed.addFields({ name: 'Reason', value: auditLogEntry.reason, inline: false });
-			if (!isNullish(auditLogEntry.executor)) embed.addFields({ name: 'Created By', value: auditLogEntry.executor.toString(), inline: false });
+			if (!isNullish(auditLogEntry.reason)) embed.addBlankFields({ name: 'Reason', value: auditLogEntry.reason, inline: false });
+			if (!isNullish(auditLogEntry.executor)) embed.addBlankFields({ name: 'Created By', value: auditLogEntry.executor.toString(), inline: false });
 		}
 
 		return [embed];

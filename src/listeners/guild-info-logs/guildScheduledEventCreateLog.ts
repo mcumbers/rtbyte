@@ -29,13 +29,13 @@ export class UserEvent extends Listener {
 			.setFooter({ text: `Event ID: ${event.id}` })
 			.setType(Events.GuildScheduledEventCreate);
 
-		if (event.description) embed.addFields({ name: 'Description', value: event.description, inline: false });
+		if (event.description) embed.addBlankFields({ name: 'Description', value: event.description, inline: false });
 		if (event.image) embed.setImage(event.coverImageURL());
-		if (event.scheduledStartTimestamp) embed.addFields({ name: 'Start Time', value: `<t:${Math.round(event.scheduledStartTimestamp as number / 1000)}>`, inline: true });
-		if (event.scheduledEndTimestamp) embed.addFields({ name: 'End Time', value: `<t:${Math.round(event.scheduledEndTimestamp as number / 1000)}>`, inline: true });
-		if (event.channel) embed.addFields({ name: 'Event Channel', value: event.channel.url, inline: true });
+		if (event.scheduledStartTimestamp) embed.addBlankFields({ name: 'Start Time', value: `<t:${Math.round(event.scheduledStartTimestamp as number / 1000)}>`, inline: true });
+		if (event.scheduledEndTimestamp) embed.addBlankFields({ name: 'End Time', value: `<t:${Math.round(event.scheduledEndTimestamp as number / 1000)}>`, inline: true });
+		if (event.channel) embed.addBlankFields({ name: 'Event Channel', value: event.channel.url, inline: true });
 
-		if (!isNullish(creator)) embed.addFields({ name: 'Created By', value: creator.toString(), inline: false });
+		if (!isNullish(creator)) embed.addBlankFields({ name: 'Created By', value: creator.toString(), inline: false });
 
 		return [embed]
 	}

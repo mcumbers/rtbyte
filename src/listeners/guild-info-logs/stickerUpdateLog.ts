@@ -38,12 +38,12 @@ export class UserEvent extends Listener {
 		if (sticker.tags !== oldSticker.tags) {
 			const emoji = sticker.tags ? await sticker.guild?.emojis.fetch(sticker.tags) : null;
 			const oldEmoji = oldSticker.tags ? await sticker.guild?.emojis.fetch(oldSticker.tags) : null;
-			embed.addFields({ name: 'Emoji Changed', value: `${oldEmoji?.toString()}   ->   ${emoji?.toString()}`, inline: true });
+			embed.addBlankFields({ name: 'Emoji Changed', value: `${oldEmoji?.toString()}   ->   ${emoji?.toString()}`, inline: true });
 		}
 
 		if (auditLogEntry) {
-			if (!isNullish(auditLogEntry.reason)) embed.addFields({ name: 'Reason', value: auditLogEntry.reason, inline: false });
-			if (!isNullish(auditLogEntry.executor)) embed.addFields({ name: 'Edited By', value: auditLogEntry.executor.toString(), inline: false });
+			if (!isNullish(auditLogEntry.reason)) embed.addBlankFields({ name: 'Reason', value: auditLogEntry.reason, inline: false });
+			if (!isNullish(auditLogEntry.executor)) embed.addBlankFields({ name: 'Edited By', value: auditLogEntry.executor.toString(), inline: false });
 		}
 
 		return embed.data.fields?.length ? [embed] : [];

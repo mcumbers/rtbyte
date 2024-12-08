@@ -28,14 +28,14 @@ export class UserEvent extends Listener {
 			.setTitle('Emoji Edited')
 			.setDescription(emoji.name)
 			.setThumbnail(emoji.url)
-			.addFields({ name: 'Old Name', value: `\`${oldEmoji.name}\``, inline: true })
-			.addFields({ name: 'New Name', value: `\`${emoji.name}\``, inline: true })
+			.addBlankFields({ name: 'Old Name', value: `\`${oldEmoji.name}\``, inline: true })
+			.addBlankFields({ name: 'New Name', value: `\`${emoji.name}\``, inline: true })
 			.setFooter({ text: `Emoji ID: ${emoji.id}` })
 			.setType(Events.GuildEmojiUpdate);
 
 		if (auditLogEntry) {
-			if (!isNullish(auditLogEntry.reason)) embed.addFields({ name: 'Reason', value: auditLogEntry.reason, inline: false });
-			if (!isNullish(auditLogEntry.executor)) embed.addFields({ name: 'Edited By', value: auditLogEntry.executor.toString(), inline: false });
+			if (!isNullish(auditLogEntry.reason)) embed.addBlankFields({ name: 'Reason', value: auditLogEntry.reason, inline: false });
+			if (!isNullish(auditLogEntry.executor)) embed.addBlankFields({ name: 'Edited By', value: auditLogEntry.executor.toString(), inline: false });
 		}
 
 		return embed.data.fields?.length ? [embed] : [];

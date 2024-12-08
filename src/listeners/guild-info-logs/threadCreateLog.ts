@@ -31,16 +31,16 @@ export class UserEvent extends Listener {
 			.setFooter({ text: `Thread ID: ${thread.id}` })
 			.setType(Events.ThreadCreate);
 
-		if (thread.parent) embed.addFields({ name: `In ${parentDescriptor}`, value: thread.parent.url, inline: true });
+		if (thread.parent) embed.addBlankFields({ name: `In ${parentDescriptor}`, value: thread.parent.url, inline: true });
 
 		if (thread.appliedTags.length && thread.parent?.type === ChannelType.GuildForum) {
 			const appliedTags = thread.parent.availableTags.filter(tag => thread.appliedTags.includes(tag.id)).map(tag => `${tag.emoji ? `${thread.guild.emojis.resolve(tag.emoji.id as string) || tag.emoji.name} ` : ''}${inlineCodeBlock(tag.name)}`).join(' ');
-			embed.addFields({ name: 'Applied tags', value: appliedTags });
+			embed.addBlankFields({ name: 'Applied tags', value: appliedTags });
 		}
 
 		if (auditLogEntry) {
-			if (!isNullish(auditLogEntry.reason)) embed.addFields({ name: 'Reason', value: auditLogEntry.reason, inline: false });
-			if (!isNullish(auditLogEntry.executor)) embed.addFields({ name: 'Created By', value: auditLogEntry.executor.toString(), inline: false });
+			if (!isNullish(auditLogEntry.reason)) embed.addBlankFields({ name: 'Reason', value: auditLogEntry.reason, inline: false });
+			if (!isNullish(auditLogEntry.executor)) embed.addBlankFields({ name: 'Created By', value: auditLogEntry.executor.toString(), inline: false });
 		}
 
 		return [embed]

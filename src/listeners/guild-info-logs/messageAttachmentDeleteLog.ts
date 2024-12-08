@@ -57,7 +57,7 @@ export class UserEvent extends Listener {
 			.setFooter({ text: `Attachment ID: ${attachment.id}` })
 			.setType(Events.MessageDelete);
 
-		if (message?.createdTimestamp) embed.addFields({ name: 'Sent', value: `<t:${Math.round(message.createdTimestamp as number / 1000)}:R>`, inline: false });
+		if (message?.createdTimestamp) embed.addBlankFields({ name: 'Sent', value: `<t:${Math.round(message.createdTimestamp as number / 1000)}:R>`, inline: false });
 
 		if (embeddedImageMIMETypes.includes(attachment.contentType || '')) {
 			embed.setTitle('Image Deleted').setImage(attachment.url);

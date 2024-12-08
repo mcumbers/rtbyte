@@ -44,20 +44,20 @@ export class UserEvent extends Listener {
 			.setType(failed ? Events.GuildDelete : Events.GuildCreate)
 			.setFooter({ text: `Interaction ID: ${interaction.id}` });
 
-		if (runtime) embed.addFields({ name: 'Execution Time', value: `${runtime}ms`, inline: true });
+		if (runtime) embed.addBlankFields({ name: 'Execution Time', value: `${runtime}ms`, inline: true });
 
 		if (interaction.guild) {
 			// See if this Guild has disabled Command Usage Sharing
 			const guildSettings = await prisma.guildSettings.fetch(interaction.guild.id);
 			if (guildSettings && !guildSettings.shareGuildCommandUsage) return null;
 
-			embed.addFields({ name: 'Guild', value: interaction.guild.name, inline: true });
+			embed.addBlankFields({ name: 'Guild', value: interaction.guild.name, inline: true });
 
 			// If this Guild disabled Detailed Command Usage Sharing, we're all done.
 			if (!guildSettings?.shareGuildCommandUsageDetailed) return [embed];
 
 			// Add a link to the interaction reply if it's not ephemeral
-			if (message && !message.flags.has("Ephemeral")) embed.addFields({ name: 'Follow-Up', value: message.url, inline: false })
+			if (message && !message.flags.has("Ephemeral")) embed.addBlankFields({ name: 'Follow-Up', value: message.url, inline: false })
 		}
 
 		// List the Options given for this command interaction
@@ -67,7 +67,7 @@ export class UserEvent extends Listener {
 				paramStrings.push(`${option.name}:\t${option.value}`);
 			}
 		}
-		if (paramStrings.length) embed.addFields({ name: 'Parameters', value: `\`\`\`${paramStrings.join('\n')}\`\`\``, inline: false });
+		if (paramStrings.length) embed.addBlankFields({ name: 'Parameters', value: `\`\`\`${paramStrings.join('\n')}\`\`\``, inline: false });
 
 		return [embed];
 	}

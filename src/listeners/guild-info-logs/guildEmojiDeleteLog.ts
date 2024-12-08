@@ -28,11 +28,11 @@ export class UserEvent extends Listener {
 			.setFooter({ text: `Emoji ID: ${emoji.id}` })
 			.setType(Events.GuildEmojiDelete);
 
-		if (emoji.createdTimestamp) embed.addFields({ name: 'Created', value: `<t:${Math.round(emoji.createdTimestamp as number / 1000)}:R>`, inline: true });
+		if (emoji.createdTimestamp) embed.addBlankFields({ name: 'Created', value: `<t:${Math.round(emoji.createdTimestamp as number / 1000)}:R>`, inline: true });
 
 		if (auditLogEntry) {
-			if (!isNullish(auditLogEntry.reason)) embed.addFields({ name: 'Reason', value: auditLogEntry.reason, inline: false });
-			if (!isNullish(auditLogEntry.executor)) embed.addFields({ name: 'Deleted By', value: auditLogEntry.executor.toString(), inline: false });
+			if (!isNullish(auditLogEntry.reason)) embed.addBlankFields({ name: 'Reason', value: auditLogEntry.reason, inline: false });
+			if (!isNullish(auditLogEntry.executor)) embed.addBlankFields({ name: 'Deleted By', value: auditLogEntry.executor.toString(), inline: false });
 		}
 
 		return [embed]

@@ -34,13 +34,13 @@ export class UserEvent extends Listener {
 			.setFooter({ text: `Invite Code: ${invite.code}` })
 			.setType(Events.InviteCreate);
 
-		if (invite.channel) embed.addFields({ name: 'Invite Channel', value: invite.channel.url, inline: true });
-		embed.addFields({ name: 'Expires', value: `${invite.expiresTimestamp ? `<t:${Math.round(invite.expiresTimestamp as number / 1000)}:R>` : 'Never'}`, inline: true });
-		if (invite.maxUses) embed.addFields({ name: 'Uses', value: `\`${invite.uses}/${invite.maxUses}\``, inline: true });
-		if (invite.guildScheduledEvent) embed.addFields({ name: 'Event', value: invite.guildScheduledEvent.url, inline: true });
-		if (invite.temporary) embed.addFields({ name: 'Membership Type', value: '`Temporary`', inline: true });
+		if (invite.channel) embed.addBlankFields({ name: 'Invite Channel', value: invite.channel.url, inline: true });
+		embed.addBlankFields({ name: 'Expires', value: `${invite.expiresTimestamp ? `<t:${Math.round(invite.expiresTimestamp as number / 1000)}:R>` : 'Never'}`, inline: true });
+		if (invite.maxUses) embed.addBlankFields({ name: 'Uses', value: `\`${invite.uses}/${invite.maxUses}\``, inline: true });
+		if (invite.guildScheduledEvent) embed.addBlankFields({ name: 'Event', value: invite.guildScheduledEvent.url, inline: true });
+		if (invite.temporary) embed.addBlankFields({ name: 'Membership Type', value: '`Temporary`', inline: true });
 
-		if (!isNullish(creator)) embed.addFields({ name: 'Created By', value: creator.toString(), inline: true });
+		if (!isNullish(creator)) embed.addBlankFields({ name: 'Created By', value: creator.toString(), inline: true });
 
 		return [embed]
 	}

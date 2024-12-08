@@ -35,40 +35,40 @@ export class UserEvent extends Listener {
 			.setFooter({ text: `${postOrThread} edited ${isNullish(auditLogEntry?.executor) ? '' : `by ${auditLogEntry?.executor.username}`}`, iconURL: isNullish(auditLogEntry?.executor) ? undefined : auditLogEntry?.executor?.displayAvatarURL() })
 			.setType(Events.ThreadUpdate);
 
-		if (thread.parent) embed.addFields({ name: `${thread.parent.type === ChannelType.GuildAnnouncement ? 'Announcement' : 'Text'} channel`, value: `<#${thread.parentId}>`, inline: true });
-		if (thread.ownerId) embed.addFields({ name: 'Started by', value: `<@${thread.ownerId}>`, inline: true });
+		if (thread.parent) embed.addBlankFields({ name: `${thread.parent.type === ChannelType.GuildAnnouncement ? 'Announcement' : 'Text'} channel`, value: `<#${thread.parentId}>`, inline: true });
+		if (thread.ownerId) embed.addBlankFields({ name: 'Started by', value: `<@${thread.ownerId}>`, inline: true });
 
 		// Name
 		if (oldThread.name !== thread.name) {
-			embed.addFields({ name: 'Name Changed', value: `\`\`\`diff\n-${oldThread.name}\n+${thread.name}\n\`\`\``, inline: false });
+			embed.addBlankFields({ name: 'Name Changed', value: `\`\`\`diff\n-${oldThread.name}\n+${thread.name}\n\`\`\``, inline: false });
 		}
 
 		// Slowmode
 		if ((oldThread.rateLimitPerUser || thread.rateLimitPerUser) && (oldThread.rateLimitPerUser !== thread.rateLimitPerUser)) {
 			const slowmode = new DurationFormatter().format(seconds(thread.rateLimitPerUser as number));
 			const oldSlowmode = new DurationFormatter().format(seconds(oldThread.rateLimitPerUser as number));
-			if (!oldThread.rateLimitPerUser) embed.addFields({ name: 'Message Slow Mode Enabled', value: slowmode, inline: true });
-			if (!thread.rateLimitPerUser) embed.addFields({ name: 'Message Slow Mode Changed', value: 'Disabled', inline: true });
-			if (oldThread.rateLimitPerUser && thread.rateLimitPerUser) embed.addFields({ name: 'Message Slow Mode Changed', value: `\`\`\`diff\n-${oldSlowmode}\n+${slowmode}\n\`\`\``, inline: true });
+			if (!oldThread.rateLimitPerUser) embed.addBlankFields({ name: 'Message Slow Mode Enabled', value: slowmode, inline: true });
+			if (!thread.rateLimitPerUser) embed.addBlankFields({ name: 'Message Slow Mode Changed', value: 'Disabled', inline: true });
+			if (oldThread.rateLimitPerUser && thread.rateLimitPerUser) embed.addBlankFields({ name: 'Message Slow Mode Changed', value: `\`\`\`diff\n-${oldSlowmode}\n+${slowmode}\n\`\`\``, inline: true });
 		}
 
 		// Auto-Archive Duration
 		if ((oldThread.autoArchiveDuration || thread.autoArchiveDuration) && (oldThread.autoArchiveDuration !== thread.autoArchiveDuration)) {
 			const archiveDuration = new DurationFormatter().format(seconds(thread.autoArchiveDuration as number));
 			const oldArchiveDuration = new DurationFormatter().format(seconds(oldThread.autoArchiveDuration as number));
-			if (!oldThread.autoArchiveDuration) embed.addFields({ name: 'Auto-Archive Enabled', value: archiveDuration, inline: true });
-			if (!thread.autoArchiveDuration) embed.addFields({ name: 'Auto-Archive Changed', value: 'Disabled', inline: true });
-			if (oldThread.autoArchiveDuration && thread.autoArchiveDuration) embed.addFields({ name: 'Auto-Archive Changed', value: `\`\`\`diff\n-${oldArchiveDuration}\n+${archiveDuration}\n\`\`\``, inline: true });
+			if (!oldThread.autoArchiveDuration) embed.addBlankFields({ name: 'Auto-Archive Enabled', value: archiveDuration, inline: true });
+			if (!thread.autoArchiveDuration) embed.addBlankFields({ name: 'Auto-Archive Changed', value: 'Disabled', inline: true });
+			if (oldThread.autoArchiveDuration && thread.autoArchiveDuration) embed.addBlankFields({ name: 'Auto-Archive Changed', value: `\`\`\`diff\n-${oldArchiveDuration}\n+${archiveDuration}\n\`\`\``, inline: true });
 		}
 
 		// Tags
 		if (thread.parent?.type === ChannelType.GuildForum && oldThread.appliedTags !== thread.appliedTags) {
 			const tagDifference = this.getTagDifference(thread.parent, oldThread.appliedTags, thread.appliedTags);
 			if (tagDifference.added.length) {
-				embed.addFields({ name: 'Tags Added', value: tagDifference.added.join(', ') });
+				embed.addBlankFields({ name: 'Tags Added', value: tagDifference.added.join(', ') });
 			}
 			if (tagDifference.removed.length) {
-				embed.addFields({ name: 'Tags Removed', value: tagDifference.removed.join(', ') });
+				embed.addBlankFields({ name: 'Tags Removed', value: tagDifference.removed.join(', ') });
 			}
 		}
 

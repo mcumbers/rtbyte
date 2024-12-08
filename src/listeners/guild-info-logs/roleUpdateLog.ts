@@ -42,33 +42,33 @@ export class UserEvent extends Listener {
 
 		// Name
 		if (oldRole.name !== role.name) {
-			embed.addFields({ name: 'Name Changed', value: `\`\`\`diff\n-${oldRole.name}\n+${role.name}\n\`\`\``, inline: false });
+			embed.addBlankFields({ name: 'Name Changed', value: `\`\`\`diff\n-${oldRole.name}\n+${role.name}\n\`\`\``, inline: false });
 		}
 
 		// Color
 		if (oldRole.color !== role.color) {
-			if (!oldRole.color) embed.addFields({ name: 'Color Added', value: `${role.hexColor}`, inline: true });
-			if (!role.color) embed.addFields({ name: 'Color Removed', value: `${oldRole.hexColor}`, inline: true });
-			if (oldRole.color && role.color) embed.addFields({ name: 'Color Changed', value: `\`\`\`diff\n-${oldRole.hexColor}\n+${role.hexColor}\n\`\`\``, inline: false });
+			if (!oldRole.color) embed.addBlankFields({ name: 'Color Added', value: `${role.hexColor}`, inline: true });
+			if (!role.color) embed.addBlankFields({ name: 'Color Removed', value: `${oldRole.hexColor}`, inline: true });
+			if (oldRole.color && role.color) embed.addBlankFields({ name: 'Color Changed', value: `\`\`\`diff\n-${oldRole.hexColor}\n+${role.hexColor}\n\`\`\``, inline: false });
 		}
 
 		// Icon
 		if (oldRole.icon !== role.icon) {
-			if (!oldRole.icon) embed.addFields({ name: 'Icon Added', value: `[New Icon](${role.iconURL()})`, inline: true });
-			if (!role.icon) embed.addFields({ name: 'Icon Changed', value: 'Icon Removed', inline: true });
-			if (oldRole.icon && role.icon) embed.addFields({ name: 'Icon Changed', value: `[New Icon](${role.iconURL()})`, inline: false });
+			if (!oldRole.icon) embed.addBlankFields({ name: 'Icon Added', value: `[New Icon](${role.iconURL()})`, inline: true });
+			if (!role.icon) embed.addBlankFields({ name: 'Icon Changed', value: 'Icon Removed', inline: true });
+			if (oldRole.icon && role.icon) embed.addBlankFields({ name: 'Icon Changed', value: `[New Icon](${role.iconURL()})`, inline: false });
 		}
 
 		// Hoisted
-		if (oldRole.hoist !== role.hoist) embed.addFields({ name: 'Role Display Changed', value: `${oldRole.hoist ? 'Not ' : ''}Separated`, inline: true });
+		if (oldRole.hoist !== role.hoist) embed.addBlankFields({ name: 'Role Display Changed', value: `${oldRole.hoist ? 'Not ' : ''}Separated`, inline: true });
 		// Mentionable
-		if (oldRole.mentionable !== role.mentionable) embed.addFields({ name: 'Role Status Changed', value: `${oldRole.mentionable ? 'Not ' : ''}Mentionable`, inline: true });
+		if (oldRole.mentionable !== role.mentionable) embed.addBlankFields({ name: 'Role Status Changed', value: `${oldRole.mentionable ? 'Not ' : ''}Mentionable`, inline: true });
 
 		// Permissions
 		if (oldRole.permissions !== role.permissions) {
 			const permDifferences = getPermissionDifference(oldRole.permissions, role.permissions);
 			if (permDifferences.added.length || permDifferences.removed.length) {
-				embed.addFields({ name: 'Permissions Changed', value: `\`\`\`diff\n${[...permDifferences.added.map((str) => `+ ${str}`), ...permDifferences.removed.map((str) => `- ${str}`)].join('\n')}\n\`\`\``, inline: false });
+				embed.addBlankFields({ name: 'Permissions Changed', value: `\`\`\`diff\n${[...permDifferences.added.map((str) => `+ ${str}`), ...permDifferences.removed.map((str) => `- ${str}`)].join('\n')}\n\`\`\``, inline: false });
 			}
 		}
 
@@ -76,9 +76,9 @@ export class UserEvent extends Listener {
 		if (oldRole.tags !== role.tags) {
 			// Associated Bot
 			if ((oldRole.tags?.botId !== role.tags?.botId) && (oldRole.tags?.botId || role.tags?.botId)) {
-				if (!oldRole.tags?.botId) embed.addFields({ name: 'Role Association Added', value: `<@${role.tags?.botId}>`, inline: true });
-				if (!role.tags?.botId) embed.addFields({ name: 'Role Association Removed', value: `<@${oldRole.tags?.botId}>`, inline: true });
-				if (oldRole.tags?.botId && role.tags?.botId) embed.addFields({ name: 'Role Association Changed', value: `<@${oldRole.tags?.botId}> -> <@${role.tags?.botId}>`, inline: false });
+				if (!oldRole.tags?.botId) embed.addBlankFields({ name: 'Role Association Added', value: `<@${role.tags?.botId}>`, inline: true });
+				if (!role.tags?.botId) embed.addBlankFields({ name: 'Role Association Removed', value: `<@${oldRole.tags?.botId}>`, inline: true });
+				if (oldRole.tags?.botId && role.tags?.botId) embed.addBlankFields({ name: 'Role Association Changed', value: `<@${oldRole.tags?.botId}> -> <@${role.tags?.botId}>`, inline: false });
 			}
 
 			// Integration
@@ -87,24 +87,24 @@ export class UserEvent extends Listener {
 				const oldIntegration = integrations.find((ign) => ign.id === oldRole.tags?.integrationId);
 				const integration = integrations.find((ign) => ign.id === role.tags?.integrationId);
 
-				if (!oldIntegration) embed.addFields({ name: 'Role Integration Added', value: `${integration?.name}`, inline: true });
-				if (!integration) embed.addFields({ name: 'Role Integration Removed', value: `${oldIntegration?.name}`, inline: true });
-				if (oldIntegration && integration) embed.addFields({ name: 'Role Integration Changed', value: `${oldIntegration?.name} -> ${integration?.name}`, inline: false });
+				if (!oldIntegration) embed.addBlankFields({ name: 'Role Integration Added', value: `${integration?.name}`, inline: true });
+				if (!integration) embed.addBlankFields({ name: 'Role Integration Removed', value: `${oldIntegration?.name}`, inline: true });
+				if (oldIntegration && integration) embed.addBlankFields({ name: 'Role Integration Changed', value: `${oldIntegration?.name} -> ${integration?.name}`, inline: false });
 			}
 
 			// Server Booster
 			if ((oldRole.tags?.premiumSubscriberRole !== role.tags?.premiumSubscriberRole) && (oldRole.tags?.premiumSubscriberRole || role.tags?.premiumSubscriberRole)) {
-				embed.addFields({ name: 'Role Type Changed', value: `${oldRole.tags?.premiumSubscriberRole ? 'Not ' : ''}Server Booster Role`, inline: true });
+				embed.addBlankFields({ name: 'Role Type Changed', value: `${oldRole.tags?.premiumSubscriberRole ? 'Not ' : ''}Server Booster Role`, inline: true });
 			}
 
 			// Guild Linked Role
 			if ((oldRole.tags?.guildConnections !== role.tags?.guildConnections) && (oldRole.tags?.guildConnections || role.tags?.guildConnections)) {
-				embed.addFields({ name: 'Role Type Changed', value: `${oldRole.tags?.guildConnections ? 'Not ' : ''}Server Linked Role`, inline: true });
+				embed.addBlankFields({ name: 'Role Type Changed', value: `${oldRole.tags?.guildConnections ? 'Not ' : ''}Server Linked Role`, inline: true });
 			}
 
 			// Purchasable Role
 			if ((oldRole.tags?.availableForPurchase !== role.tags?.availableForPurchase) && (oldRole.tags?.availableForPurchase || role.tags?.availableForPurchase)) {
-				embed.addFields({ name: 'Role Type Changed', value: `${oldRole.tags?.availableForPurchase ? 'Not ' : ''}Purchasable Role`, inline: true });
+				embed.addBlankFields({ name: 'Role Type Changed', value: `${oldRole.tags?.availableForPurchase ? 'Not ' : ''}Purchasable Role`, inline: true });
 			}
 		}
 
@@ -118,13 +118,13 @@ export class UserEvent extends Listener {
 		*/
 		if (oldRole.position !== role.position) {
 			if (!embed.data.fields?.length) return [];
-			embed.addFields({ name: 'Role Order Changed', value: `${oldRole.position} -> ${role.position}`, inline: true });
+			embed.addBlankFields({ name: 'Role Order Changed', value: `${oldRole.position} -> ${role.position}`, inline: true });
 		}
 
 		// Add audit log info to embed
 		if (auditLogEntry) {
-			if (!isNullish(auditLogEntry.reason)) embed.addFields({ name: 'Reason', value: auditLogEntry.reason, inline: false });
-			if (!isNullish(auditLogEntry.executor)) embed.addFields({ name: 'Edited By', value: auditLogEntry.executor.toString(), inline: false });
+			if (!isNullish(auditLogEntry.reason)) embed.addBlankFields({ name: 'Reason', value: auditLogEntry.reason, inline: false });
+			if (!isNullish(auditLogEntry.executor)) embed.addBlankFields({ name: 'Edited By', value: auditLogEntry.executor.toString(), inline: false });
 		}
 
 		return embed.data.fields?.length ? [embed] : [];

@@ -33,13 +33,13 @@ export class UserEvent extends Listener {
 			.setFooter({ text: `Invite Code: ${invite.code}` })
 			.setType(Events.InviteDelete);
 
-		if (invite.channel) embed.addFields({ name: 'Invite Channel', value: invite.channel.url, inline: true });
+		if (invite.channel) embed.addBlankFields({ name: 'Invite Channel', value: invite.channel.url, inline: true });
 
 		// Unfortunately, the Invite object given from this Event doesn't have the createdTimestamp, so we can't show when it was created
 
 		if (auditLogEntry) {
-			if (!isNullish(auditLogEntry.reason)) embed.addFields({ name: 'Reason', value: auditLogEntry.reason, inline: false });
-			if (!isNullish(auditLogEntry.executor)) embed.addFields({ name: 'Deleted By', value: auditLogEntry.executor.toString(), inline: false });
+			if (!isNullish(auditLogEntry.reason)) embed.addBlankFields({ name: 'Reason', value: auditLogEntry.reason, inline: false });
+			if (!isNullish(auditLogEntry.executor)) embed.addBlankFields({ name: 'Deleted By', value: auditLogEntry.executor.toString(), inline: false });
 		}
 
 		return [embed]

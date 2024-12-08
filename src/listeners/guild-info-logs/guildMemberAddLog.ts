@@ -23,9 +23,9 @@ export class UserEvent extends Listener {
 			.setTitle(`${member.user.bot ? 'Bot Added to' : 'User Joined'} Server`)
 			.setDescription(member.toString())
 			.setThumbnail(member.user.displayAvatarURL())
-			.addFields({ name: 'Username', value: member.user.username, inline: true })
+			.addBlankFields({ name: 'Username', value: member.user.username, inline: true })
 			.addBlankFields({ name: '', value: '', inline: true })
-			.addFields({ name: 'Account Created', value: `<t:${Math.round(member.user.createdTimestamp as number / 1000)}:R>`, inline: true })
+			.addBlankFields({ name: 'Account Created', value: `<t:${Math.round(member.user.createdTimestamp as number / 1000)}:R>`, inline: true })
 			.setFooter({ text: `User ID: ${member.user.id}` })
 			.setType(Events.GuildMemberAdd)
 			.setTimestamp(member.joinedTimestamp);
@@ -37,7 +37,7 @@ export class UserEvent extends Listener {
 
 			if (memberData && memberData.leaveTimes.length) {
 				const lastLeave: Date = memberData?.leaveTimes[memberData.leaveTimes.length - 1];
-				embed.addFields({ name: 'Left Server', value: `<t:${Math.round(lastLeave.getTime() as number / 1000)}:R>`, inline: false });
+				embed.addBlankFields({ name: 'Left Server', value: `<t:${Math.round(lastLeave.getTime() as number / 1000)}:R>`, inline: false });
 			}
 		}
 

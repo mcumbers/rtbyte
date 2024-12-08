@@ -30,11 +30,11 @@ export class UserEvent extends Listener {
 			.setFooter({ text: `Channel ID: ${channel.id}` })
 			.setType(Events.ChannelCreate);
 
-		if (channel.parent) embed.addFields({ name: 'In Category', value: channel.parent.name, inline: true });
+		if (channel.parent) embed.addBlankFields({ name: 'In Category', value: channel.parent.name, inline: true });
 
 		if (auditLogEntry) {
-			if (!isNullish(auditLogEntry.reason)) embed.addFields({ name: 'Reason', value: auditLogEntry.reason, inline: false });
-			if (!isNullish(auditLogEntry.executor)) embed.addFields({ name: 'Created By', value: auditLogEntry.executor.toString(), inline: false });
+			if (!isNullish(auditLogEntry.reason)) embed.addBlankFields({ name: 'Reason', value: auditLogEntry.reason, inline: false });
+			if (!isNullish(auditLogEntry.executor)) embed.addBlankFields({ name: 'Created By', value: auditLogEntry.executor.toString(), inline: false });
 		}
 
 
