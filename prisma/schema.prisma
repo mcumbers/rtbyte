@@ -351,6 +351,10 @@ model GuildSettingsModActions {
     vcKickLog        Boolean @default(true) @map("vckick_log")
     vcKickLogPublic  Boolean @default(false) @map("vckick_log_public")
 
+    // Warning Settings
+    warnLog       Boolean @default(true) @map("warn_log")
+    warnLogPublic Boolean @default(false) @map("warn_log_public")
+
     // Discord User Flags - Spammer
     flagSpammerAddNotifyUser    Boolean @default(false) @map("flag_spammer_add_notify_user")
     flagSpammerAddLog           Boolean @default(true) @map("flag_spammer_add_log")
@@ -376,6 +380,7 @@ model GuildSettingsModActions {
     antiInviteKick         Boolean @default(false) @map("anti_invite_kick_user")
     antiInviteMute         Boolean @default(false) @map("anti_invite_mute_user")
     antiInviteMuteDuration Int?    @map("anti_invite_mute_user_duration")
+    antiInviteWarn         Boolean @default(false) @map("anti_invite_warn_user")
 
     // Mention Spam Filter Settings
     mentionSpamNotifyUser   Boolean @default(true) @map("mention_spam_notify_user")
@@ -386,6 +391,7 @@ model GuildSettingsModActions {
     mentionSpamKick         Boolean @default(false) @map("mention_spam_kick_user")
     mentionSpamMute         Boolean @default(false) @map("mention_spam_mute_user")
     mentionSpamMuteDuration Int?    @map("mention_spam_mute_user_duration")
+    mentionSpamWarn         Boolean @default(false) @map("mention_spam_warn_user")
 
     // Chat Filter Settings
     filteredWordNotifyUser   Boolean @default(true) @map("filtered_word_notify_user")
@@ -396,6 +402,7 @@ model GuildSettingsModActions {
     filteredWordKick         Boolean @default(false) @map("filtered_word_kick_user")
     filteredWordMute         Boolean @default(false) @map("filtered_word_mute_user")
     filteredWordMuteDuration Int?    @map("filtered_word_mute_user_duration")
+    filteredWordWarn         Boolean @default(false) @map("filtered_word_warn_user")
 
     // Username/Nickname Filter Settings
     filteredNameNotifyUser       Boolean  @default(true) @map("filtered_name_notify_user")
@@ -407,11 +414,7 @@ model GuildSettingsModActions {
     filteredNameKick             Boolean  @default(false) @map("filtered_name_kick_user")
     filteredNameMute             Boolean  @default(false) @map("filtered_name_mute_user")
     filteredNameMuteDuration     Int?     @map("filtered_name_mute_user_duration")
-
-    // Warning Settings
-    warnNotifyUser Boolean @default(true) @map("warn_notify_user")
-    warnLog        Boolean @default(true) @map("warn_log")
-    warnLogPublic  Boolean @default(false) @map("warn_log_public")
+    filteredNameWarn             Boolean  @default(false) @map("filtered_name_warn_user")
 
     @@map("guildModActionSettings")
 }
@@ -426,6 +429,7 @@ enum ModActionType {
     VCBAN
     VCUNBAN
     VCKICK
+    WARN
     FILTER_CHAT
     FILTER_NAME
     FLAG_SPAMMER_ADD
@@ -441,6 +445,7 @@ model ModAction {
     type           ModActionType @map("action_type")
     targetID       String?       @map("target_id")
     executorID     String?       @map("executor_id")
+    anonymous      Boolean?      @map("anonymous")
     auditLogID     String?       @map("audit_log_id")
     channelID      String?       @map("channel_id")
     createdAt      DateTime      @map("created_time")

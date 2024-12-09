@@ -64,6 +64,7 @@ export class GuildLogEmbed extends BotEmbed {
 			case CustomEvents.ModActionUnmute:
 			case CustomEvents.ModActionFlagSpammerRemove:
 			case CustomEvents.ModActionFlagQuarantineRemove:
+			case CustomEvents.ModActionWarn:
 				this.setColor(Colors.Yellow);
 				break;
 		}

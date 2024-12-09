@@ -10,6 +10,7 @@ export enum CustomEvents {
 	ModActionMute = 'modActionMute',
 	ModActionUnmute = 'modActionUnmute',
 	ModActionVCKick = 'modActionVCKick',
+	ModActionWarn = 'modActionWarn',
 	ModActionFlagSpammerAdd = 'modActionFlagSpammerAdd',
 	ModActionFlagSpammerRemove = 'modActionFlagSpammerRemove',
 	ModActionFlagQuarantineAdd = 'modActionFlagQuarantineAdd',
