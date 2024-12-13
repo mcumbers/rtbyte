@@ -111,7 +111,15 @@ export class ModActionLogEmbed extends GuildLogEmbed {
 		}
 
 		if (modAction.reason) this.addBlankFields({ name: 'Reason', value: modAction.reason, inline: false });
-		if (modAction.executorID && (!modAction.anonymous && context === 'Target')) this.addBlankFields({ name: 'Banned By', value: executorMember ? executorMember.toString() : executor ? executor.toString() : `<@${modAction.executorID}>`, inline: false });
+
+		if (context === 'Moderator') {
+			if (modAction.executorID) this.addBlankFields({ name: 'Banned By', value: executorMember ? executorMember.toString() : executor ? executor.toString() : `<@${modAction.executorID}>`, inline: false });
+		}
+
+		if (context === 'Target' && !modAction.anonymous) {
+			if (modAction.executorID) this.addBlankFields({ name: 'Banned By', value: executorMember ? executorMember.toString() : executor ? executor.toString() : `<@${modAction.executorID}>`, inline: false });
+		}
+
 		if (modAction.details) this.addBlankFields({ name: 'Details', value: modAction.details, inline: false });
 		if (modAction.effectiveUntil) this.addBlankFields({ name: 'Banned Until', value: `<t:${Math.round(modAction.effectiveUntil.getTime() / 1000)}:R>`, inline: true });
 
@@ -145,7 +153,15 @@ export class ModActionLogEmbed extends GuildLogEmbed {
 		}
 
 		if (modAction.reason) this.addBlankFields({ name: 'Reason', value: modAction.reason, inline: false });
-		if (modAction.executorID && (!modAction.anonymous && context === 'Target')) this.addBlankFields({ name: 'Unbanned By', value: executorMember ? executorMember.toString() : executor ? executor.toString() : `<@${modAction.executorID}>`, inline: false });
+
+		if (context === 'Moderator') {
+			if (modAction.executorID) this.addBlankFields({ name: 'Unbanned By', value: executorMember ? executorMember.toString() : executor ? executor.toString() : `<@${modAction.executorID}>`, inline: false });
+		}
+
+		if (context === 'Target' && !modAction.anonymous) {
+			if (modAction.executorID) this.addBlankFields({ name: 'Unbanned By', value: executorMember ? executorMember.toString() : executor ? executor.toString() : `<@${modAction.executorID}>`, inline: false });
+		}
+
 		if (modAction.details) this.addBlankFields({ name: 'Details', value: modAction.details, inline: false });
 
 		return this;
@@ -164,7 +180,15 @@ export class ModActionLogEmbed extends GuildLogEmbed {
 		if (targetMember) this.addBlankFields({ name: 'Joined Server', value: `<t:${Math.round(targetMember?.joinedTimestamp as number / 1000)}:R>`, inline: true });
 
 		if (modAction.reason) this.addBlankFields({ name: 'Reason', value: modAction.reason, inline: false });
-		if (modAction.executorID && (!modAction.anonymous && context === 'Target')) this.addBlankFields({ name: 'Kicked By', value: executorMember ? executorMember.toString() : executor ? executor.toString() : `<@${modAction.executorID}>`, inline: false });
+
+		if (context === 'Moderator') {
+			if (modAction.executorID) this.addBlankFields({ name: 'Kicked By', value: executorMember ? executorMember.toString() : executor ? executor.toString() : `<@${modAction.executorID}>`, inline: false });
+		}
+
+		if (context === 'Target' && !modAction.anonymous) {
+			if (modAction.executorID) this.addBlankFields({ name: 'Kicked By', value: executorMember ? executorMember.toString() : executor ? executor.toString() : `<@${modAction.executorID}>`, inline: false });
+		}
+
 		if (modAction.details) this.addBlankFields({ name: 'Details', value: modAction.details, inline: false });
 
 		return this;
@@ -180,7 +204,14 @@ export class ModActionLogEmbed extends GuildLogEmbed {
 		this.setFooter({ text: `User ID: ${modAction.targetID}` });
 		this.setType(CustomEvents.ModActionMute);
 
-		if (modAction.executorID && (!modAction.anonymous && context === 'Target')) this.addBlankFields({ name: 'Timed Out By', value: executorMember ? executorMember.toString() : executor ? executor.toString() : `<@${modAction.executorID}>`, inline: true });
+		if (context === 'Moderator') {
+			if (modAction.executorID) this.addBlankFields({ name: 'Timed Out By', value: executorMember ? executorMember.toString() : executor ? executor.toString() : `<@${modAction.executorID}>`, inline: true });
+		}
+
+		if (context === 'Target' && !modAction.anonymous) {
+			if (modAction.executorID) this.addBlankFields({ name: 'Timed Out By', value: executorMember ? executorMember.toString() : executor ? executor.toString() : `<@${modAction.executorID}>`, inline: true });
+		}
+
 		if (modAction.effectiveUntil) this.addBlankFields({ name: 'Timed Out Until', value: `<t:${Math.round(modAction.effectiveUntil.getTime() / 1000)}:R>`, inline: true });
 		if (modAction.reason) this.addBlankFields({ name: 'Reason', value: modAction.reason, inline: false });
 		if (modAction.details) this.addBlankFields({ name: 'Details', value: modAction.details, inline: false });
@@ -213,7 +244,15 @@ export class ModActionLogEmbed extends GuildLogEmbed {
 		}
 
 		if (modAction.reason) this.addBlankFields({ name: 'Reason', value: modAction.reason, inline: false });
-		if (modAction.executorID && (!modAction.anonymous && context === 'Target')) this.addBlankFields({ name: 'Removed By', value: executorMember ? executorMember.toString() : executor ? executor.toString() : `<@${modAction.executorID}>`, inline: false });
+
+		if (context === 'Moderator') {
+			if (modAction.executorID) this.addBlankFields({ name: 'Removed By', value: executorMember ? executorMember.toString() : executor ? executor.toString() : `<@${modAction.executorID}>`, inline: false });
+		}
+
+		if (context === 'Target' && !modAction.anonymous) {
+			if (modAction.executorID) this.addBlankFields({ name: 'Removed By', value: executorMember ? executorMember.toString() : executor ? executor.toString() : `<@${modAction.executorID}>`, inline: false });
+		}
+
 		if (modAction.details) this.addBlankFields({ name: 'Details', value: modAction.details, inline: false });
 
 		return this;
@@ -227,7 +266,14 @@ export class ModActionLogEmbed extends GuildLogEmbed {
 		this.setType(CustomEvents.ModActionPurge);
 		this.addBlankFields({ name: 'In Channel', value: `<#${modAction.channelID}>`, inline: false });
 
-		if (modAction.executorID && (!modAction.anonymous && context === 'Target')) this.addBlankFields({ name: 'Deleted By', value: executorMember ? executorMember.toString() : executor ? executor.toString() : `<@${modAction.executorID}>`, inline: true });
+		if (context === 'Moderator') {
+			if (modAction.executorID) this.addBlankFields({ name: 'Deleted By', value: executorMember ? executorMember.toString() : executor ? executor.toString() : `<@${modAction.executorID}>`, inline: true });
+		}
+
+		if (context === 'Target' && !modAction.anonymous) {
+			if (modAction.executorID) this.addBlankFields({ name: 'Deleted By', value: executorMember ? executorMember.toString() : executor ? executor.toString() : `<@${modAction.executorID}>`, inline: true });
+		}
+
 		if (modAction.reason) this.addBlankFields({ name: 'Reason', value: modAction.reason, inline: false });
 		if (modAction.details) this.addBlankFields({ name: 'Details', value: modAction.details, inline: false });
 
@@ -252,7 +298,14 @@ export class ModActionLogEmbed extends GuildLogEmbed {
 			}
 		}
 
-		if (modAction.executorID && (!modAction.anonymous && context === 'Target')) this.addBlankFields({ name: 'Kicked By', value: executorMember ? executorMember.toString() : executor ? executor.toString() : `<@${modAction.executorID}>`, inline: true });
+		if (context === 'Moderator') {
+			if (modAction.executorID) this.addBlankFields({ name: 'Kicked By', value: executorMember ? executorMember.toString() : executor ? executor.toString() : `<@${modAction.executorID}>`, inline: true });
+		}
+
+		if (context === 'Target' && !modAction.anonymous) {
+			if (modAction.executorID) this.addBlankFields({ name: 'Kicked By', value: executorMember ? executorMember.toString() : executor ? executor.toString() : `<@${modAction.executorID}>`, inline: true });
+		}
+
 		if (modAction.reason) this.addBlankFields({ name: 'Reason', value: modAction.reason, inline: false });
 		if (modAction.details) this.addBlankFields({ name: 'Details', value: modAction.details, inline: false });
 
@@ -267,7 +320,14 @@ export class ModActionLogEmbed extends GuildLogEmbed {
 		this.setType(CustomEvents.ModActionWarn);
 		if (target) this.addBlankFields({ name: 'Username', value: target.username, inline: true })
 
-		if (modAction.executorID && (!modAction.anonymous && context === 'Target')) this.addBlankFields({ name: 'Warned By', value: executorMember ? executorMember.toString() : executor ? executor.toString() : `<@${modAction.executorID}>`, inline: true });
+		if (context === 'Moderator') {
+			if (modAction.executorID) this.addBlankFields({ name: 'Warned By', value: executorMember ? executorMember.toString() : executor ? executor.toString() : `<@${modAction.executorID}>`, inline: true });
+		}
+
+		if (context === 'Target' && !modAction.anonymous) {
+			if (modAction.executorID) this.addBlankFields({ name: 'Warned By', value: executorMember ? executorMember.toString() : executor ? executor.toString() : `<@${modAction.executorID}>`, inline: true });
+		}
+
 		if (modAction.reason) this.addBlankFields({ name: 'Reason', value: modAction.reason, inline: false });
 		if (modAction.details) this.addBlankFields({ name: 'Details', value: modAction.details, inline: false });
 		return this;

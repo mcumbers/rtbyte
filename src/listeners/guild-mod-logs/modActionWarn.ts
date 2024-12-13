@@ -15,7 +15,7 @@ export class UserEvent extends Listener {
 	public async run(event: ModActionWarnEvent) {
 		const { member, modAction } = event;
 
-		const embed = await new ModActionLogEmbed().fromModAction(modAction);
+		const embed = await new ModActionLogEmbed().fromModAction(modAction, 'Moderator');
 
 		const guildSettingsModActions = await this.container.prisma.guildSettingsModActions.fetch(member.guild.id);
 		if (!guildSettingsModActions || (!guildSettingsModActions.warnLog && !guildSettingsModActions.warnLogPublic)) return;
