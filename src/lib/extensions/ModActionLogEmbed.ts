@@ -85,7 +85,7 @@ export class ModActionLogEmbed extends GuildLogEmbed {
 		}
 	}
 
-	private async buildBanEmbed(modAction: ModAction, { target, executor, guild, guildPreview, targetMember, executorMember }: ModActionLogEmbedOptions) {
+	private async buildBanEmbed(modAction: ModAction, { target, executor, guild, guildPreview, targetMember, executorMember, context }: ModActionLogEmbedOptions) {
 		if (!modAction.targetID) return undefined;
 
 		this.setTitle('User Banned from Server');
@@ -111,14 +111,14 @@ export class ModActionLogEmbed extends GuildLogEmbed {
 		}
 
 		if (modAction.reason) this.addBlankFields({ name: 'Reason', value: modAction.reason, inline: false });
-		if (modAction.executorID) this.addBlankFields({ name: 'Banned By', value: executorMember ? executorMember.toString() : executor ? executor.toString() : `<@${modAction.executorID}>`, inline: false });
+		if (modAction.executorID && (!modAction.anonymous && context === 'Target')) this.addBlankFields({ name: 'Banned By', value: executorMember ? executorMember.toString() : executor ? executor.toString() : `<@${modAction.executorID}>`, inline: false });
 		if (modAction.details) this.addBlankFields({ name: 'Details', value: modAction.details, inline: false });
 		if (modAction.effectiveUntil) this.addBlankFields({ name: 'Banned Until', value: `<t:${Math.round(modAction.effectiveUntil.getTime() / 1000)}:R>`, inline: true });
 
 		return this;
 	}
 
-	private async buildUnbanEmbed(modAction: ModAction, { target, executor, guild, guildPreview, targetMember, executorMember }: ModActionLogEmbedOptions) {
+	private async buildUnbanEmbed(modAction: ModAction, { target, executor, guild, guildPreview, targetMember, executorMember, context }: ModActionLogEmbedOptions) {
 		if (!modAction.targetID) return undefined;
 
 		this.setTitle('User Unbanned from Server');
@@ -145,13 +145,13 @@ export class ModActionLogEmbed extends GuildLogEmbed {
 		}
 
 		if (modAction.reason) this.addBlankFields({ name: 'Reason', value: modAction.reason, inline: false });
-		if (modAction.executorID) this.addBlankFields({ name: 'Unbanned By', value: executorMember ? executorMember.toString() : executor ? executor.toString() : `<@${modAction.executorID}>`, inline: false });
+		if (modAction.executorID && (!modAction.anonymous && context === 'Target')) this.addBlankFields({ name: 'Unbanned By', value: executorMember ? executorMember.toString() : executor ? executor.toString() : `<@${modAction.executorID}>`, inline: false });
 		if (modAction.details) this.addBlankFields({ name: 'Details', value: modAction.details, inline: false });
 
 		return this;
 	}
 
-	private buildKickEmbed(modAction: ModAction, { target, executor, guild, guildPreview, targetMember, executorMember }: ModActionLogEmbedOptions) {
+	private buildKickEmbed(modAction: ModAction, { target, executor, guild, guildPreview, targetMember, executorMember, context }: ModActionLogEmbedOptions) {
 		if (!modAction.targetID) return undefined;
 
 		this.setTitle('User Kicked From Server');
@@ -164,13 +164,13 @@ export class ModActionLogEmbed extends GuildLogEmbed {
 		if (targetMember) this.addBlankFields({ name: 'Joined Server', value: `<t:${Math.round(targetMember?.joinedTimestamp as number / 1000)}:R>`, inline: true });
 
 		if (modAction.reason) this.addBlankFields({ name: 'Reason', value: modAction.reason, inline: false });
-		if (modAction.executorID) this.addBlankFields({ name: 'Kicked By', value: executorMember ? executorMember.toString() : executor ? executor.toString() : `<@${modAction.executorID}>`, inline: false });
+		if (modAction.executorID && (!modAction.anonymous && context === 'Target')) this.addBlankFields({ name: 'Kicked By', value: executorMember ? executorMember.toString() : executor ? executor.toString() : `<@${modAction.executorID}>`, inline: false });
 		if (modAction.details) this.addBlankFields({ name: 'Details', value: modAction.details, inline: false });
 
 		return this;
 	}
 
-	private buildMuteEmbed(modAction: ModAction, { target, executor, guild, guildPreview, targetMember, executorMember }: ModActionLogEmbedOptions) {
+	private buildMuteEmbed(modAction: ModAction, { target, executor, guild, guildPreview, targetMember, executorMember, context }: ModActionLogEmbedOptions) {
 		if (!modAction.targetID) return undefined;
 
 		this.setTitle('User Timed Out');
@@ -180,7 +180,7 @@ export class ModActionLogEmbed extends GuildLogEmbed {
 		this.setFooter({ text: `User ID: ${modAction.targetID}` });
 		this.setType(CustomEvents.ModActionMute);
 
-		if (modAction.executorID) this.addBlankFields({ name: 'Timed Out By', value: executorMember ? executorMember.toString() : executor ? executor.toString() : `<@${modAction.executorID}>`, inline: true });
+		if (modAction.executorID && (!modAction.anonymous && context === 'Target')) this.addBlankFields({ name: 'Timed Out By', value: executorMember ? executorMember.toString() : executor ? executor.toString() : `<@${modAction.executorID}>`, inline: true });
 		if (modAction.effectiveUntil) this.addBlankFields({ name: 'Timed Out Until', value: `<t:${Math.round(modAction.effectiveUntil.getTime() / 1000)}:R>`, inline: true });
 		if (modAction.reason) this.addBlankFields({ name: 'Reason', value: modAction.reason, inline: false });
 		if (modAction.details) this.addBlankFields({ name: 'Details', value: modAction.details, inline: false });
@@ -188,7 +188,7 @@ export class ModActionLogEmbed extends GuildLogEmbed {
 		return this;
 	}
 
-	private async buildUnmuteEmbed(modAction: ModAction, { target, executor, guild, guildPreview, targetMember, executorMember }: ModActionLogEmbedOptions) {
+	private async buildUnmuteEmbed(modAction: ModAction, { target, executor, guild, guildPreview, targetMember, executorMember, context }: ModActionLogEmbedOptions) {
 		if (!modAction.targetID) return undefined;
 
 		this.setTitle('User Timeout Removed');
@@ -213,13 +213,13 @@ export class ModActionLogEmbed extends GuildLogEmbed {
 		}
 
 		if (modAction.reason) this.addBlankFields({ name: 'Reason', value: modAction.reason, inline: false });
-		if (modAction.executorID) this.addBlankFields({ name: 'Removed By', value: executorMember ? executorMember.toString() : executor ? executor.toString() : `<@${modAction.executorID}>`, inline: false });
+		if (modAction.executorID && (!modAction.anonymous && context === 'Target')) this.addBlankFields({ name: 'Removed By', value: executorMember ? executorMember.toString() : executor ? executor.toString() : `<@${modAction.executorID}>`, inline: false });
 		if (modAction.details) this.addBlankFields({ name: 'Details', value: modAction.details, inline: false });
 
 		return this;
 	}
 
-	private buildPurgeEmbed(modAction: ModAction, { target, executor, guild, guildPreview, targetMember, executorMember }: ModActionLogEmbedOptions) {
+	private buildPurgeEmbed(modAction: ModAction, { target, executor, guild, guildPreview, targetMember, executorMember, context }: ModActionLogEmbedOptions) {
 		this.setTitle('Messages Purged');
 		this.setDescription(`${modAction.messageCount} Messages ${target ? `from ${target.toString()} ` : ''}Deleted`);
 		this.setThumbnail(targetMember ? targetMember.displayAvatarURL() : target ? target.avatarURL() : guild ? guild.iconURL() : guildPreview ? guildPreview.iconURL() : null);
@@ -227,14 +227,14 @@ export class ModActionLogEmbed extends GuildLogEmbed {
 		this.setType(CustomEvents.ModActionPurge);
 		this.addBlankFields({ name: 'In Channel', value: `<#${modAction.channelID}>`, inline: false });
 
-		if (modAction.executorID) this.addBlankFields({ name: 'Deleted By', value: executorMember ? executorMember.toString() : executor ? executor.toString() : `<@${modAction.executorID}>`, inline: true });
+		if (modAction.executorID && (!modAction.anonymous && context === 'Target')) this.addBlankFields({ name: 'Deleted By', value: executorMember ? executorMember.toString() : executor ? executor.toString() : `<@${modAction.executorID}>`, inline: true });
 		if (modAction.reason) this.addBlankFields({ name: 'Reason', value: modAction.reason, inline: false });
 		if (modAction.details) this.addBlankFields({ name: 'Details', value: modAction.details, inline: false });
 
 		return this;
 	}
 
-	private async buildVCKickEmbed(modAction: ModAction, { target, executor, guild, guildPreview, targetMember, executorMember }: ModActionLogEmbedOptions) {
+	private async buildVCKickEmbed(modAction: ModAction, { target, executor, guild, guildPreview, targetMember, executorMember, context }: ModActionLogEmbedOptions) {
 		this.setTitle('User Kicked From Voice Chat');
 		this.setDescription(`<@${modAction.targetID}>`);
 		this.setThumbnail(targetMember ? targetMember.displayAvatarURL() : target ? target.avatarURL() : guild ? guild.iconURL() : guildPreview ? guildPreview.iconURL() : null);
@@ -252,14 +252,14 @@ export class ModActionLogEmbed extends GuildLogEmbed {
 			}
 		}
 
-		if (modAction.executorID) this.addBlankFields({ name: 'Kicked By', value: executorMember ? executorMember.toString() : executor ? executor.toString() : `<@${modAction.executorID}>`, inline: true });
+		if (modAction.executorID && (!modAction.anonymous && context === 'Target')) this.addBlankFields({ name: 'Kicked By', value: executorMember ? executorMember.toString() : executor ? executor.toString() : `<@${modAction.executorID}>`, inline: true });
 		if (modAction.reason) this.addBlankFields({ name: 'Reason', value: modAction.reason, inline: false });
 		if (modAction.details) this.addBlankFields({ name: 'Details', value: modAction.details, inline: false });
 
 		return this;
 	}
 
-	private async buildWarnEmbed(modAction: ModAction, { target, executor, guild, guildPreview, targetMember, executorMember }: ModActionLogEmbedOptions) {
+	private async buildWarnEmbed(modAction: ModAction, { target, executor, guild, guildPreview, targetMember, executorMember, context }: ModActionLogEmbedOptions) {
 		this.setTitle('User Given a Warning');
 		this.setDescription(`<@${modAction.targetID}>`);
 		this.setThumbnail(targetMember ? targetMember.displayAvatarURL() : target ? target.avatarURL() : guild ? guild.iconURL() : guildPreview ? guildPreview.iconURL() : null);
@@ -267,7 +267,7 @@ export class ModActionLogEmbed extends GuildLogEmbed {
 		this.setType(CustomEvents.ModActionWarn);
 		if (target) this.addBlankFields({ name: 'Username', value: target.username, inline: true })
 
-		if (modAction.executorID) this.addBlankFields({ name: 'Warned By', value: executorMember ? executorMember.toString() : executor ? executor.toString() : `<@${modAction.executorID}>`, inline: true });
+		if (modAction.executorID && (!modAction.anonymous && context === 'Target')) this.addBlankFields({ name: 'Warned By', value: executorMember ? executorMember.toString() : executor ? executor.toString() : `<@${modAction.executorID}>`, inline: true });
 		if (modAction.reason) this.addBlankFields({ name: 'Reason', value: modAction.reason, inline: false });
 		if (modAction.details) this.addBlankFields({ name: 'Details', value: modAction.details, inline: false });
 		return this;
