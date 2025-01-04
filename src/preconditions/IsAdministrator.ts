@@ -28,9 +28,8 @@ export class HasModRolePrecondition extends Precondition {
 		return this.isAdmin(await isAdmin(member));
 	}
 
-	private async isAdmin(isAdmin: boolean) {
-		return isAdmin
-			? this.ok()
-			: this.error({ message: 'Only Administrators can use this command!' });
+	private isAdmin(isAdmin: boolean = false) {
+		if (isAdmin) return this.ok();
+		return this.error({ message: 'Only Administrators can use this command!' });
 	}
 }

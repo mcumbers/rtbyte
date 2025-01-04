@@ -12,7 +12,7 @@ export async function isAdmin(member: GuildMember) {
 }
 
 export async function isModerator(member: GuildMember) {
-	return isGuildOwner(member) || await hasAdminRole(member) || await hasModrole(member);
+	return isGuildOwner(member) || await hasModrole(member) || await hasAdminRole(member);
 }
 
 export async function hasModrole(member: GuildMember) {

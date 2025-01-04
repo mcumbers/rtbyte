@@ -28,9 +28,8 @@ export class HasModRolePrecondition extends Precondition {
 		return this.isModerator(await isModerator(member));
 	}
 
-	private async isModerator(isModerator: boolean) {
-		return isModerator
-			? this.ok()
-			: this.error({ message: 'Only Moderators can use this command!' });
+	private isModerator(isModerator: boolean = false) {
+		if (isModerator) return this.ok();
+		return this.error({ message: 'Only Moderators can use this command!' });
 	}
 }
