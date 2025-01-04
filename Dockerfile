@@ -1,5 +1,5 @@
-# Use Node v18
-FROM node:18.18
+# Use Node v23
+FROM node:23
 
 # Create app directory
 WORKDIR /usr/app
