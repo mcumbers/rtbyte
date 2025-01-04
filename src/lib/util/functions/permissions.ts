@@ -8,38 +8,27 @@ export function isGuildOwner(member: GuildMember) {
 }
 
 export async function isAdmin(member: GuildMember) {
-	return isGuildOwner(member) || hasAdminRole(member);
+	return isGuildOwner(member) || await hasAdminRole(member);
 }
 
 export async function isModerator(member: GuildMember) {
-	return isGuildOwner(member) || hasAdminRole(member) || hasModrole(member);
+	return isGuildOwner(member) || await hasAdminRole(member) || await hasModrole(member);
 }
 
 export async function hasModrole(member: GuildMember) {
 	const { prisma } = container;
 	const guildSettings = await prisma.guildSettings.fetch(member.guild.id);
+	const memberRoleIDs = new Set(member.roles.cache.keys().toArray());
 
-	let hasModRole = false;
-	if (guildSettings?.moderatorRoles) {
-		for await (const modRoleID of guildSettings?.moderatorRoles) {
-			if (member.roles.cache.has(modRoleID)) hasModRole = true;
-		}
-	}
-
-	return hasModRole;
+	return guildSettings?.moderatorRoles.some(id => memberRoleIDs.has(id)) || false;
 }
 
 export async function hasAdminRole(member: GuildMember) {
 	const { prisma } = container;
 	const guildSettings = await prisma.guildSettings.fetch(member.guild.id);
+	const memberRoleIDs = new Set(member.roles.cache.keys().toArray());
 
-	let hasAdminRole = false;
-	if (guildSettings?.adminRoles) {
-		for await (const adminRoleID of guildSettings?.adminRoles) {
-			if (member.roles.cache.has(adminRoleID)) hasAdminRole = true;
-		}
-	}
-	return hasAdminRole;
+	return guildSettings?.adminRoles.some(id => memberRoleIDs.has(id)) || false;
 }
 
 export function checkRoleHierarchy(member: GuildMember, executor: GuildMember) {
