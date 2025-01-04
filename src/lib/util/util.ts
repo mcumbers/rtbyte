@@ -133,7 +133,7 @@ export function getPermissionString(permission: string) {
 		case 'AttachFiles': return 'Attach files';
 		case 'AddReactions': return 'Add reactions';
 		case 'UseExternalEmojis': return 'Use external emoji';
-		case 'UseExternalStickers': return 'User external stickers';
+		case 'UseExternalStickers': return 'Use external stickers';
 		case 'MentionEveryone': return 'Mention @everyone, @here, and all roles';
 		case 'ManageMessages': return 'Manage messages';
 		case 'ManageThreads': return 'Manage threads';
@@ -155,7 +155,7 @@ export function getPermissionString(permission: string) {
 		case 'RequestToSpeak': return 'Request to speak';
 		case 'ManageEvents': return 'Manage events';
 		case 'Administrator': return 'Administrator';
-		default: return undefined;
+		default: return permission || undefined;
 	}
 }
 
