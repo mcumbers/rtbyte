@@ -3,7 +3,7 @@ import type { CommandRunEvent } from '#root/listeners/control-guild-logs/command
 import { CustomEvents } from '#utils/CustomTypes';
 import { ApplyOptions } from '@sapphire/decorators';
 import { type ChatInputCommand } from '@sapphire/framework';
-import { PermissionFlagsBits, type GuildMember } from 'discord.js';
+import { InteractionContextType, PermissionFlagsBits, type GuildMember } from 'discord.js';
 
 @ApplyOptions<ChatInputCommand.Options>({
 	description: 'Sends a message to the specified channel as the bot',
@@ -16,8 +16,8 @@ export class UserCommand extends BotCommand {
 			builder
 				.setName(this.name)
 				.setDescription(this.description)
+				.setContexts(InteractionContextType.Guild)
 				.setDefaultMemberPermissions(PermissionFlagsBits.ManageMessages)
-				.setDMPermission(false)
 				.addChannelOption((option) =>
 					option
 						.setName('channel')
