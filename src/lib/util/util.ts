@@ -155,6 +155,7 @@ export function getPermissionString(permission: string) {
 		case 'RequestToSpeak': return 'Request to speak';
 		case 'ManageEvents': return 'Manage events';
 		case 'Administrator': return 'Administrator';
+		case 'SendPolls': return 'Create Polls';
 		default: return permission || undefined;
 	}
 }
