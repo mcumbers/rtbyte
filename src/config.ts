@@ -1,7 +1,7 @@
 import { transformLoginData } from '#root/transformers/loginData';
 import { LogLevel } from '@sapphire/framework';
 import '@sapphire/plugin-hmr/register';
-import { GatewayIntentBits, OAuth2Scopes, Partials, type ClientOptions } from 'discord.js';
+import { ActivityType, GatewayIntentBits, OAuth2Scopes, Partials, type ClientOptions } from 'discord.js';
 import * as dotenv from "dotenv";
 dotenv.config();
 
@@ -39,8 +39,8 @@ export const CLIENT_OPTIONS: ClientOptions = {
 	presence: {
 		activities: [
 			{
-				name: '',
-				type: 3
+				name: PANEL_HOST ?? '',
+				type: ActivityType.Listening
 			}
 		]
 	},

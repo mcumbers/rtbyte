@@ -6,8 +6,7 @@ import { ApplyOptions } from '@sapphire/decorators';
 import type { ChatInputCommand } from '@sapphire/framework';
 
 @ApplyOptions<ChatInputCommand.Options>({
-	description: 'Check Bot\'s Ping',
-	preconditions: ['IsDeveloper']
+	description: 'Check Bot\'s Ping'
 })
 
 export class UserCommand extends BotCommand {
