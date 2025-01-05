@@ -8,11 +8,18 @@ export function isGuildOwner(member: GuildMember) {
 }
 
 export async function isAdmin(member: GuildMember) {
-	return isGuildOwner(member) || await hasAdminRole(member);
+	const isOwner = isGuildOwner(member);
+	const isAdmin = await hasAdminRole(member);
+
+	return isOwner || isAdmin;
 }
 
 export async function isModerator(member: GuildMember) {
-	return isGuildOwner(member) || await hasAdminRole(member) || await hasModrole(member);
+	const isOwner = isGuildOwner(member);
+	const isAdmin = await hasAdminRole(member);
+	const isMod = await hasModrole(member);
+
+	return isOwner || isAdmin || isMod;
 }
 
 export async function hasModrole(member: GuildMember) {
