@@ -44,6 +44,7 @@ export class HasAdminRolePrecondition extends Precondition {
 
 		const member = await interaction.guild.members.fetch(interaction.user.id).catch(() => undefined);
 		if (!member) return this.error({ message: 'Failed to fetch permissions for User' });
+
 		try {
 			const allowed = await isAdmin(member);
 			return this.result(allowed);

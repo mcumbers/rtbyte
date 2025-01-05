@@ -25,17 +25,17 @@ export async function isModerator(member: GuildMember) {
 export async function hasModrole(member: GuildMember) {
 	const { prisma } = container;
 	const guildSettings = await prisma.guildSettings.fetch(member.guild.id);
-	const memberRoleIDs = new Set(member.roles.cache.keys().toArray());
+	if (!guildSettings) throw new Error('Guild Settings do not exist in database.');
 
-	return guildSettings?.moderatorRoles.some(id => memberRoleIDs.has(id)) || false;
+	return member.roles.cache.hasAny(...guildSettings.moderatorRoles) || false;
 }
 
 export async function hasAdminRole(member: GuildMember) {
 	const { prisma } = container;
 	const guildSettings = await prisma.guildSettings.fetch(member.guild.id);
-	const memberRoleIDs = new Set(member.roles.cache.keys().toArray());
+	if (!guildSettings) throw new Error('Guild Settings do not exist in database.');
 
-	return guildSettings?.adminRoles.some(id => memberRoleIDs.has(id)) || false;
+	return member.roles.cache.hasAny(...guildSettings.adminRoles) || false;
 }
 
 export function checkRoleHierarchy(member: GuildMember, executor: GuildMember) {

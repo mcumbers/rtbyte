@@ -14,6 +14,7 @@ export class HasModRolePrecondition extends Precondition {
 
 		const member = await message.guild.members.fetch(message.author.id).catch(() => undefined);
 		if (!member) return this.error({ message: 'Failed to fetch permissions for User' });
+
 		try {
 			const allowed = await isModerator(member);
 			return this.result(allowed);
@@ -28,6 +29,7 @@ export class HasModRolePrecondition extends Precondition {
 
 		const member = await interaction.guild.members.fetch(interaction.user.id).catch(() => undefined);
 		if (!member) return this.error({ message: 'Failed to fetch permissions for User' });
+
 		try {
 			const allowed = await isModerator(member);
 			return this.result(allowed);
@@ -42,6 +44,7 @@ export class HasModRolePrecondition extends Precondition {
 
 		const member = await interaction.guild.members.fetch(interaction.user.id).catch(() => undefined);
 		if (!member) return this.error({ message: 'Failed to fetch permissions for User' });
+
 		try {
 			const allowed = await isModerator(member);
 			return this.result(allowed);
