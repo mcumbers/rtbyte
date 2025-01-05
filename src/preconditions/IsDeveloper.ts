@@ -27,6 +27,7 @@ export class DevOnlyPrecondition extends Precondition {
 				? this.ok()
 				: this.error({ message: 'Only the bot developers can use this command!' });
 		} catch (error) {
+			this.container.logger.error(error);
 			return this.error({ message: 'Failed to verify Bot Developers from the database' });
 		}
 	}

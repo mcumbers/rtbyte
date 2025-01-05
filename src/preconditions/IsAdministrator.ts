@@ -19,6 +19,7 @@ export class HasAdminRolePrecondition extends Precondition {
 			const allowed = await isAdmin(member);
 			return this.result(allowed);
 		} catch (error) {
+			this.container.logger.error(error);
 			return this.error({ message: 'Failed to verify Admin Roles from the database' });
 		}
 	}
@@ -33,6 +34,7 @@ export class HasAdminRolePrecondition extends Precondition {
 			const allowed = await isAdmin(member);
 			return this.result(allowed);
 		} catch (error) {
+			this.container.logger.error(error);
 			return this.error({ message: 'Failed to verify Admin Roles from the database' });
 		}
 	}
@@ -46,6 +48,7 @@ export class HasAdminRolePrecondition extends Precondition {
 			const allowed = await isAdmin(member);
 			return this.result(allowed);
 		} catch (error) {
+			this.container.logger.error(error);
 			return this.error({ message: 'Failed to verify Admin Roles from the database' });
 		}
 	}

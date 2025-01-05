@@ -18,6 +18,7 @@ export class HasModRolePrecondition extends Precondition {
 			const allowed = await isModerator(member);
 			return this.result(allowed);
 		} catch (error) {
+			this.container.logger.error(error);
 			return this.error({ message: 'Failed to verify Moderator Roles from the database' });
 		}
 	}
@@ -31,6 +32,7 @@ export class HasModRolePrecondition extends Precondition {
 			const allowed = await isModerator(member);
 			return this.result(allowed);
 		} catch (error) {
+			this.container.logger.error(error);
 			return this.error({ message: 'Failed to verify Moderator Roles from the database' });
 		}
 	}
@@ -44,6 +46,7 @@ export class HasModRolePrecondition extends Precondition {
 			const allowed = await isModerator(member);
 			return this.result(allowed);
 		} catch (error) {
+			this.container.logger.error(error);
 			return this.error({ message: 'Failed to verify Moderator Roles from the database' });
 		}
 	}
